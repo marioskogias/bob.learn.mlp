@@ -20,7 +20,7 @@ static PyMethodDef module_methods[] = {
     {0}  /* Sentinel */
 };
 
-PyDoc_STRVAR(module_docstr, "bob::machine's multi-layer perceptron machine and trainers");
+PyDoc_STRVAR(module_docstr, "bob's multi-layer perceptron machine and trainers");
 
 int PyXbobLearnMLP_APIVersion = XBOB_LEARN_MLP_API_VERSION;
 
@@ -39,12 +39,6 @@ static PyObject* create_module (void) {
 
   PyBobLearnMLPMachine_Type.tp_new = PyType_GenericNew;
   if (PyType_Ready(&PyBobLearnMLPMachine_Type) < 0) return 0;
-
-  PyBobLearnMLPPCATrainer_Type.tp_new = PyType_GenericNew;
-  if (PyType_Ready(&PyBobLearnMLPPCATrainer_Type) < 0) return 0;
-
-  PyBobLearnMLPFisherLDATrainer_Type.tp_new = PyType_GenericNew;
-  if (PyType_Ready(&PyBobLearnMLPFisherLDATrainer_Type) < 0) return 0;
 
 # if PY_VERSION_HEX >= 0x03000000
   PyObject* m = PyModule_Create(&module_definition);
@@ -81,14 +75,6 @@ static PyObject* create_module (void) {
   PyXbobLearnMLP_API[PyBobLearnMLPMachine_Check_NUM] = (void *)&PyBobLearnMLPMachine_Check;
 
   PyXbobLearnMLP_API[PyBobLearnMLPMachine_NewFromSize_NUM] = (void *)&PyBobLearnMLPMachine_NewFromSize;
-
-  /************************************************
-   * Bindings for xbob.learn.mlp.FisherLDATrainer *
-   ************************************************/
-
-  PyXbobLearnMLP_API[PyBobLearnMLPFisherLDATrainer_Type_NUM] = (void *)&PyBobLearnMLPFisherLDATrainer_Type;
-
-  PyXbobLearnMLP_API[PyBobLearnMLPFisherLDATrainer_Check_NUM] = (void *)&PyBobLearnMLPFisherLDATrainer_Check;
 
 #if PY_VERSION_HEX >= 0x02070000
 

@@ -35,7 +35,7 @@ a global activation function. References to fully-connected\n\
 feed-forward networks:\n\
 \n\
   Bishop's Pattern Recognition and Machine Learning, Chapter 5.\n\
-  Figure 5.1 shows what we mean.\n\n
+  Figure 5.1 shows what we mean.\n\
 \n\
 MLPs normally are multi-layered systems, with 1 or more hidden\n\
 layers. As a special case, this implementation also supports\n\
@@ -78,7 +78,7 @@ static int PyBobLearnMLPMachine_init_sizes
 
   while (PyObject* item = PyIter_Next(iterator)) {
     auto item_ = make_safe(item);
-    Py_ssize_t value = PyNumber_AsSsize_t(item);
+    Py_ssize_t value = PyNumber_AsSsize_t(item, PyExc_OverflowError);
     if (PyErr_Occurred()) return -1;
     cxx_shape.push_back(value);
   }
@@ -114,7 +114,7 @@ static int PyBobLearnMLPMachine_init_hdf5(PyBobLearnMLPMachineObject* self,
   auto h5f = reinterpret_cast<PyBobIoHDF5FileObject*>(config);
 
   try {
-    self->cxx = new bob::machine::LinearMachine(*(h5f->f));
+    self->cxx = new bob::machine::MLP(*(h5f->f));
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
@@ -144,7 +144,7 @@ static int PyBobLearnMLPMachine_init_copy
   auto copy = reinterpret_cast<PyBobLearnMLPMachineObject*>(other);
 
   try {
-    self->cxx = new bob::machine::LinearMachine(*(copy->cxx));
+    self->cxx = new bob::machine::MLP(*(copy->cxx));
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
@@ -186,7 +186,7 @@ static int PyBobLearnMLPMachine_init(PyBobLearnMLPMachineObject* self,
           return PyBobLearnMLPMachine_init_copy(self, args, kwds);
         }
 
-        if (PyIter_Check(arg)) {
+        if (PyIter_Check(arg) || PySequence_Check(arg)) {
           return PyBobLearnMLPMachine_init_sizes(self, args, kwds);
         }
 
@@ -260,8 +260,8 @@ static PyObject* PyBobLearnMLPMachine_getWeights
   if (!retval) return 0;
   auto retval_ = make_safe(retval);
 
-  int k;
-  for (auto i=weights.begin(), k=0; i!=weights.end(); ++i, ++k) {
+  int k=0;
+  for (auto i=weights.begin(); i!=weights.end(); ++i, ++k) {
     PyObject* tmp = PyBlitzArray_NUMPY_WRAP(PyBlitzArrayCxx_NewFromConstArray(*i));
     if (!tmp) return 0;
     PyTuple_SET_ITEM(retval, k, tmp);
@@ -275,7 +275,7 @@ static PyObject* PyBobLearnMLPMachine_getWeights
 static int PyBobLearnMLPMachine_setWeights (PyBobLearnMLPMachineObject* self,
     PyObject* weights, void* /*closure*/) {
 
-  if (!PyIter_Check(weights)) {
+  if (!PyIter_Check(weights) && !PySequence_Check(weights)) {
     PyErr_Format(PyExc_TypeError, "setting attribute `weights' of `%s' requires an iterable, but you passed `%s' which does not implement the iterator protocol", Py_TYPE(self)->tp_name, Py_TYPE(weights)->tp_name);
     return -1;
   }
@@ -340,8 +340,8 @@ static PyObject* PyBobLearnMLPMachine_getBiases
   if (!retval) return 0;
   auto retval_ = make_safe(retval);
 
-  int k;
-  for (auto i=biases.begin(), k=0; i!=biases.end(); ++i, ++k) {
+  int k=0;
+  for (auto i=biases.begin(); i!=biases.end(); ++i, ++k) {
     PyObject* tmp = PyBlitzArray_NUMPY_WRAP(PyBlitzArrayCxx_NewFromConstArray(*i));
     if (!tmp) return 0;
     PyTuple_SET_ITEM(retval, k, tmp);
@@ -355,13 +355,13 @@ static PyObject* PyBobLearnMLPMachine_getBiases
 static int PyBobLearnMLPMachine_setBiases (PyBobLearnMLPMachineObject* self,
     PyObject* biases, void* /*closure*/) {
 
-  if (!PyIter_Check(biases)) {
+  if (!PyIter_Check(biases) && !PySequence_Check(biases)) {
     PyErr_Format(PyExc_TypeError, "setting attribute `biases' of `%s' requires an iterable, but you passed `%s' which does not implement the iterator protocol", Py_TYPE(self)->tp_name, Py_TYPE(biases)->tp_name);
     return -1;
   }
 
   /* Checks and converts all entries */
-  std::vector<blitz::Array<double,2> > biases_seq;
+  std::vector<blitz::Array<double,1> > biases_seq;
   std::vector<boost::shared_ptr<PyBlitzArrayObject>> biases_seq_;
 
   PyObject* iterator = PyObject_GetIter(biases);
@@ -385,13 +385,13 @@ static int PyBobLearnMLPMachine_setBiases (PyBobLearnMLPMachineObject* self,
     }
 
     biases_seq_.push_back(make_safe(bz)); ///< prevents data deletion
-    biases_seq.push_back(*PyBlitzArrayCxx_AsBlitz<double,2>(bz)); ///< only a view!
+    biases_seq.push_back(*PyBlitzArrayCxx_AsBlitz<double,1>(bz)); ///< only a view!
   }
 
   if (PyErr_Occurred()) return -1;
 
   try {
-    self->cxx->setBiases(*PyBlitzArrayCxx_AsBlitz<double,1>(biases_seq));
+    self->cxx->setBiases(biases_seq);
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
@@ -501,37 +501,44 @@ static PyObject* PyBobLearnMLPMachine_getShape
   if (!retval) return 0;
   auto retval_ = make_safe(retval);
 
-  PyTuple_SET_ITEM(retval, 0, Py_BuildValue("n", self->cxx->inputSize()));
+  //fills in all the layers
+  Py_ssize_t k = 0;
 
-  //STOPPED HERE!
+  PyTuple_SET_ITEM(retval, k++, Py_BuildValue("n", self->cxx->inputSize()));
 
-  return Py_BuildValue("(nn)", self->cxx->inputSize(),
-      self->cxx->outputSize());
+  auto biases = self->cxx->getBiases();
+  for (auto i=biases.begin(); i!=biases.end(); ++i, ++k) {
+    PyTuple_SET_ITEM(retval, k, Py_BuildValue("n", i->extent(0)));
+  }
+
+  Py_INCREF(retval);
+  return retval;
 }
 
 static int PyBobLearnMLPMachine_setShape
 (PyBobLearnMLPMachineObject* self, PyObject* o, void* /*closure*/) {
 
   if (!PySequence_Check(o)) {
-    PyErr_Format(PyExc_TypeError, "`%s' shape can only be set using tuples (or sequences), not `%s'", Py_TYPE(self)->tp_name, Py_TYPE(o)->tp_name);
+    PyErr_Format(PyExc_TypeError, "`%s' shape can only be set using sequences, not `%s'", Py_TYPE(self)->tp_name, Py_TYPE(o)->tp_name);
     return -1;
   }
 
-  PyObject* shape = PySequence_Tuple(o);
-  auto shape_ = make_safe(shape);
+  /* Iterate and extracts the shape */
+  std::vector<size_t> cxx_shape;
 
-  if (PyTuple_GET_SIZE(shape) != 2) {
-    PyErr_Format(PyExc_RuntimeError, "`%s' shape can only be set using  2-position tuples (or sequences), not an %" PY_FORMAT_SIZE_T "d-position sequence", Py_TYPE(self)->tp_name, PyTuple_GET_SIZE(shape));
-    return -1;
+  PyObject* iterator = PyObject_GetIter(o);
+  if (!iterator) return -1;
+  auto iterator_ = make_safe(iterator);
+
+  while (PyObject* item = PyIter_Next(iterator)) {
+    auto item_ = make_safe(item);
+    Py_ssize_t value = PyNumber_AsSsize_t(item, PyExc_OverflowError);
+    if (PyErr_Occurred()) return -1;
+    cxx_shape.push_back(value);
   }
-
-  Py_ssize_t in = PyNumber_AsSsize_t(PyTuple_GET_ITEM(shape, 0), PyExc_OverflowError);
-  if (PyErr_Occurred()) return -1;
-  Py_ssize_t out = PyNumber_AsSsize_t(PyTuple_GET_ITEM(shape, 1), PyExc_OverflowError);
-  if (PyErr_Occurred()) return -1;
 
   try {
-    self->cxx->resize(in, out);
+    self->cxx->resize(cxx_shape);
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
@@ -546,28 +553,54 @@ static int PyBobLearnMLPMachine_setShape
 
 }
 
-PyDoc_STRVAR(s_activation_str, "activation");
-PyDoc_STRVAR(s_activation_doc,
-"The activation function - by default, the identity function.\n\
-The output provided by the activation function is passed,\n\
-unchanged, to the user.\n\
+PyDoc_STRVAR(s_hidden_activation_str, "hidden_activation");
+PyDoc_STRVAR(s_hidden_activation_doc,
+"The hidden neurons activation function - by default, the\n\
+hyperbolic tangent function. The current implementation only\n\
+allows setting one global value for all hidden layers.\n\
 ");
 
-static PyObject* PyBobLearnMLPMachine_getActivation
+static PyObject* PyBobLearnMLPMachine_getHiddenActivation
 (PyBobLearnMLPMachineObject* self, void* /*closure*/) {
-  return PyBobLearnActivation_NewFromActivation(self->cxx->getActivation());
+  return PyBobLearnActivation_NewFromActivation(self->cxx->getHiddenActivation());
 }
 
-static int PyBobLearnMLPMachine_setActivation
+static int PyBobLearnMLPMachine_setHiddenActivation
 (PyBobLearnMLPMachineObject* self, PyObject* o, void* /*closure*/) {
 
   if (!PyBobLearnActivation_Check(o)) {
-    PyErr_Format(PyExc_TypeError, "%s activation requires an object of type `Activation' (or an inherited type), not `%s'", Py_TYPE(self)->tp_name, Py_TYPE(o)->tp_name);
+    PyErr_Format(PyExc_TypeError, "%s hidden activation requires an object of type `Activation' (or an inherited type), not `%s'", Py_TYPE(self)->tp_name, Py_TYPE(o)->tp_name);
     return -1;
   }
 
   auto py = reinterpret_cast<PyBobLearnActivationObject*>(o);
-  self->cxx->setActivation(py->cxx);
+  self->cxx->setHiddenActivation(py->cxx);
+  return 0;
+
+}
+
+PyDoc_STRVAR(s_output_activation_str, "output_activation");
+PyDoc_STRVAR(s_output_activation_doc,
+"The output activation function - by default, the hyperbolic\n\
+tangent function. The output provided by the output activation\n\
+function is passed, unchanged, to the user.\n\
+");
+
+static PyObject* PyBobLearnMLPMachine_getOutputActivation
+(PyBobLearnMLPMachineObject* self, void* /*closure*/) {
+  return PyBobLearnActivation_NewFromActivation(self->cxx->getOutputActivation());
+}
+
+static int PyBobLearnMLPMachine_setOutputActivation
+(PyBobLearnMLPMachineObject* self, PyObject* o, void* /*closure*/) {
+
+  if (!PyBobLearnActivation_Check(o)) {
+    PyErr_Format(PyExc_TypeError, "%s output activation requires an object of type `Activation' (or an inherited type), not `%s'", Py_TYPE(self)->tp_name, Py_TYPE(o)->tp_name);
+    return -1;
+  }
+
+  auto py = reinterpret_cast<PyBobLearnActivationObject*>(o);
+  self->cxx->setOutputActivation(py->cxx);
   return 0;
 
 }
@@ -609,10 +642,17 @@ static PyGetSetDef PyBobLearnMLPMachine_getseters[] = {
       0
     },
     {
-      s_activation_str,
-      (getter)PyBobLearnMLPMachine_getActivation,
-      (setter)PyBobLearnMLPMachine_setActivation,
-      s_activation_doc,
+      s_hidden_activation_str,
+      (getter)PyBobLearnMLPMachine_getHiddenActivation,
+      (setter)PyBobLearnMLPMachine_setHiddenActivation,
+      s_hidden_activation_doc,
+      0
+    },
+    {
+      s_output_activation_str,
+      (getter)PyBobLearnMLPMachine_getOutputActivation,
+      (setter)PyBobLearnMLPMachine_setOutputActivation,
+      s_output_activation_doc,
       0
     },
     {0}  /* Sentinel */
@@ -629,12 +669,8 @@ PyObject* PyBobLearnMLPMachine_Repr(PyBobLearnMLPMachineObject* self) {
   /**
    * Expected output:
    *
-   * <xbob.learn.linear.Machine float64@(3, 2) [act: f(z) = tanh(z)]>
+   * <xbob.learn.linear.MLP float64@(3, 5, 2) [hidden: f(z) = tanh(z), out: f(z) = * tanh(z)]>
    */
-
-  using bob::machine::IdentityActivation;
-
-  static const std::string identity_str = IdentityActivation().str();
 
   auto weights = make_safe(PyBobLearnMLPMachine_getWeights(self, 0));
   if (!weights) return 0;
@@ -645,89 +681,19 @@ PyObject* PyBobLearnMLPMachine_Repr(PyBobLearnMLPMachineObject* self) {
 
   PyObject* retval = 0;
 
-  if (self->cxx->getActivation()->str() == identity_str) {
-    retval = PyUnicode_FromFormat("<%s %U@%U>",
-        Py_TYPE(self)->tp_name, dtype_str.get(), shape_str.get());
-  }
+  auto hidden = self->cxx->getHiddenActivation()->str();
+  auto output = self->cxx->getOutputActivation()->str();
 
+  if (hidden == output) {
+    retval = PyUnicode_FromFormat("<%s %s@%s [act: %s]>",
+        Py_TYPE(self)->tp_name, dtype_str.get(), shape_str.get(),
+        hidden.c_str());
+  }
   else {
     retval = PyUnicode_FromFormat("<%s %s@%s [act: %s]>",
         Py_TYPE(self)->tp_name, dtype_str.get(), shape_str.get(),
-        self->cxx->getActivation()->str().c_str());
+        hidden.c_str(), output.c_str());
   }
-
-#if PYTHON_VERSION_HEX < 0x03000000
-  if (!retval) return 0;
-  PyObject* tmp = PyObject_Str(retval);
-  Py_DECREF(retval);
-  retval = tmp;
-#endif
-
-  return retval;
-
-}
-
-PyObject* PyBobLearnMLPMachine_Str(PyBobLearnMLPMachineObject* self) {
-
-  /**
-   * Expected output:
-   *
-   * xbob.learn.linear.Machine (float64) 3 inputs, 2 outputs [act: f(z) = C*z]
-   *  subtract: [ 0.   0.5  0.5]
-   *  divide: [ 0.5  1.   1. ]
-   *  bias: [ 0.3 -3. ]
-   *  [[ 0.4  0.1]
-   *  [ 0.4  0.2]
-   *  [ 0.2  0.7]]
-   */
-
-  using bob::machine::IdentityActivation;
-
-  static const std::string identity_str = IdentityActivation().str();
-
-  boost::shared_ptr<PyObject> act;
-  if (self->cxx->getActivation()->str() != identity_str) {
-    act = make_safe(PyUnicode_FromFormat(" [act: %s]",
-          self->cxx->getActivation()->str().c_str()));
-  }
-  else act = make_safe(PyUnicode_FromString(""));
-
-  boost::shared_ptr<PyObject> sub;
-  if (blitz::any(self->cxx->getInputSubtraction())) {
-    auto t = make_safe(PyBobLearnMLPMachine_getInputSubtraction(self, 0));
-    auto t_str = make_safe(PYOBJECT_STR(t.get()));
-    sub = make_safe(PyUnicode_FromFormat("\n subtract: %U", t_str.get()));
-  }
-  else sub = make_safe(PyUnicode_FromString(""));
-
-  boost::shared_ptr<PyObject> div;
-  if (blitz::any(self->cxx->getInputDivision())) {
-    auto t = make_safe(PyBobLearnMLPMachine_getInputDivision(self, 0));
-    auto t_str = make_safe(PYOBJECT_STR(t.get()));
-    div = make_safe(PyUnicode_FromFormat("\n divide: %U", t_str.get()));
-  }
-  else div = make_safe(PyUnicode_FromString(""));
-
-  boost::shared_ptr<PyObject> bias;
-  if (blitz::any(self->cxx->getBiases())) {
-    auto t = make_safe(PyBobLearnMLPMachine_getBiases(self, 0));
-    auto t_str = make_safe(PYOBJECT_STR(t.get()));
-    bias = make_safe(PyUnicode_FromFormat("\n bias: %U", t_str.get()));
-  }
-  else bias = make_safe(PyUnicode_FromString(""));
-
-  auto weights = make_safe(PyBobLearnMLPMachine_getWeights(self, 0));
-  if (!weights) return 0;
-  auto weights_str = make_safe(PYOBJECT_STR(weights.get()));
-  auto dtype = make_safe(PyObject_GetAttrString(weights.get(), "dtype"));
-  auto dtype_str = make_safe(PYOBJECT_STR(dtype.get()));
-  auto shape = make_safe(PyObject_GetAttrString(weights.get(), "shape"));
-
-  PyObject* retval = PyUnicode_FromFormat("%s (%U) %" PY_FORMAT_SIZE_T "d inputs, %" PY_FORMAT_SIZE_T "d outputs%U%U%U%U\n %U",
-    Py_TYPE(self)->tp_name, dtype_str.get(),
-    PyNumber_AsSsize_t(PyTuple_GET_ITEM(shape.get(), 0), PyExc_OverflowError),
-    PyNumber_AsSsize_t(PyTuple_GET_ITEM(shape.get(), 1), PyExc_OverflowError),
-    act.get(), sub.get(), div.get(), bias.get(), weights_str.get());
 
 #if PYTHON_VERSION_HEX < 0x03000000
   if (!retval) return 0;
@@ -944,8 +910,7 @@ PyDoc_STRVAR(s_is_similar_to_str, "is_similar_to");
 PyDoc_STRVAR(s_is_similar_to_doc,
 "o.is_similar_to(other [, r_epsilon=1e-5 [, a_epsilon=1e-8]]) -> bool\n\
 \n\
-Compares this LinearMachine with the ``other`` one to be\n\
-approximately the same.\n\
+Compares this MLP with the ``other`` one to be approximately the same.\n\
 \n\
 The optional values ``r_epsilon`` and ``a_epsilon`` refer to the\n\
 relative and absolute precision for the ``weights``, ``biases``\n\
@@ -977,67 +942,6 @@ static PyObject* PyBobLearnMLPMachine_IsSimilarTo
 
 }
 
-PyDoc_STRVAR(s_resize_str, "resize");
-PyDoc_STRVAR(s_resize_doc,
-"o.resize(input, output) -> None\n\
-\n\
-Resizes the machine. If either the input or output increases\n\
-in size, the weights and other factors should be considered\n\
-uninitialized. If the size is preserved or reduced, already\n\
-initialized values will not be changed.\n\
-\n\
-.. note::\n\
-\n\
-   Use this method to force data compression. All will work\n\
-   out given most relevant factors to be preserved are\n\
-   organized on the top of the weight matrix. In this way,\n\
-   reducing the system size will supress less relevant\n\
-   projections.\n\
-\n\
-");
-
-static PyObject* PyBobLearnMLPMachine_Resize
-(PyBobLearnMLPMachineObject* self, PyObject* args, PyObject* kwds) {
-
-  /* Parses input arguments in a single shot */
-  static const char* const_kwlist[] = {"shape", 0};
-  static char** kwlist = const_cast<char**>(const_kwlist);
-
-  PyObject* shape = 0;
-
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist,
-        &shape)) return -1;
-
-  /* Iterate and extracts the shape */
-  std::vector<size_t> cxx_shape;
-
-  PyObject* iterator = PyObject_GetIter(shape);
-  if (!iterator) return -1;
-  auto iterator_ = make_safe(iterator);
-
-  while (PyObject* item = PyIter_Next(iterator)) {
-    auto item_ = make_safe(item);
-    Py_ssize_t value = PyNumber_AsSsize_t(item);
-    if (PyErr_Occurred()) return -1;
-    cxx_shape.push_back(value);
-  }
-
-  try {
-    self->cxx->resize(cxx_shape);
-  }
-  catch (std::exception& ex) {
-    PyErr_SetString(PyExc_RuntimeError, ex.what());
-    return 0;
-  }
-  catch (...) {
-    PyErr_Format(PyExc_RuntimeError, "cannot resize object of type `%s' - unknown exception thrown", Py_TYPE(self)->tp_name);
-    return 0;
-  }
-
-  Py_RETURN_NONE;
-
-}
-
 static PyMethodDef PyBobLearnMLPMachine_methods[] = {
   {
     s_forward_str,
@@ -1063,12 +967,6 @@ static PyMethodDef PyBobLearnMLPMachine_methods[] = {
     METH_VARARGS|METH_KEYWORDS,
     s_is_similar_to_doc
   },
-  {
-    s_resize_str,
-    (PyCFunction)PyBobLearnMLPMachine_Resize,
-    METH_VARARGS|METH_KEYWORDS,
-    s_resize_doc
-  },
   {0} /* Sentinel */
 };
 
@@ -1090,7 +988,7 @@ PyObject* PyBobLearnMLPMachine_NewFromSize
 
   PyBobLearnMLPMachineObject* retval = (PyBobLearnMLPMachineObject*)PyBobLearnMLPMachine_new(&PyBobLearnMLPMachine_Type, 0, 0);
 
-  retval->cxx = new bob::machine::LinearMachine(input, output);
+  retval->cxx = new bob::machine::MLP(input, output);
 
   return reinterpret_cast<PyObject*>(retval);
 
@@ -1112,7 +1010,7 @@ PyTypeObject PyBobLearnMLPMachine_Type = {
     0,                                             /* tp_as_mapping */
     0,                                             /* tp_hash */
     (ternaryfunc)PyBobLearnMLPMachine_forward,     /* tp_call */
-    (reprfunc)PyBobLearnMLPMachine_Str,            /* tp_str */
+    (reprfunc)PyBobLearnMLPMachine_Repr,           /* tp_str */
     0,                                             /* tp_getattro */
     0,                                             /* tp_setattro */
     0,                                             /* tp_as_buffer */
