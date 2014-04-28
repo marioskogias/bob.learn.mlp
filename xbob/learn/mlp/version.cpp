@@ -24,6 +24,7 @@
 #include <xbob.io/config.h>
 #include <xbob.learn.activation/config.h>
 #include <xbob.learn.mlp/config.h>
+#include <xbob.core/config.h>
 
 static int dict_set(PyObject* d, const char* key, const char* value) {
   PyObject* v = Py_BuildValue("s", value);
@@ -113,7 +114,14 @@ static PyObject* xbob_io_version() {
 }
 
 /**
- * xbob.io c/c++ api version
+ * xbob.core c/c++ api version
+ */
+static PyObject* xbob_core_version() {
+  return Py_BuildValue("{ss}", "api", BOOST_PP_STRINGIZE(XBOB_CORE_API_VERSION));
+}
+
+/**
+ * xbob.learn.activation c/c++ api version
  */
 static PyObject* xbob_learn_activation_version() {
   return Py_BuildValue("{ss}", "api", BOOST_PP_STRINGIZE(XBOB_LEARN_ACTIVATION_API_VERSION));
@@ -132,6 +140,7 @@ static PyObject* build_version_dictionary() {
   if (!dict_steal(retval, "NumPy", numpy_version())) return 0;
   if (!dict_steal(retval, "xbob.blitz", xbob_blitz_version())) return 0;
   if (!dict_steal(retval, "xbob.io", xbob_io_version())) return 0;
+  if (!dict_steal(retval, "xbob.core", xbob_core_version())) return 0;
   if (!dict_steal(retval, "xbob.learn.activation", xbob_learn_activation_version())) return 0;
   if (!dict_steal(retval, "Bob", bob_version())) return 0;
 
@@ -178,7 +187,7 @@ static PyObject* create_module (void) {
   if (!externals) return 0;
   if (PyModule_AddObject(m, "externals", externals) < 0) return 0;
 
-  /* imports xbob.io C-API + dependencies */
+  /* imports xbob.blitz C-API + dependencies */
   if (import_xbob_blitz() < 0) return 0;
 
   Py_INCREF(m);

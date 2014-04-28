@@ -15,6 +15,7 @@
 #include <xbob.blitz/cleanup.h>
 #include <xbob.io/api.h>
 #include <xbob.learn.activation/api.h>
+#include <xbob.core/random.h>
 
 static PyMethodDef module_methods[] = {
     {0}  /* Sentinel */
@@ -91,10 +92,30 @@ static PyObject* create_module (void) {
 
   if (c_api_object) PyModule_AddObject(m, "_C_API", c_api_object);
 
-  /* imports xbob.learn.activation C-API + dependencies */
-  if (import_xbob_blitz() < 0) return 0;
-  if (import_xbob_io() < 0) return 0;
-  if (import_xbob_learn_activation() < 0) return 0;
+  /* imports dependencies */
+  if (import_xbob_blitz() < 0) {
+    PyErr_Print();
+    PyErr_Format(PyExc_ImportError, "cannot import `%s'", XBOB_EXT_MODULE_NAME);
+    return 0;
+  }
+
+  if (import_xbob_io() < 0) {
+    PyErr_Print();
+    PyErr_Format(PyExc_ImportError, "cannot import `%s'", XBOB_EXT_MODULE_NAME);
+    return 0;
+  }
+
+  if (import_xbob_learn_activation() < 0) {
+    PyErr_Print();
+    PyErr_Format(PyExc_ImportError, "cannot import `%s'", XBOB_EXT_MODULE_NAME);
+    return 0;
+  }
+
+  if (import_xbob_core_random() < 0) {
+    PyErr_Print();
+    PyErr_Format(PyExc_ImportError, "cannot import `%s'", XBOB_EXT_MODULE_NAME);
+    return 0;
+  }
 
   Py_INCREF(m);
   return m;

@@ -4,9 +4,10 @@
 # Mon 16 Apr 08:18:08 2012 CEST
 
 from setuptools import setup, find_packages, dist
-dist.Distribution(dict(setup_requires=['xbob.blitz', 'xbob.io', 'xbob.learn.activation']))
+dist.Distribution(dict(setup_requires=['xbob.blitz', 'xbob.io', 'xbob.learn.activation', 'xbob.core']))
 from xbob.blitz.extension import Extension
 import xbob.io
+import xbob.core
 import xbob.learn.activation
 
 import os
@@ -16,7 +17,8 @@ include_dirs = [
     package_dir,
     xbob.blitz.get_include(),
     xbob.io.get_include(),
-    xbob.learn.activation.get_include()
+    xbob.learn.activation.get_include(),
+    xbob.core.get_include(),
     ]
 
 packages = ['bob-machine >= 1.2.2', 'bob-trainer >= 1.2.2']
@@ -42,6 +44,7 @@ setup(
       'xbob.blitz',
       'xbob.io',
       'xbob.learn.activation',
+      'xbob.core',
     ],
 
     namespace_packages=[

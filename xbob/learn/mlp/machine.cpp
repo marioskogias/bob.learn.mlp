@@ -13,6 +13,7 @@
 #include <xbob.io/api.h>
 #include <xbob.learn.activation/api.h>
 #include <xbob.learn.mlp/api.h>
+#include <xbob.core/random.h>
 #include <structmember.h>
 
 /****************************************
@@ -942,6 +943,52 @@ static PyObject* PyBobLearnMLPMachine_IsSimilarTo
 
 }
 
+PyDoc_STRVAR(s_randomize_str, "randomize");
+PyDoc_STRVAR(s_randomize_doc,
+"o.randomize([lower_bound, [upper_bound, [rng]]]) -> None\n\
+\n\
+Resets parameters of this MLP using a random number generator.\n\
+\n\
+Sets all weights and biases of this MLP, with random values\n\
+between :math:`[-0.1, 0.1)` as advised in textbooks.\n\nValues\n\
+are drawn using ``boost::uniform_real`` class. The seed is\n\
+picked using a time-based algorithm. Different calls spaced\n\
+of at least 10 microseconds (machine clock) will be seeded\n\
+differently. If lower and upper bound values are given, then\n\
+new parameters are taken from ``[lower_bound, upper_bound)``,\n\
+according to the ``boost::random`` documentation. The user may\n\
+also pass the random number generator to be used. This allows\n\
+you to set the seed to a specific value before randomizing\n\
+the MLP parameters. If not set, this method will use an\n\
+internal random number generator with a seed which is based\n\
+on the current time.\n\
+");
+
+static PyObject* PyBobLearnMLPMachine_Randomize
+(PyBobLearnMLPMachineObject* self, PyObject* args, PyObject* kwds) {
+
+  /* Parses input arguments in a single shot */
+  static const char* const_kwlist[] = {"lower_bound", "upper_bound", "rng", 0};
+  static char** kwlist = const_cast<char**>(const_kwlist);
+
+  double lower_bound = -0.1;
+  double upper_bound = 0.1;
+  PyBoostMt19937Object* rng = 0;
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|ddO!", kwlist,
+        &lower_bound, &upper_bound, &PyBoostMt19937_Check, &rng)) return 0;
+
+  if (rng) {
+    self->cxx->randomize(*rng->rng, lower_bound, upper_bound);
+  }
+  else {
+    self->cxx->randomize(lower_bound, upper_bound);
+  }
+
+  Py_RETURN_NONE;
+
+}
+
 static PyMethodDef PyBobLearnMLPMachine_methods[] = {
   {
     s_forward_str,
@@ -966,6 +1013,12 @@ static PyMethodDef PyBobLearnMLPMachine_methods[] = {
     (PyCFunction)PyBobLearnMLPMachine_IsSimilarTo,
     METH_VARARGS|METH_KEYWORDS,
     s_is_similar_to_doc
+  },
+  {
+    s_randomize_str,
+    (PyCFunction)PyBobLearnMLPMachine_Randomize,
+    METH_VARARGS|METH_KEYWORDS,
+    s_randomize_doc
   },
   {0} /* Sentinel */
 };
