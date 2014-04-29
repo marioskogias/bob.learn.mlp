@@ -362,24 +362,41 @@ PyDoc_STRVAR(s_error_str, "error");
 PyDoc_STRVAR(s_error_doc,
 "o.error(output, target, [result]) -> result\n\
 \n\
-Computes the back-propagated error for a given MLP ``output`` layer.\n\
+Computes the back-propagated error for a given MLP ``output``\n\
+layer.\n\
 \n\
-Computes the back-propagated error for a given MLP ``output`` layer, given its activation function and outputs - i.e., the error back-propagated through the last layer neuron up to the synapse connecting the last hidden layer to the output layer.\n\
+Computes the back-propagated error for a given MLP ``output``\n\
+layer, given its activation function and outputs - i.e., the\n\
+error back-propagated through the last layer neuron up to the\n\
+synapse connecting the last hidden layer to the output layer.\n\
 \n\
-This implementation allows for optimization in the calculation of the back-propagated errors in cases where there is a possibility of mathematical simplification when using a certain combination of cost-function and activation. For example, using a ML-cost and a logistic activation function.\n\
+This implementation allows for optimization in the\n\
+calculation of the back-propagated errors in cases where there\n\
+is a possibility of mathematical simplification when using a\n\
+certain combination of cost-function and activation. For\n\
+example, using a ML-cost and a logistic activation function.\n\
 \n\
 Keyword arguments:\n\
 \n\
 output, ND array, float64 | scalar\n\
-  Real output from the machine. May be a N-dimensional array or a plain scalar.\n\
+  Real output from the machine. May be a N-dimensional array\n\
+  or a plain scalar.\n\
 \n\
 target, ND array, float64 | scalar\n\
-  Target output you are training to achieve. The data type and extents for this object must match that of ``target``.\n\
+  Target output you are training to achieve. The data type and\n\
+  extents for this object must match that of ``target``.\n\
 \n\
 result (optional), ND array, float64\n\
-  Where to place the result from the calculation. You can pass this argument if the input are N-dimensional arrays. Otherwise, it is an error to pass such a container. If the inputs are arrays and an object for ``result`` is passed, then its dimensions and data-type must match that of both ``output`` and ``result``.\n\
+  Where to place the result from the calculation. You can pass\n\
+  this argument if the input are N-dimensional arrays.\n\
+  Otherwise, it is an error to pass such a container. If the\n\
+  inputs are arrays and an object for ``result`` is passed,\n\
+  then its dimensions and data-type must match that of both\n\
+  ``output`` and ``result``.\n\
 \n\
-Returns the cost as a scalar, if the input were scalars or as an array with matching size of ``output`` and ``target`` otherwise.\n\
+Returns the cost as a scalar, if the input were scalars or as\n\
+        an array with matching size of ``output`` and\n\
+        ``target`` otherwise.\n\
 ");
 
 static PyObject* PyBobLearnCost_error
@@ -644,6 +661,31 @@ static void PyBobLearnCrossEntropyLoss_delete
 
 }
 
+PyDoc_STRVAR(s_logistic_activation_str, "logistic_activation");
+PyDoc_STRVAR(s_logistic_activation_doc,
+"o.logistic_activation() -> bool\n\
+\n\
+Tells if this functor is set to operate together with a\n\
+:py:class:`xbob.learn.activation.Logistic` activation function.\n\
+");
+
+static PyObject* PyBobLearnCrossEntropyLoss_getLogisticActivation
+(PyBobLearnCrossEntropyLossObject* self, void* /*closure*/) {
+  if (self->cxx->logistic_activation()) Py_RETURN_TRUE;
+  Py_RETURN_FALSE;
+}
+
+static PyGetSetDef PyBobLearnCrossEntropyLoss_getseters[] = {
+    {
+      s_logistic_activation_str,
+      (getter)PyBobLearnCrossEntropyLoss_getLogisticActivation,
+      0,
+      s_logistic_activation_doc,
+      0
+    },
+    {0}  /* Sentinel */
+};
+
 PyTypeObject PyBobLearnCrossEntropyLoss_Type = {
     PyVarObject_HEAD_INIT(0, 0)
     s_crossentropyloss_str,                        /*tp_name*/
@@ -674,7 +716,7 @@ PyTypeObject PyBobLearnCrossEntropyLoss_Type = {
     0,		                                         /* tp_iternext */
     0,                                             /* tp_methods */
     0,                                             /* tp_members */
-    0,                                             /* tp_getset */
+    PyBobLearnCrossEntropyLoss_getseters,          /* tp_getset */
     0,                                             /* tp_base */
     0,                                             /* tp_dict */
     0,                                             /* tp_descr_get */
