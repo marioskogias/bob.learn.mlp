@@ -173,7 +173,7 @@ class TrainableMachine(Machine):
 
     return retval
 
-def estimate(f, x, epsilon=1e-4, args=()):
+def estimate_gradient(f, x, epsilon=1e-4, args=()):
   """Estimate the gradient for a given callable f
 
   Suppose you have a function :math:`f'(x)` that purportedly computes
@@ -243,7 +243,7 @@ def estimate(f, x, epsilon=1e-4, args=()):
   else: # x is scalar
     return (f(x+epsilon, *args) - f(x-epsilon, *args)) / (2*epsilon)
 
-def estimate_for_machine(machine, X, cost, target):
+def estimate_gradient_for_machine(machine, X, cost, target):
 
   def func(weights):
     old = machine.weights

@@ -63,6 +63,7 @@ setup(
         ),
       Extension("xbob.learn.mlp._library",
         [
+          "xbob/learn/mlp/cost.cpp",
           "xbob/learn/mlp/machine.cpp",
           "xbob/learn/mlp/main.cpp",
           ],

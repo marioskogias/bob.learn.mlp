@@ -47,7 +47,7 @@ static PyObject* create_module (void) {
   PyBobLearnSquareError_Type.tp_base = &PyBobLearnCost_Type;
   if (PyType_Ready(&PyBobLearnSquareError_Type) < 0) return 0;
 
-  PyBobLearnCrossEntropyLoss_Type.tp_new = &PyBobLearnCost_Type;
+  PyBobLearnCrossEntropyLoss_Type.tp_base = &PyBobLearnCost_Type;
   if (PyType_Ready(&PyBobLearnCrossEntropyLoss_Type) < 0) return 0;
 
 # if PY_VERSION_HEX >= 0x03000000
@@ -105,11 +105,7 @@ static PyObject* create_module (void) {
 
   PyXbobLearnMLP_API[PyBobLearnSquareError_Type_NUM] = (void *)&PyBobLearnSquareError_Type;
 
-  PyXbobLearnMLP_API[PyBobLearnSquareError_Check_NUM] = (void *)&PyBobLearnSquareError_Check;
-
   PyXbobLearnMLP_API[PyBobLearnCrossEntropyLoss_Type_NUM] = (void *)&PyBobLearnCrossEntropyLoss_Type;
-
-  PyXbobLearnMLP_API[PyBobLearnCrossEntropyLoss_Check_NUM] = (void *)&PyBobLearnCrossEntropyLoss_Check;
 
 #if PY_VERSION_HEX >= 0x02070000
 

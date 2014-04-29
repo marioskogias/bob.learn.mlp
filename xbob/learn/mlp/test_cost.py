@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 # Andre Anjos <andre.dos.anjos@gmail.com>
-# Fri  7 Jun 08:59:24 2013 
+# Fri  7 Jun 08:59:24 2013
 
 """Test cost functions
 """
@@ -9,9 +9,10 @@
 import numpy
 import math
 
-from .. import SquareError, CrossEntropyLoss
-from ...machine import LogisticActivation, IdentityActivation
-from . import gradient
+from . import SquareError, CrossEntropyLoss
+from .test_utils import estimate_gradient
+
+from xbob.learn.activation import Logistic, Identity
 
 def is_close(x, y, eps=1e-10):
   return (abs(x - y) < eps)
@@ -32,8 +33,8 @@ def rand_safe4(n, p, q, r, eps=2e-4):
   return numpy.random.rand(n,p,q,r)*(1-2*eps)+eps
 
 def test_square_error():
-  
-  op = SquareError(IdentityActivation())
+
+  op = SquareError(Identity())
   x = rand_safe(10) #10 random numbers between 0 and 1
   y = rand_safe(10) #10 random numbers between 0 and 1
 
@@ -43,8 +44,8 @@ def test_square_error():
     assert is_close(op.f(p,q), expected), 'SquareError does not perform as expected %g != %g' % (op.f(p,q), expected)
 
 def test_square_error_derivative():
-  
-  op = SquareError(IdentityActivation())
+
+  op = SquareError(Identity())
   x = rand_safe(10) #10 random numbers between 0 and 1
   y = rand_safe(10) #10 random numbers between 0 and 1
 
@@ -55,12 +56,12 @@ def test_square_error_derivative():
 
   # go for approximation
   for p,q in zip(x,y):
-    absdiff = abs(op.f_prime(p,q)-gradient.estimate(op.f,p,args=(q,)))
-    assert absdiff < 1e-4, 'SquareError derivative and estimation do not match to 10^-4: |%g-%g| = %g' % (op.f_prime(p,q), gradient.estimate(op.f,p,args=(q,)), absdiff)
+    absdiff = abs(op.f_prime(p,q)-estimate_gradient(op.f,p,args=(q,)))
+    assert absdiff < 1e-4, 'SquareError derivative and estimation do not match to 10^-4: |%g-%g| = %g' % (op.f_prime(p,q), estimate_gradient(op.f,p,args=(q,)), absdiff)
 
 def test_square_error_error():
-  
-  act = LogisticActivation()
+
+  act = Logistic()
   op = SquareError(act)
   x = rand_safe(10) #10 random numbers between 0 and 1
   y = rand_safe(10) #10 random numbers between 0 and 1
@@ -71,8 +72,8 @@ def test_square_error_error():
     assert is_close(op.error(p,q), expected), 'SquareError error does not perform as expected %g != %g' % (op.error(p,q), expected)
 
 def test_cross_entropy():
-  
-  op = CrossEntropyLoss(LogisticActivation())
+
+  op = CrossEntropyLoss(Logistic())
   x = rand_safe(10) #10 random numbers between 0 and 1
   y = rand_safe(10) #10 random numbers between 0 and 1
 
@@ -82,8 +83,8 @@ def test_cross_entropy():
     assert is_close(op.f(p,q), expected), 'CrossEntropyLoss does not perform as expected %g != %g' % (op.f(p,q), expected)
 
 def test_cross_entropy_derivative():
-  
-  op = CrossEntropyLoss(LogisticActivation())
+
+  op = CrossEntropyLoss(Logistic())
   x = rand_safe(10, eps=0.2) #10 random numbers between 0 and 1
   y = rand_safe(10, eps=0.2) #10 random numbers between 0 and 1
 
@@ -94,26 +95,26 @@ def test_cross_entropy_derivative():
 
   # go for approximation
   for p,q in zip(x,y):
-    reldiff = abs((op.f_prime(p,q)-gradient.estimate(op.f,p,args=(q,))) / op.f_prime(p,q))
-    assert reldiff < 1e-3, 'SquareError derivative and estimation do not match to 10^-4: |%g-%g| = %g' % (op.f_prime(p,q), gradient.estimate(op.f,p,args=(q,)), reldiff)
+    reldiff = abs((op.f_prime(p,q)-estimate_gradient(op.f,p,args=(q,))) / op.f_prime(p,q))
+    assert reldiff < 1e-3, 'SquareError derivative and estimation do not match to 10^-4: |%g-%g| = %g' % (op.f_prime(p,q), estimate_gradient(op.f,p,args=(q,)), reldiff)
 
 def test_square_error_equality():
 
-  op1 = SquareError(IdentityActivation())
-  op2 = SquareError(IdentityActivation())
+  op1 = SquareError(Identity())
+  op2 = SquareError(Identity())
 
   assert op1 == op2
 
 def test_cross_entropy_equality():
 
-  op1 = CrossEntropyLoss(IdentityActivation())
-  op2 = CrossEntropyLoss(IdentityActivation())
+  op1 = CrossEntropyLoss(Identity())
+  op2 = CrossEntropyLoss(Identity())
 
   assert op1 == op2
 
 def test_cross_entropy_error_with_logistic():
-  
-  act = LogisticActivation()
+
+  act = Logistic()
   op = CrossEntropyLoss(act)
   x = rand_safe(10) #10 random numbers between 0 and 1
   y = rand_safe(10) #10 random numbers between 0 and 1
@@ -121,11 +122,11 @@ def test_cross_entropy_error_with_logistic():
   # go for an exact match
   for p,q in zip(x,y):
     expected = p-q
-    assert is_close(op.error(p,q), expected), 'CrossEntropyLoss+LogisticActivation error does not perform as expected %g != %g' % (op.error(p,q), expected)
+    assert is_close(op.error(p,q), expected), 'CrossEntropyLoss+Logistic error does not perform as expected %g != %g' % (op.error(p,q), expected)
 
 def test_cross_entropy_error_without_logistic():
-  
-  act = IdentityActivation()
+
+  act = Identity()
   op = CrossEntropyLoss(act)
   x = rand_safe(10) #10 random numbers between 0 and 1
   y = rand_safe(10) #10 random numbers between 0 and 1
@@ -133,20 +134,20 @@ def test_cross_entropy_error_without_logistic():
   # go for an exact match
   for p,q in zip(x,y):
     expected = (p-q)/(p*(1-p))
-    assert is_close(op.error(p,q), expected), 'CrossEntropyLoss+IdentityActivation error does not perform as expected %g != %g' % (op.error(p,q), expected)
+    assert is_close(op.error(p,q), expected), 'CrossEntropyLoss+Identity error does not perform as expected %g != %g' % (op.error(p,q), expected)
 
 def test_cross_entropy_activation_detection():
 
-  op = CrossEntropyLoss(LogisticActivation())
+  op = CrossEntropyLoss(Logistic())
   assert op.logistic_activation
 
-  op = CrossEntropyLoss(IdentityActivation())
+  op = CrossEntropyLoss(Identity())
   assert op.logistic_activation == False
 
 def test_1d_ndarray():
 
   C = rand_safe0()
-  op = SquareError(IdentityActivation())
+  op = SquareError(Identity())
   O = rand_safe(10) #10 random numbers between 0 and 1
   T = rand_safe(10) #10 random numbers between 0 and 1
 
@@ -175,7 +176,7 @@ def test_1d_ndarray():
 def test_2d_ndarray():
 
   C = rand_safe0()
-  op = SquareError(IdentityActivation())
+  op = SquareError(Identity())
   O = rand_safe2(3,3)
   T = rand_safe2(3,3)
 
@@ -204,7 +205,7 @@ def test_2d_ndarray():
 def test_3d_ndarray():
 
   C = rand_safe0()
-  op = SquareError(IdentityActivation())
+  op = SquareError(Identity())
   O = rand_safe3(3,3,3)
   T = rand_safe3(3,3,3)
 
@@ -233,7 +234,7 @@ def test_3d_ndarray():
 def test_4d_ndarray():
 
   C = rand_safe0()
-  op = SquareError(IdentityActivation())
+  op = SquareError(Identity())
   O = rand_safe4(2,2,2,2)
   T = rand_safe4(2,2,2,2)
 
