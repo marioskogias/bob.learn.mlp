@@ -26,6 +26,13 @@ enum _PyBobLearnMLP_ENUM{
   PyBobLearnMLPMachine_Type_NUM,
   PyBobLearnMLPMachine_Check_NUM,
   PyBobLearnMLPMachine_NewFromSize_NUM,
+  // Bindings for xbob.learn.mlp.Cost and variants
+  PyBobLearnCost_Type_NUM,
+  PyBobLearnCost_Check_NUM,
+  PyBobLearnSquareError_Type_NUM,
+  PyBobLearnSquareError_Check_NUM,
+  PyBobLearnCrossEntropyLoss_Type_NUM,
+  PyBobLearnCrossEntropyLoss_Check_NUM,
   // Total number of C API pointers
   PyXbobLearnMLP_API_pointers
 };
@@ -53,6 +60,36 @@ typedef struct {
 #define PyBobLearnMLPMachine_NewFromSize_RET PyObject*
 #define PyBobLearnMLPMachine_NewFromSize_PROTO (Py_ssize_t i, Py_ssize_t o)
 
+typedef struct {
+  PyObject_HEAD
+  bob::trainer::Cost* cxx;
+} PyBobLearnCostObject;
+
+#define PyBobLearnCost_Type_TYPE PyTypeObject
+
+#define PyBobLearnCost_Check_RET int
+#define PyBobLearnCost_Check_PROTO (PyObject* o)
+
+typedef struct {
+  PyBobLearnCostObject parent;
+  bob::trainer::SquareError* cxx;
+} PyBobLearnSquareErrorObject;
+
+#define PyBobLearnSquareError_Type_TYPE PyTypeObject
+
+#define PyBobLearnSquareError_Check_RET int
+#define PyBobLearnSquareError_Check_PROTO (PyObject* o)
+
+typedef struct {
+  PyBobLearnCostObject parent;
+  bob::trainer::CrossEntropyLoss* cxx;
+} PyBobLearnCrossEntropyLossObject;
+
+#define PyBobLearnCrossEntropyLoss_Type_TYPE PyTypeObject
+
+#define PyBobLearnCrossEntropyLoss_Check_RET int
+#define PyBobLearnCrossEntropyLoss_Check_PROTO (PyObject* o)
+
 #ifdef XBOB_LEARN_MLP_MODULE
 
   /* This section is used when compiling `xbob.learn.mlp' itself */
@@ -63,15 +100,31 @@ typedef struct {
 
   extern int PyXbobLearnMLP_APIVersion;
 
-  /******************************************
+  /***************************************
    * Bindings for xbob.learn.mlp.Machine *
-   ******************************************/
+   ***************************************/
 
   extern PyBobLearnMLPMachine_Type_TYPE PyBobLearnMLPMachine_Type;
 
   PyBobLearnMLPMachine_Check_RET PyBobLearnMLPMachine_Check PyBobLearnMLPMachine_Check_PROTO;
 
   PyBobLearnMLPMachine_NewFromSize_RET PyBobLearnMLPMachine_NewFromSize PyBobLearnMLPMachine_NewFromSize_PROTO;
+
+  /************************************
+   * Bindings for xbob.learn.mlp.Cost *
+   ************************************/
+
+  extern PyBobLearnCost_Type_TYPE PyBobLearnCost_Type;
+
+  PyBobLearnCost_Check_RET PyBobLearnCost_Check PyBobLearnCost_Check_PROTO;
+
+  extern PyBobLearnSquareError_Type_TYPE PyBobLearnSquareError_Type;
+
+  PyBobLearnSquareError_Check_RET PyBobLearnSquareError_Check PyBobLearnSquareError_Check_PROTO;
+
+  extern PyBobLearnCrossEntropyLoss_Type_TYPE PyBobLearnCrossEntropyLoss_Type;
+
+  PyBobLearnCrossEntropyLoss_Check_RET PyBobLearnCrossEntropyLoss_Check PyBobLearnCrossEntropyLoss_Check_PROTO;
 
 #else
 
@@ -114,6 +167,22 @@ typedef struct {
 # define PyBobLearnMLPMachine_Check (*(PyBobLearnMLPMachine_Check_RET (*)PyBobLearnMLPMachine_Check_PROTO) PyXbobLearnMLP_API[PyBobLearnMLPMachine_Check_NUM])
 
 # define PyBobLearnMLPMachine_NewFromSize (*(PyBobLearnMLPMachine_NewFromSize_RET (*)PyBobLearnMLPMachine_NewFromSize_PROTO) PyXbobLearnMLP_API[PyBobLearnMLPMachine_NewFromSize_NUM])
+
+  /************************************
+   * Bindings for xbob.learn.mlp.Cost *
+   ************************************/
+
+# define PyBobLearnCost_Type (*(PyBobLearnCost_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnCost_Type_NUM])
+
+# define PyBobLearnCost_Check (*(PyBobLearnCost_Check_RET (*)PyBobLearnCost_Check_PROTO) PyXbobLearnMLP_API[PyBobLearnCost_Check_NUM])
+
+# define PyBobLearnSquareError_Type (*(PyBobLearnSquareError_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnSquareError_Type_NUM])
+
+# define PyBobLearnSquareError_Check (*(PyBobLearnSquareError_Check_RET (*)PyBobLearnSquareError_Check_PROTO) PyXbobLearnMLP_API[PyBobLearnSquareError_Check_NUM])
+
+# define PyBobLearnCrossEntropyLoss_Type (*(PyBobLearnCrossEntropyLoss_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnCrossEntropyLoss_Type_NUM])
+
+# define PyBobLearnCrossEntropyLoss_Check (*(PyBobLearnCrossEntropyLoss_Check_RET (*)PyBobLearnCrossEntropyLoss_Check_PROTO) PyXbobLearnMLP_API[PyBobLearnCrossEntropyLoss_Check_NUM])
 
 # if !defined(NO_IMPORT_ARRAY)
 

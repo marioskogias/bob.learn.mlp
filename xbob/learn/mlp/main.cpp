@@ -41,6 +41,15 @@ static PyObject* create_module (void) {
   PyBobLearnMLPMachine_Type.tp_new = PyType_GenericNew;
   if (PyType_Ready(&PyBobLearnMLPMachine_Type) < 0) return 0;
 
+  PyBobLearnCost_Type.tp_new = PyType_GenericNew;
+  if (PyType_Ready(&PyBobLearnCost_Type) < 0) return 0;
+
+  PyBobLearnSquareError_Type.tp_base = &PyBobLearnCost_Type;
+  if (PyType_Ready(&PyBobLearnSquareError_Type) < 0) return 0;
+
+  PyBobLearnCrossEntropyLoss_Type.tp_new = &PyBobLearnCost_Type;
+  if (PyType_Ready(&PyBobLearnCrossEntropyLoss_Type) < 0) return 0;
+
 # if PY_VERSION_HEX >= 0x03000000
   PyObject* m = PyModule_Create(&module_definition);
 # else
@@ -56,6 +65,15 @@ static PyObject* create_module (void) {
   /* register the types to python */
   Py_INCREF(&PyBobLearnMLPMachine_Type);
   if (PyModule_AddObject(m, "Machine", (PyObject *)&PyBobLearnMLPMachine_Type) < 0) return 0;
+
+  Py_INCREF(&PyBobLearnCost_Type);
+  if (PyModule_AddObject(m, "Cost", (PyObject *)&PyBobLearnCost_Type) < 0) return 0;
+
+  Py_INCREF(&PyBobLearnSquareError_Type);
+  if (PyModule_AddObject(m, "SquareError", (PyObject *)&PyBobLearnSquareError_Type) < 0) return 0;
+
+  Py_INCREF(&PyBobLearnCrossEntropyLoss_Type);
+  if (PyModule_AddObject(m, "CrossEntropyLoss", (PyObject *)&PyBobLearnCrossEntropyLoss_Type) < 0) return 0;
 
   static void* PyXbobLearnMLP_API[PyXbobLearnMLP_API_pointers];
 
@@ -76,6 +94,22 @@ static PyObject* create_module (void) {
   PyXbobLearnMLP_API[PyBobLearnMLPMachine_Check_NUM] = (void *)&PyBobLearnMLPMachine_Check;
 
   PyXbobLearnMLP_API[PyBobLearnMLPMachine_NewFromSize_NUM] = (void *)&PyBobLearnMLPMachine_NewFromSize;
+
+  /************************************
+   * Bindings for xbob.learn.mlp.Cost *
+   ************************************/
+
+  PyXbobLearnMLP_API[PyBobLearnCost_Type_NUM] = (void *)&PyBobLearnCost_Type;
+
+  PyXbobLearnMLP_API[PyBobLearnCost_Check_NUM] = (void *)&PyBobLearnCost_Check;
+
+  PyXbobLearnMLP_API[PyBobLearnSquareError_Type_NUM] = (void *)&PyBobLearnSquareError_Type;
+
+  PyXbobLearnMLP_API[PyBobLearnSquareError_Check_NUM] = (void *)&PyBobLearnSquareError_Check;
+
+  PyXbobLearnMLP_API[PyBobLearnCrossEntropyLoss_Type_NUM] = (void *)&PyBobLearnCrossEntropyLoss_Type;
+
+  PyXbobLearnMLP_API[PyBobLearnCrossEntropyLoss_Check_NUM] = (void *)&PyBobLearnCrossEntropyLoss_Check;
 
 #if PY_VERSION_HEX >= 0x02070000
 
