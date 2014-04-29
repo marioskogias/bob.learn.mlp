@@ -976,7 +976,7 @@ static PyObject* PyBobLearnMLPMachine_Randomize
   PyBoostMt19937Object* rng = 0;
 
   if (!PyArg_ParseTupleAndKeywords(args, kwds, "|ddO!", kwlist,
-        &lower_bound, &upper_bound, &PyBoostMt19937_Check, &rng)) return 0;
+        &lower_bound, &upper_bound, &PyBoostMt19937_Type, &rng)) return 0;
 
   if (rng) {
     self->cxx->randomize(*rng->rng, lower_bound, upper_bound);

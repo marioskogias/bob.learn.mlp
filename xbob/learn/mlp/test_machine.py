@@ -18,6 +18,7 @@ from .test_utils import Machine as PythonMachine
 import xbob.io
 from xbob.io.test_utils import temporary_filename
 from xbob.learn.activation import Logistic, HyperbolicTangent
+from xbob.core.random import mt19937
 
 def test_2in_1out():
 
@@ -265,18 +266,37 @@ def test_randomization_margins():
       assert (abs(k) <= 0.001).all()
       assert (k != 0).any()
 
-def test_randomness():
+def test_randomness_different():
 
   m1 = Machine((2,3,2))
   m1.randomize()
 
-  for k in range(10):
+  for k in range(3):
     time.sleep(0.1)
     m2 = Machine((2,3,2))
     m2.randomize()
 
     for w1, w2 in zip(m1.weights, m2.weights):
-      nose.tools.eq_((w1 == w2).all(), False)
+      assert not (w1 == w2).all()
 
     for b1, b2 in zip(m1.biases, m2.biases):
-      nose.tools.eq_((b1 == b2).all(), False)
+      assert not (b1 == b2).all()
+
+def test_randomness_same():
+
+  m1 = Machine((2,3,2))
+  rng = xbob.core.random.mt19937(0) #fixed seed
+  m1.randomize(rng=rng)
+
+  for k in range(3):
+    time.sleep(0.1)
+
+    m2 = Machine((2,3,2))
+    rng = xbob.core.random.mt19937(0) #fixed seed
+    m2.randomize(rng=rng)
+
+    for w1, w2 in zip(m1.weights, m2.weights):
+      assert (w1 == w2).all()
+
+    for b1, b2 in zip(m1.biases, m2.biases):
+      assert (b1 == b2).all()
