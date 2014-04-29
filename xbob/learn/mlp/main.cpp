@@ -50,6 +50,9 @@ static PyObject* create_module (void) {
   PyBobLearnCrossEntropyLoss_Type.tp_base = &PyBobLearnCost_Type;
   if (PyType_Ready(&PyBobLearnCrossEntropyLoss_Type) < 0) return 0;
 
+  PyBobLearnDataShuffler_Type.tp_new = PyType_GenericNew;
+  if (PyType_Ready(&PyBobLearnDataShuffler_Type) < 0) return 0;
+
 # if PY_VERSION_HEX >= 0x03000000
   PyObject* m = PyModule_Create(&module_definition);
 # else
@@ -74,6 +77,9 @@ static PyObject* create_module (void) {
 
   Py_INCREF(&PyBobLearnCrossEntropyLoss_Type);
   if (PyModule_AddObject(m, "CrossEntropyLoss", (PyObject *)&PyBobLearnCrossEntropyLoss_Type) < 0) return 0;
+
+  Py_INCREF(&PyBobLearnDataShuffler_Type);
+  if (PyModule_AddObject(m, "DataShuffler", (PyObject *)&PyBobLearnDataShuffler_Type) < 0) return 0;
 
   static void* PyXbobLearnMLP_API[PyXbobLearnMLP_API_pointers];
 
@@ -106,6 +112,14 @@ static PyObject* create_module (void) {
   PyXbobLearnMLP_API[PyBobLearnSquareError_Type_NUM] = (void *)&PyBobLearnSquareError_Type;
 
   PyXbobLearnMLP_API[PyBobLearnCrossEntropyLoss_Type_NUM] = (void *)&PyBobLearnCrossEntropyLoss_Type;
+
+  /********************************************
+   * Bindings for xbob.learn.mlp.DataShuffler *
+   ********************************************/
+
+  PyXbobLearnMLP_API[PyBobLearnDataShuffler_Type_NUM] = (void *)&PyBobLearnDataShuffler_Type;
+
+  PyXbobLearnMLP_API[PyBobLearnDataShuffler_Check_NUM] = (void *)&PyBobLearnDataShuffler_Check;
 
 #if PY_VERSION_HEX >= 0x02070000
 

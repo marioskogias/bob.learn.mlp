@@ -199,7 +199,7 @@ def test_normalization_big():
   target1 = numpy.array([1], dtype='float64')
 
   set2 = []
-  draw32 = xbob.core.random.normal(mean=3.0, sigma=2.0, dtyle=float)
+  draw32 = xbob.core.random.normal(mean=3.0, sigma=2.0, dtype=float)
   for i in range(10000):
     set2.append(numpy.array([draw32(rng)], dtype='float64'))
   set2 = numpy.array(set2)

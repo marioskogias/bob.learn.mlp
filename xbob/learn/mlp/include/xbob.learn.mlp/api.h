@@ -14,6 +14,7 @@
 #include <bob/trainer/Cost.h>
 #include <bob/trainer/SquareError.h>
 #include <bob/trainer/CrossEntropyLoss.h>
+#include <bob/trainer/DataShuffler.h>
 
 #define XBOB_LEARN_MLP_MODULE_PREFIX xbob.learn.mlp
 #define XBOB_LEARN_MLP_MODULE_NAME _library
@@ -34,6 +35,9 @@ enum _PyBobLearnMLP_ENUM{
   PyBobLearnCost_Check_NUM,
   PyBobLearnSquareError_Type_NUM,
   PyBobLearnCrossEntropyLoss_Type_NUM,
+  // Bindings for xbob.learn.mlp.DataShuffler
+  PyBobLearnDataShuffler_Type_NUM,
+  PyBobLearnDataShuffler_Check_NUM,
   // Total number of C API pointers
   PyXbobLearnMLP_API_pointers
 };
@@ -85,6 +89,16 @@ typedef struct {
 
 #define PyBobLearnCrossEntropyLoss_Type_TYPE PyTypeObject
 
+typedef struct {
+  PyObject_HEAD
+  bob::trainer::DataShuffler* cxx;
+} PyBobLearnDataShufflerObject;
+
+#define PyBobLearnDataShuffler_Type_TYPE PyTypeObject
+
+#define PyBobLearnDataShuffler_Check_RET int
+#define PyBobLearnDataShuffler_Check_PROTO (PyObject* o)
+
 #ifdef XBOB_LEARN_MLP_MODULE
 
   /* This section is used when compiling `xbob.learn.mlp' itself */
@@ -116,6 +130,14 @@ typedef struct {
   extern PyBobLearnSquareError_Type_TYPE PyBobLearnSquareError_Type;
 
   extern PyBobLearnCrossEntropyLoss_Type_TYPE PyBobLearnCrossEntropyLoss_Type;
+
+  /********************************************
+   * Bindings for xbob.learn.mlp.DataShuffler *
+   ********************************************/
+
+  extern PyBobLearnDataShuffler_Type_TYPE PyBobLearnDataShuffler_Type;
+
+  PyBobLearnDataShuffler_Check_RET PyBobLearnDataShuffler_Check PyBobLearnDataShuffler_Check_PROTO;
 
 #else
 
@@ -170,6 +192,14 @@ typedef struct {
 # define PyBobLearnSquareError_Type (*(PyBobLearnSquareError_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnSquareError_Type_NUM])
 
 # define PyBobLearnCrossEntropyLoss_Type (*(PyBobLearnCrossEntropyLoss_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnCrossEntropyLoss_Type_NUM])
+
+  /********************************************
+   * Bindings for xbob.learn.mlp.DataShuffler *
+   ********************************************/
+
+# define PyBobLearnDataShuffler_Type (*(PyBobLearnDataShuffler_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnDataShuffler_Type_NUM])
+
+# define PyBobLearnDataShuffler_Check (*(PyBobLearnDataShuffler_Check_RET (*)PyBobLearnDataShuffler_Check_PROTO) PyXbobLearnMLP_API[PyBobLearnDataShuffler_Check_NUM])
 
 # if !defined(NO_IMPORT_ARRAY)
 
