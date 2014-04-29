@@ -152,8 +152,8 @@ def test_seeding():
   rng1 = xbob.core.random.mt19937(32)
   rng2 = xbob.core.random.mt19937(32)
 
-  [data1, target1] = shuffle1(rng1, N)
-  [data2, target2] = shuffle2(rng2, N)
+  [data1, target1] = shuffle1(N, rng=rng1)
+  [data2, target2] = shuffle2(N, rng=rng2)
 
   assert (data1 == data2).all()
 
