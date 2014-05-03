@@ -312,6 +312,34 @@ static PyObject* PyBobLearnDataShuffler_Call
 
 }
 
+PyDoc_STRVAR(s_stdnorm_str, "stdnorm");
+PyDoc_STRVAR(s_stdnorm_doc,
+"o.stdnorm() -> (mean, stddev)\n\
+\n\
+Returns the standard normalisation parameters (mean and std. deviation)\n\
+for the input data. Returns a tuple ``(mean, stddev)``, which are 1D\n\
+float64 arrays with as many entries as ``o.data_width``.");
+
+static PyObject* PyBobLearnDataShuffler_GetStdNorm
+(PyBobLearnDataShufflerObject* self) {
+
+  //allocates output vectors, secure them
+  Py_ssize_t shape = self->cxx->getDataWidth();
+  auto mean = (PyBlitzArrayObject*)PyBlitzArray_SimpleNew(NPY_FLOAT64, 1, &shape);
+  if (!mean) return 0;
+  auto std = (PyBlitzArrayObject*)PyBlitzArray_SimpleNew(NPY_FLOAT64, 1, &shape);
+  if (!std) return 0;
+
+  self->cxx->getStdNorm(*PyBlitzArrayCxx_AsBlitz<double,1>(mean),
+      *PyBlitzArrayCxx_AsBlitz<double,1>(std));
+
+  return Py_BuildValue("OO",
+      PyBlitzArray_NUMPY_WRAP((PyObject*)mean),
+      PyBlitzArray_NUMPY_WRAP((PyObject*)std)
+      );
+
+}
+
 static PyMethodDef PyBobLearnDataShuffler_methods[] = {
   {
     s_draw_str,
@@ -319,7 +347,72 @@ static PyMethodDef PyBobLearnDataShuffler_methods[] = {
     METH_VARARGS|METH_KEYWORDS,
     s_draw_doc
   },
+  {
+    s_stdnorm_str,
+    (PyCFunction)PyBobLearnDataShuffler_GetStdNorm,
+    METH_NOARGS,
+    s_stdnorm_doc
+  },
   {0} /* Sentinel */
+};
+
+PyDoc_STRVAR(s_data_width_str, "data_width");
+PyDoc_STRVAR(s_data_width_doc,
+"The number of features (i.e. the *width*) of each data vector");
+
+static PyObject* PyBobLearnDataShuffler_dataWidth
+(PyBobLearnDataShufflerObject* self, void* /*closure*/) {
+  return Py_BuildValue("n", self->cxx->getDataWidth());
+}
+
+PyDoc_STRVAR(s_target_width_str, "target_width");
+PyDoc_STRVAR(s_target_width_doc,
+"The number of components (i.e. the *width*) of target vectors");
+
+static PyObject* PyBobLearnDataShuffler_targetWidth
+(PyBobLearnDataShufflerObject* self, void* /*closure*/) {
+  return Py_BuildValue("n", self->cxx->getTargetWidth());
+}
+
+PyDoc_STRVAR(s_auto_stdnorm_str, "auto_stdnorm");
+PyDoc_STRVAR(s_auto_stdnorm_doc,
+"Defines if we use or not automatic standard (Z) normalisation");
+
+static PyObject* PyBobLearnDataShuffler_getAutoStdNorm
+(PyBobLearnDataShufflerObject* self, void* /*closure*/) {
+  if (self->cxx->getAutoStdNorm()) Py_RETURN_TRUE;
+  Py_RETURN_FALSE;
+}
+
+static int PyBobLearnDataShuffler_setAutoStdNorm
+(PyBobLearnDataShufflerObject* self, PyObject* o, void* /*closure*/) {
+  self->cxx->setAutoStdNorm(PyObject_IsTrue(o));
+  return 0;
+}
+
+static PyGetSetDef PyBobLearnDataShuffler_getseters[] = {
+    {
+      s_data_width_str,
+      (getter)PyBobLearnDataShuffler_dataWidth,
+      0,
+      s_data_width_doc,
+      0
+    },
+    {
+      s_target_width_str,
+      (getter)PyBobLearnDataShuffler_targetWidth,
+      0,
+      s_target_width_doc,
+      0
+    },
+    {
+      s_auto_stdnorm_str,
+      (getter)PyBobLearnDataShuffler_getAutoStdNorm,
+      (setter)PyBobLearnDataShuffler_setAutoStdNorm,
+      s_auto_stdnorm_doc,
+      0
+    },
+    {0}  /* Sentinel */
 };
 
 PyTypeObject PyBobLearnDataShuffler_Type = {
@@ -352,7 +445,7 @@ PyTypeObject PyBobLearnDataShuffler_Type = {
     0,                                        /* tp_iternext */
     PyBobLearnDataShuffler_methods,           /* tp_methods */
     0,                                        /* tp_members */
-    0,                                        /* tp_getset */
+    PyBobLearnDataShuffler_getseters,         /* tp_getset */
     0,                                        /* tp_base */
     0,                                        /* tp_dict */
     0,                                        /* tp_descr_get */
