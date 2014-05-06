@@ -137,7 +137,7 @@ static int PyBobLearnDataShuffler_init
 
   // proceed to object initialization
   try {
-    self->cxx = new bob::trainer::DataShuffler(data_seq, target_seq);
+    self->cxx = new bob::learn::mlp::DataShuffler(data_seq, target_seq);
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
@@ -271,7 +271,7 @@ static PyObject* PyBobLearnDataShuffler_Call
   if (!target) {
     Py_ssize_t shape[2];
     shape[0] = n;
-    shape[1] = self->cxx->getDataWidth();
+    shape[1] = self->cxx->getTargetWidth();
     target = (PyBlitzArrayObject*)PyBlitzArray_SimpleNew(NPY_FLOAT64, 2, shape);
     if (!target) return 0;
     target_ = make_safe(target);

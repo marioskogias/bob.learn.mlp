@@ -21,7 +21,7 @@ include_dirs = [
     xbob.core.get_include(),
     ]
 
-packages = ['bob-machine >= 1.2.2', 'bob-trainer >= 1.2.2']
+packages = ['bob-machine >= 1.2.2']
 version = '2.0.0a0'
 
 setup(
@@ -63,6 +63,13 @@ setup(
         ),
       Extension("xbob.learn.mlp._library",
         [
+          "xbob/learn/mlp/cxx/machine.cpp",
+          "xbob/learn/mlp/cxx/cross_entropy.cpp",
+          "xbob/learn/mlp/cxx/square_error.cpp",
+          "xbob/learn/mlp/cxx/shuffler.cpp",
+          "xbob/learn/mlp/cxx/base_trainer.cpp",
+          "xbob/learn/mlp/cxx/backprop.cpp",
+          "xbob/learn/mlp/cxx/rprop.cpp",
           "xbob/learn/mlp/shuffler.cpp",
           "xbob/learn/mlp/cost.cpp",
           "xbob/learn/mlp/machine.cpp",

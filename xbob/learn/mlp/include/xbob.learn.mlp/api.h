@@ -1,8 +1,6 @@
 /**
  * @author Andre Anjos <andre.anjos@idiap.ch>
  * @date Thu 24 Apr 17:32:07 2014 CEST
- *
- * @brief C/C++ API for bob::machine
  */
 
 #ifndef XBOB_LEARN_MLP_H
@@ -10,11 +8,12 @@
 
 #include <Python.h>
 #include <xbob.learn.mlp/config.h>
-#include <bob/machine/MLP.h>
-#include <bob/trainer/Cost.h>
-#include <bob/trainer/SquareError.h>
-#include <bob/trainer/CrossEntropyLoss.h>
-#include <bob/trainer/DataShuffler.h>
+
+#include "machine.h"
+#include "cost.h"
+#include "square_error.h"
+#include "cross_entropy.h"
+#include "shuffler.h"
 
 #define XBOB_LEARN_MLP_MODULE_PREFIX xbob.learn.mlp
 #define XBOB_LEARN_MLP_MODULE_NAME _library
@@ -54,7 +53,7 @@ enum _PyBobLearnMLP_ENUM{
 
 typedef struct {
   PyObject_HEAD
-  bob::machine::MLP* cxx;
+  bob::learn::mlp::Machine* cxx;
 } PyBobLearnMLPMachineObject;
 
 #define PyBobLearnMLPMachine_Type_TYPE PyTypeObject
@@ -67,7 +66,7 @@ typedef struct {
 
 typedef struct {
   PyObject_HEAD
-  bob::trainer::Cost* cxx;
+  bob::learn::mlp::Cost* cxx;
 } PyBobLearnCostObject;
 
 #define PyBobLearnCost_Type_TYPE PyTypeObject
@@ -77,21 +76,21 @@ typedef struct {
 
 typedef struct {
   PyBobLearnCostObject parent;
-  bob::trainer::SquareError* cxx;
+  bob::learn::mlp::SquareError* cxx;
 } PyBobLearnSquareErrorObject;
 
 #define PyBobLearnSquareError_Type_TYPE PyTypeObject
 
 typedef struct {
   PyBobLearnCostObject parent;
-  bob::trainer::CrossEntropyLoss* cxx;
+  bob::learn::mlp::CrossEntropyLoss* cxx;
 } PyBobLearnCrossEntropyLossObject;
 
 #define PyBobLearnCrossEntropyLoss_Type_TYPE PyTypeObject
 
 typedef struct {
   PyObject_HEAD
-  bob::trainer::DataShuffler* cxx;
+  bob::learn::mlp::DataShuffler* cxx;
 } PyBobLearnDataShufflerObject;
 
 #define PyBobLearnDataShuffler_Type_TYPE PyTypeObject

@@ -300,10 +300,10 @@ static PyObject* PyBobLearnCost_f
 
   if (PyNumber_Check(arg) && !(PyArray_Check(arg) || PyBlitzArray_Check(arg)))
     return apply_scalar(self, s_f_str,
-        boost::bind(&bob::trainer::Cost::f, self->cxx, _1, _2), args, kwds);
+        boost::bind(&bob::learn::mlp::Cost::f, self->cxx, _1, _2), args, kwds);
 
   return apply_array(self, s_f_str,
-      boost::bind(&bob::trainer::Cost::f, self->cxx, _1, _2), args, kwds);
+      boost::bind(&bob::learn::mlp::Cost::f, self->cxx, _1, _2), args, kwds);
 
 }
 
@@ -349,11 +349,11 @@ static PyObject* PyBobLearnCost_f_prime
 
   if (PyNumber_Check(arg) && !(PyArray_Check(arg) || PyBlitzArray_Check(arg)))
     return apply_scalar(self, s_f_prime_str,
-        boost::bind(&bob::trainer::Cost::f_prime,
+        boost::bind(&bob::learn::mlp::Cost::f_prime,
           self->cxx, _1, _2), args, kwds);
 
   return apply_array(self, s_f_prime_str,
-      boost::bind(&bob::trainer::Cost::f_prime,
+      boost::bind(&bob::learn::mlp::Cost::f_prime,
         self->cxx, _1, _2), args, kwds);
 
 }
@@ -412,10 +412,10 @@ static PyObject* PyBobLearnCost_error
 
   if (PyNumber_Check(arg) && !(PyArray_Check(arg) || PyBlitzArray_Check(arg)))
     return apply_scalar(self, s_error_str,
-        boost::bind(&bob::trainer::Cost::error, self->cxx, _1, _2), args, kwds);
+        boost::bind(&bob::learn::mlp::Cost::error, self->cxx, _1, _2), args, kwds);
 
   return apply_array(self, s_error_str,
-      boost::bind(&bob::trainer::Cost::error, self->cxx, _1, _2), args, kwds);
+      boost::bind(&bob::learn::mlp::Cost::error, self->cxx, _1, _2), args, kwds);
 
 }
 
@@ -516,7 +516,7 @@ static int PyBobLearnSquareError_init
 
   try {
     auto _actfun = reinterpret_cast<PyBobLearnActivationObject*>(actfun);
-    self->cxx = new bob::trainer::SquareError(_actfun->cxx);
+    self->cxx = new bob::learn::mlp::SquareError(_actfun->cxx);
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
@@ -635,7 +635,7 @@ static int PyBobLearnCrossEntropyLoss_init
 
   try {
     auto _actfun = reinterpret_cast<PyBobLearnActivationObject*>(actfun);
-    self->cxx = new bob::trainer::CrossEntropyLoss(_actfun->cxx);
+    self->cxx = new bob::learn::mlp::CrossEntropyLoss(_actfun->cxx);
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());

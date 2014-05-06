@@ -85,7 +85,7 @@ static int PyBobLearnMLPMachine_init_sizes
   }
 
   try {
-    self->cxx = new bob::machine::MLP(cxx_shape);
+    self->cxx = new bob::learn::mlp::Machine(cxx_shape);
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
@@ -115,7 +115,7 @@ static int PyBobLearnMLPMachine_init_hdf5(PyBobLearnMLPMachineObject* self,
   auto h5f = reinterpret_cast<PyBobIoHDF5FileObject*>(config);
 
   try {
-    self->cxx = new bob::machine::MLP(*(h5f->f));
+    self->cxx = new bob::learn::mlp::Machine(*(h5f->f));
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
@@ -145,7 +145,7 @@ static int PyBobLearnMLPMachine_init_copy
   auto copy = reinterpret_cast<PyBobLearnMLPMachineObject*>(other);
 
   try {
-    self->cxx = new bob::machine::MLP(*(copy->cxx));
+    self->cxx = new bob::learn::mlp::Machine(*(copy->cxx));
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
@@ -1041,7 +1041,7 @@ PyObject* PyBobLearnMLPMachine_NewFromSize
 
   PyBobLearnMLPMachineObject* retval = (PyBobLearnMLPMachineObject*)PyBobLearnMLPMachine_new(&PyBobLearnMLPMachine_Type, 0, 0);
 
-  retval->cxx = new bob::machine::MLP(input, output);
+  retval->cxx = new bob::learn::mlp::Machine(input, output);
 
   return reinterpret_cast<PyObject*>(retval);
 
