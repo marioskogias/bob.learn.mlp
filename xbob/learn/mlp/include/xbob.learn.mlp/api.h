@@ -7,6 +7,7 @@
 #define XBOB_LEARN_MLP_H
 
 #include <Python.h>
+#include <boost/shared_ptr.hpp>
 #include <xbob.learn.mlp/config.h>
 
 #include "machine.h"
@@ -14,6 +15,7 @@
 #include "square_error.h"
 #include "cross_entropy.h"
 #include "shuffler.h"
+#include "trainer.h"
 
 #define XBOB_LEARN_MLP_MODULE_PREFIX xbob.learn.mlp
 #define XBOB_LEARN_MLP_MODULE_NAME _library
@@ -23,7 +25,7 @@
  *******************/
 
 /* Enum defining entries in the function table */
-enum _PyBobLearnMLP_ENUM{
+enum _PyBobLearnMLP_ENUM {
   PyXbobLearnMLP_APIVersion_NUM = 0,
   // Bindings for xbob.learn.mlp.Machine
   PyBobLearnMLPMachine_Type_NUM,
@@ -37,6 +39,9 @@ enum _PyBobLearnMLP_ENUM{
   // Bindings for xbob.learn.mlp.DataShuffler
   PyBobLearnDataShuffler_Type_NUM,
   PyBobLearnDataShuffler_Check_NUM,
+  // Bindings for xbob.learn.mlp.Trainer
+  PyBobLearnMLPTrainer_Type_NUM,
+  PyBobLearnMLPTrainer_Check_NUM,
   // Total number of C API pointers
   PyXbobLearnMLP_API_pointers
 };
@@ -47,9 +52,9 @@ enum _PyBobLearnMLP_ENUM{
 
 #define PyXbobLearnMLP_APIVersion_TYPE int
 
-/******************************************
+/***************************************
  * Bindings for xbob.learn.mlp.Machine *
- ******************************************/
+ ***************************************/
 
 typedef struct {
   PyObject_HEAD
@@ -66,7 +71,7 @@ typedef struct {
 
 typedef struct {
   PyObject_HEAD
-  bob::learn::mlp::Cost* cxx;
+  boost::shared_ptr<bob::learn::mlp::Cost> cxx;
 } PyBobLearnCostObject;
 
 #define PyBobLearnCost_Type_TYPE PyTypeObject
@@ -76,14 +81,14 @@ typedef struct {
 
 typedef struct {
   PyBobLearnCostObject parent;
-  bob::learn::mlp::SquareError* cxx;
+  boost::shared_ptr<bob::learn::mlp::SquareError> cxx;
 } PyBobLearnSquareErrorObject;
 
 #define PyBobLearnSquareError_Type_TYPE PyTypeObject
 
 typedef struct {
   PyBobLearnCostObject parent;
-  bob::learn::mlp::CrossEntropyLoss* cxx;
+  boost::shared_ptr<bob::learn::mlp::CrossEntropyLoss> cxx;
 } PyBobLearnCrossEntropyLossObject;
 
 #define PyBobLearnCrossEntropyLoss_Type_TYPE PyTypeObject
@@ -97,6 +102,20 @@ typedef struct {
 
 #define PyBobLearnDataShuffler_Check_RET int
 #define PyBobLearnDataShuffler_Check_PROTO (PyObject* o)
+
+/***************************************
+ * Bindings for xbob.learn.mlp.Trainer *
+ ***************************************/
+
+typedef struct {
+  PyObject_HEAD
+  bob::learn::mlp::Trainer* cxx;
+} PyBobLearnMLPTrainerObject;
+
+#define PyBobLearnMLPTrainer_Type_TYPE PyTypeObject
+
+#define PyBobLearnMLPTrainer_Check_RET int
+#define PyBobLearnMLPTrainer_Check_PROTO (PyObject* o)
 
 #ifdef XBOB_LEARN_MLP_MODULE
 
@@ -138,6 +157,14 @@ typedef struct {
 
   PyBobLearnDataShuffler_Check_RET PyBobLearnDataShuffler_Check PyBobLearnDataShuffler_Check_PROTO;
 
+  /***************************************
+   * Bindings for xbob.learn.mlp.Trainer *
+   ***************************************/
+
+  extern PyBobLearnMLPTrainer_Type_TYPE PyBobLearnMLPTrainer_Type;
+
+  PyBobLearnMLPTrainer_Check_RET PyBobLearnMLPTrainer_Check PyBobLearnMLPTrainer_Check_PROTO;
+
 #else
 
   /* This section is used in modules that use `xbob.learn.mlp's' C-API */
@@ -170,9 +197,9 @@ typedef struct {
 
 # define PyXbobLearnMLP_APIVersion (*(PyXbobLearnMLP_APIVersion_TYPE *)PyXbobLearnMLP_API[PyXbobLearnMLP_APIVersion_NUM])
 
-  /******************************************
+  /***************************************
    * Bindings for xbob.learn.mlp.Machine *
-   ******************************************/
+   ***************************************/
 
 # define PyBobLearnMLPMachine_Type (*(PyBobLearnMLPMachine_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnMLPMachine_Type_NUM])
 
@@ -199,6 +226,14 @@ typedef struct {
 # define PyBobLearnDataShuffler_Type (*(PyBobLearnDataShuffler_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnDataShuffler_Type_NUM])
 
 # define PyBobLearnDataShuffler_Check (*(PyBobLearnDataShuffler_Check_RET (*)PyBobLearnDataShuffler_Check_PROTO) PyXbobLearnMLP_API[PyBobLearnDataShuffler_Check_NUM])
+
+  /***************************************
+   * Bindings for xbob.learn.mlp.Trainer *
+   ***************************************/
+
+# define PyBobLearnMLPTrainer_Type (*(PyBobLearnMLPTrainer_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnMLPTrainer_Type_NUM])
+
+# define PyBobLearnMLPTrainer_Check (*(PyBobLearnMLPTrainer_Check_RET (*)PyBobLearnMLPTrainer_Check_PROTO) PyXbobLearnMLP_API[PyBobLearnMLPTrainer_Check_NUM])
 
 # if !defined(NO_IMPORT_ARRAY)
 

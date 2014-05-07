@@ -17,7 +17,7 @@
 #include <boost/function.hpp>
 
 #include "machine.h"
-#include "base_trainer.h"
+#include "trainer.h"
 
 namespace bob { namespace learn { namespace mlp {
 
@@ -26,7 +26,7 @@ namespace bob { namespace learn { namespace mlp {
    * back-propagation as defined in "Pattern Recognition and Machine Learning"
    * by C.M. Bishop, chapter 5.
    */
-  class BackProp: public BaseTrainer {
+  class BackProp: public Trainer {
 
     public: //api
 

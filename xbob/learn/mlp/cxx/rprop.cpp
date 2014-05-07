@@ -17,7 +17,7 @@
 
 bob::learn::mlp::RProp::RProp(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost):
-  bob::learn::mlp::BaseTrainer(batch_size, cost),
+  bob::learn::mlp::Trainer(batch_size, cost),
   m_eta_minus(0.5),
   m_eta_plus(1.2),
   m_delta_zero(0.1),
@@ -35,7 +35,7 @@ bob::learn::mlp::RProp::RProp(size_t batch_size,
 bob::learn::mlp::RProp::RProp(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost,
     const bob::learn::mlp::Machine& machine):
-  bob::learn::mlp::BaseTrainer(batch_size, cost, machine),
+  bob::learn::mlp::Trainer(batch_size, cost, machine),
   m_eta_minus(0.5),
   m_eta_plus(1.2),
   m_delta_zero(0.1),
@@ -53,7 +53,7 @@ bob::learn::mlp::RProp::RProp(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost,
     const bob::learn::mlp::Machine& machine,
     bool train_biases):
-  bob::learn::mlp::BaseTrainer(batch_size, cost, machine, train_biases),
+  bob::learn::mlp::Trainer(batch_size, cost, machine, train_biases),
   m_eta_minus(0.5),
   m_eta_plus(1.2),
   m_delta_zero(0.1),
@@ -70,7 +70,7 @@ bob::learn::mlp::RProp::RProp(size_t batch_size,
 bob::learn::mlp::RProp::~RProp() { }
 
 bob::learn::mlp::RProp::RProp(const RProp& other):
-  bob::learn::mlp::BaseTrainer(other),
+  bob::learn::mlp::Trainer(other),
   m_eta_minus(other.m_eta_minus),
   m_eta_plus(other.m_eta_plus),
   m_delta_zero(other.m_delta_zero),
@@ -91,7 +91,7 @@ bob::learn::mlp::RProp& bob::learn::mlp::RProp::operator=
 (const bob::learn::mlp::RProp& other) {
   if (this != &other)
   {
-    bob::learn::mlp::BaseTrainer::operator=(other);
+    bob::learn::mlp::Trainer::operator=(other);
 
     m_eta_minus = other.m_eta_minus;
     m_eta_plus = other.m_eta_plus;
@@ -187,7 +187,7 @@ void bob::learn::mlp::RProp::rprop_weight_update(bob::learn::mlp::Machine& machi
 
 void bob::learn::mlp::RProp::initialize(const bob::learn::mlp::Machine& machine)
 {
-  bob::learn::mlp::BaseTrainer::initialize(machine);
+  bob::learn::mlp::Trainer::initialize(machine);
 
   const std::vector<blitz::Array<double,2> >& machine_weight =
     machine.getWeights();

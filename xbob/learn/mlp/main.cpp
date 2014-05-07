@@ -53,6 +53,9 @@ static PyObject* create_module (void) {
   PyBobLearnDataShuffler_Type.tp_new = PyType_GenericNew;
   if (PyType_Ready(&PyBobLearnDataShuffler_Type) < 0) return 0;
 
+  PyBobLearnMLPTrainer_Type.tp_new = PyType_GenericNew;
+  if (PyType_Ready(&PyBobLearnMLPTrainer_Type) < 0) return 0;
+
 # if PY_VERSION_HEX >= 0x03000000
   PyObject* m = PyModule_Create(&module_definition);
 # else
@@ -80,6 +83,9 @@ static PyObject* create_module (void) {
 
   Py_INCREF(&PyBobLearnDataShuffler_Type);
   if (PyModule_AddObject(m, "DataShuffler", (PyObject *)&PyBobLearnDataShuffler_Type) < 0) return 0;
+
+  Py_INCREF(&PyBobLearnMLPTrainer_Type);
+  if (PyModule_AddObject(m, "Trainer", (PyObject *)&PyBobLearnMLPTrainer_Type) < 0) return 0;
 
   static void* PyXbobLearnMLP_API[PyXbobLearnMLP_API_pointers];
 
@@ -120,6 +126,14 @@ static PyObject* create_module (void) {
   PyXbobLearnMLP_API[PyBobLearnDataShuffler_Type_NUM] = (void *)&PyBobLearnDataShuffler_Type;
 
   PyXbobLearnMLP_API[PyBobLearnDataShuffler_Check_NUM] = (void *)&PyBobLearnDataShuffler_Check;
+
+  /***************************************
+   * Bindings for xbob.learn.mlp.Trainer *
+   ***************************************/
+
+  PyXbobLearnMLP_API[PyBobLearnMLPTrainer_Type_NUM] = (void *)&PyBobLearnMLPTrainer_Type;
+
+  PyXbobLearnMLP_API[PyBobLearnMLPTrainer_Check_NUM] = (void *)&PyBobLearnMLPTrainer_Check;
 
 #if PY_VERSION_HEX >= 0x02070000
 

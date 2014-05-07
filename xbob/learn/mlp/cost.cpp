@@ -516,7 +516,7 @@ static int PyBobLearnSquareError_init
 
   try {
     auto _actfun = reinterpret_cast<PyBobLearnActivationObject*>(actfun);
-    self->cxx = new bob::learn::mlp::SquareError(_actfun->cxx);
+    self->cxx.reset(new bob::learn::mlp::SquareError(_actfun->cxx));
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
@@ -536,8 +536,8 @@ static int PyBobLearnSquareError_init
 static void PyBobLearnSquareError_delete
 (PyBobLearnSquareErrorObject* self) {
 
-  self->parent.cxx = 0;
-  delete self->cxx;
+  self->parent.cxx.reset();
+  self->cxx.reset();
   Py_TYPE(&self->parent)->tp_free((PyObject*)self);
 
 }
@@ -635,7 +635,7 @@ static int PyBobLearnCrossEntropyLoss_init
 
   try {
     auto _actfun = reinterpret_cast<PyBobLearnActivationObject*>(actfun);
-    self->cxx = new bob::learn::mlp::CrossEntropyLoss(_actfun->cxx);
+    self->cxx.reset(new bob::learn::mlp::CrossEntropyLoss(_actfun->cxx));
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
@@ -655,8 +655,8 @@ static int PyBobLearnCrossEntropyLoss_init
 static void PyBobLearnCrossEntropyLoss_delete
 (PyBobLearnCrossEntropyLossObject* self) {
 
-  self->parent.cxx = 0;
-  delete self->cxx;
+  self->parent.cxx.reset();
+  self->cxx.reset();
   Py_TYPE(&self->parent)->tp_free((PyObject*)self);
 
 }

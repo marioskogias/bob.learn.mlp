@@ -63,11 +63,12 @@ setup(
         ),
       Extension("xbob.learn.mlp._library",
         [
+          "xbob/learn/mlp/trainer.cpp",
           "xbob/learn/mlp/cxx/machine.cpp",
           "xbob/learn/mlp/cxx/cross_entropy.cpp",
           "xbob/learn/mlp/cxx/square_error.cpp",
           "xbob/learn/mlp/cxx/shuffler.cpp",
-          "xbob/learn/mlp/cxx/base_trainer.cpp",
+          "xbob/learn/mlp/cxx/trainer.cpp",
           "xbob/learn/mlp/cxx/backprop.cpp",
           "xbob/learn/mlp/cxx/rprop.cpp",
           "xbob/learn/mlp/shuffler.cpp",

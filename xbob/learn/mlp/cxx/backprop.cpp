@@ -16,7 +16,7 @@
 
 bob::learn::mlp::BackProp::BackProp(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost):
-  bob::learn::mlp::BaseTrainer(batch_size, cost),
+  bob::learn::mlp::Trainer(batch_size, cost),
   m_learning_rate(0.1),
   m_momentum(0.0),
   m_prev_deriv(numberOfHiddenLayers() + 1),
@@ -28,7 +28,7 @@ bob::learn::mlp::BackProp::BackProp(size_t batch_size,
 bob::learn::mlp::BackProp::BackProp(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost,
     const bob::learn::mlp::Machine& machine):
-  bob::learn::mlp::BaseTrainer(batch_size, cost, machine),
+  bob::learn::mlp::Trainer(batch_size, cost, machine),
   m_learning_rate(0.1),
   m_momentum(0.0),
   m_prev_deriv(numberOfHiddenLayers() + 1),
@@ -40,7 +40,7 @@ bob::learn::mlp::BackProp::BackProp(size_t batch_size,
 bob::learn::mlp::BackProp::BackProp(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost,
     const bob::learn::mlp::Machine& machine, bool train_biases):
-  bob::learn::mlp::BaseTrainer(batch_size, cost, machine, train_biases),
+  bob::learn::mlp::Trainer(batch_size, cost, machine, train_biases),
   m_learning_rate(0.1),
   m_momentum(0.0),
   m_prev_deriv(numberOfHiddenLayers() + 1),
@@ -52,7 +52,7 @@ bob::learn::mlp::BackProp::BackProp(size_t batch_size,
 bob::learn::mlp::BackProp::~BackProp() { }
 
 bob::learn::mlp::BackProp::BackProp(const BackProp& other):
-  bob::learn::mlp::BaseTrainer(other),
+  bob::learn::mlp::Trainer(other),
   m_learning_rate(other.m_learning_rate),
   m_momentum(other.m_momentum)
 {
@@ -64,7 +64,7 @@ bob::learn::mlp::BackProp& bob::learn::mlp::BackProp::operator=
 (const bob::learn::mlp::BackProp& other) {
   if (this != &other)
   {
-    bob::learn::mlp::BaseTrainer::operator=(other);
+    bob::learn::mlp::Trainer::operator=(other);
     m_learning_rate = other.m_learning_rate;
     m_momentum = other.m_momentum;
 
@@ -147,7 +147,7 @@ void bob::learn::mlp::BackProp::setPreviousBiasDerivative(const blitz::Array<dou
 
 void bob::learn::mlp::BackProp::initialize(const bob::learn::mlp::Machine& machine)
 {
-  bob::learn::mlp::BaseTrainer::initialize(machine);
+  bob::learn::mlp::Trainer::initialize(machine);
 
   const std::vector<blitz::Array<double,2> >& machine_weight =
     machine.getWeights();

@@ -11,9 +11,9 @@
 #include <bob/core/check.h>
 #include <bob/math/linear.h>
 
-#include <xbob.learn.mlp/base_trainer.h>
+#include <xbob.learn.mlp/trainer.h>
 
-bob::learn::mlp::BaseTrainer::BaseTrainer(size_t batch_size,
+bob::learn::mlp::Trainer::Trainer(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost):
   m_batch_size(batch_size),
   m_cost(cost),
@@ -31,7 +31,7 @@ bob::learn::mlp::BaseTrainer::BaseTrainer(size_t batch_size,
   reset();
 }
 
-bob::learn::mlp::BaseTrainer::BaseTrainer(size_t batch_size,
+bob::learn::mlp::Trainer::Trainer(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost,
     const bob::learn::mlp::Machine& machine):
   m_batch_size(batch_size),
@@ -46,7 +46,7 @@ bob::learn::mlp::BaseTrainer::BaseTrainer(size_t batch_size,
   initialize(machine);
 }
 
-bob::learn::mlp::BaseTrainer::BaseTrainer(size_t batch_size,
+bob::learn::mlp::Trainer::Trainer(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost,
     const bob::learn::mlp::Machine& machine,
     bool train_biases):
@@ -62,9 +62,9 @@ bob::learn::mlp::BaseTrainer::BaseTrainer(size_t batch_size,
   initialize(machine);
 }
 
-bob::learn::mlp::BaseTrainer::~BaseTrainer() { }
+bob::learn::mlp::Trainer::~Trainer() { }
 
-bob::learn::mlp::BaseTrainer::BaseTrainer(const BaseTrainer& other):
+bob::learn::mlp::Trainer::Trainer(const Trainer& other):
   m_batch_size(other.m_batch_size),
   m_cost(other.m_cost),
   m_train_bias(other.m_train_bias),
@@ -76,8 +76,8 @@ bob::learn::mlp::BaseTrainer::BaseTrainer(const BaseTrainer& other):
   bob::core::array::ccopy(other.m_output, m_output);
 }
 
-bob::learn::mlp::BaseTrainer& bob::learn::mlp::BaseTrainer::operator=
-(const bob::learn::mlp::BaseTrainer& other) {
+bob::learn::mlp::Trainer& bob::learn::mlp::Trainer::operator=
+(const bob::learn::mlp::Trainer& other) {
   if (this != &other)
   {
     m_batch_size = other.m_batch_size;
@@ -93,7 +93,7 @@ bob::learn::mlp::BaseTrainer& bob::learn::mlp::BaseTrainer::operator=
   return *this;
 }
 
-void bob::learn::mlp::BaseTrainer::setBatchSize (size_t batch_size) {
+void bob::learn::mlp::Trainer::setBatchSize (size_t batch_size) {
   // m_output: values after the activation function
   // m_error: error values;
 
@@ -108,7 +108,7 @@ void bob::learn::mlp::BaseTrainer::setBatchSize (size_t batch_size) {
   }
 }
 
-bool bob::learn::mlp::BaseTrainer::isCompatible(const bob::learn::mlp::Machine& machine) const
+bool bob::learn::mlp::Trainer::isCompatible(const bob::learn::mlp::Machine& machine) const
 {
   if (m_H != machine.numOfHiddenLayers()) return false;
 
@@ -125,7 +125,7 @@ bool bob::learn::mlp::BaseTrainer::isCompatible(const bob::learn::mlp::Machine& 
   return true;
 }
 
-void bob::learn::mlp::BaseTrainer::forward_step(const bob::learn::mlp::Machine& machine,
+void bob::learn::mlp::Trainer::forward_step(const bob::learn::mlp::Machine& machine,
   const blitz::Array<double,2>& input)
 {
   const std::vector<blitz::Array<double,2> >& machine_weight = machine.getWeights();
@@ -147,7 +147,7 @@ void bob::learn::mlp::BaseTrainer::forward_step(const bob::learn::mlp::Machine& 
   }
 }
 
-void bob::learn::mlp::BaseTrainer::backward_step
+void bob::learn::mlp::Trainer::backward_step
 (const bob::learn::mlp::Machine& machine,
  const blitz::Array<double,2>& input, const blitz::Array<double,2>& target)
 {
@@ -184,7 +184,7 @@ void bob::learn::mlp::BaseTrainer::backward_step
   }
 }
 
-double bob::learn::mlp::BaseTrainer::cost
+double bob::learn::mlp::Trainer::cost
 (const blitz::Array<double,2>& target) const {
   bob::core::array::assertSameShape(m_output[m_H], target);
   double retval = 0.0;
@@ -196,14 +196,14 @@ double bob::learn::mlp::BaseTrainer::cost
   return retval / target.extent(0);
 }
 
-double bob::learn::mlp::BaseTrainer::cost
+double bob::learn::mlp::Trainer::cost
 (const bob::learn::mlp::Machine& machine, const blitz::Array<double,2>& input,
  const blitz::Array<double,2>& target) {
   forward_step(machine, input);
   return cost(target);
 }
 
-void bob::learn::mlp::BaseTrainer::initialize(const bob::learn::mlp::Machine& machine)
+void bob::learn::mlp::Trainer::initialize(const bob::learn::mlp::Machine& machine)
 {
   const std::vector<blitz::Array<double,2> >& machine_weight =
     machine.getWeights();
@@ -225,7 +225,7 @@ void bob::learn::mlp::BaseTrainer::initialize(const bob::learn::mlp::Machine& ma
   reset();
 }
 
-void bob::learn::mlp::BaseTrainer::setError(const std::vector<blitz::Array<double,2> >& error) {
+void bob::learn::mlp::Trainer::setError(const std::vector<blitz::Array<double,2> >& error) {
   bob::core::array::assertSameDimensionLength(error.size(), m_error.size());
   for (size_t k=0; k<error.size(); ++k)
   {
@@ -234,9 +234,9 @@ void bob::learn::mlp::BaseTrainer::setError(const std::vector<blitz::Array<doubl
   }
 }
 
-void bob::learn::mlp::BaseTrainer::setError(const blitz::Array<double,2>& error, const size_t id) {
+void bob::learn::mlp::Trainer::setError(const blitz::Array<double,2>& error, const size_t id) {
   if (id >= m_error.size()) {
-    boost::format m("BaseTrainer: index for setting error array %lu is not on the expected range of [0, %lu]");
+    boost::format m("Trainer: index for setting error array %lu is not on the expected range of [0, %lu]");
     m % id % (m_error.size()-1);
     throw std::runtime_error(m.str());
   }
@@ -244,7 +244,7 @@ void bob::learn::mlp::BaseTrainer::setError(const blitz::Array<double,2>& error,
   m_error[id] = error;
 }
 
-void bob::learn::mlp::BaseTrainer::setOutput(const std::vector<blitz::Array<double,2> >& output) {
+void bob::learn::mlp::Trainer::setOutput(const std::vector<blitz::Array<double,2> >& output) {
   bob::core::array::assertSameDimensionLength(output.size(), m_output.size());
   for (size_t k=0; k<output.size(); ++k)
   {
@@ -253,9 +253,9 @@ void bob::learn::mlp::BaseTrainer::setOutput(const std::vector<blitz::Array<doub
   }
 }
 
-void bob::learn::mlp::BaseTrainer::setOutput(const blitz::Array<double,2>& output, const size_t id) {
+void bob::learn::mlp::Trainer::setOutput(const blitz::Array<double,2>& output, const size_t id) {
   if (id >= m_output.size()) {
-    boost::format m("BaseTrainer: index for setting output array %lu is not on the expected range of [0, %lu]");
+    boost::format m("Trainer: index for setting output array %lu is not on the expected range of [0, %lu]");
     m % id % (m_output.size()-1);
     throw std::runtime_error(m.str());
   }
@@ -263,7 +263,7 @@ void bob::learn::mlp::BaseTrainer::setOutput(const blitz::Array<double,2>& outpu
   m_output[id] = output;
 }
 
-void bob::learn::mlp::BaseTrainer::setDerivatives(const std::vector<blitz::Array<double,2> >& deriv) {
+void bob::learn::mlp::Trainer::setDerivatives(const std::vector<blitz::Array<double,2> >& deriv) {
   bob::core::array::assertSameDimensionLength(deriv.size(), m_deriv.size());
   for (size_t k=0; k<deriv.size(); ++k)
   {
@@ -272,9 +272,9 @@ void bob::learn::mlp::BaseTrainer::setDerivatives(const std::vector<blitz::Array
   }
 }
 
-void bob::learn::mlp::BaseTrainer::setDerivative(const blitz::Array<double,2>& deriv, const size_t id) {
+void bob::learn::mlp::Trainer::setDerivative(const blitz::Array<double,2>& deriv, const size_t id) {
   if (id >= m_deriv.size()) {
-    boost::format m("BaseTrainer: index for setting derivative array %lu is not on the expected range of [0, %lu]");
+    boost::format m("Trainer: index for setting derivative array %lu is not on the expected range of [0, %lu]");
     m % id % (m_deriv.size()-1);
     throw std::runtime_error(m.str());
   }
@@ -282,7 +282,7 @@ void bob::learn::mlp::BaseTrainer::setDerivative(const blitz::Array<double,2>& d
   m_deriv[id] = deriv;
 }
 
-void bob::learn::mlp::BaseTrainer::setBiasDerivatives(const std::vector<blitz::Array<double,1> >& deriv_bias) {
+void bob::learn::mlp::Trainer::setBiasDerivatives(const std::vector<blitz::Array<double,1> >& deriv_bias) {
   bob::core::array::assertSameDimensionLength(deriv_bias.size(), m_deriv_bias.size());
   for (size_t k=0; k<deriv_bias.size(); ++k)
   {
@@ -291,9 +291,9 @@ void bob::learn::mlp::BaseTrainer::setBiasDerivatives(const std::vector<blitz::A
   }
 }
 
-void bob::learn::mlp::BaseTrainer::setBiasDerivative(const blitz::Array<double,1>& deriv_bias, const size_t id) {
+void bob::learn::mlp::Trainer::setBiasDerivative(const blitz::Array<double,1>& deriv_bias, const size_t id) {
   if (id >= m_deriv_bias.size()) {
-    boost::format m("BaseTrainer: index for setting bias derivative array %lu is not on the expected range of [0, %lu]");
+    boost::format m("Trainer: index for setting bias derivative array %lu is not on the expected range of [0, %lu]");
     m % id % (m_deriv_bias.size()-1);
     throw std::runtime_error(m.str());
   }
@@ -301,7 +301,7 @@ void bob::learn::mlp::BaseTrainer::setBiasDerivative(const blitz::Array<double,1
   m_deriv_bias[id] = deriv_bias;
 }
 
-void bob::learn::mlp::BaseTrainer::reset() {
+void bob::learn::mlp::Trainer::reset() {
   for (size_t k=0; k<(m_H + 1); ++k) {
     m_deriv[k] = 0.;
     m_deriv_bias[k] = 0.;

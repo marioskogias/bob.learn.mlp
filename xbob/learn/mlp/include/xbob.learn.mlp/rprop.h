@@ -18,7 +18,7 @@
 #include <boost/function.hpp>
 
 #include "machine.h"
-#include "base_trainer.h"
+#include "trainer.h"
 
 namespace bob { namespace learn { namespace mlp {
 
@@ -28,7 +28,7 @@ namespace bob { namespace learn { namespace mlp {
    * by Martin Riedmiller and Heinrich Braun on IEEE International Conference
    * on Neural Networks, pp. 586--591, 1993.
    */
-  class RProp: public BaseTrainer {
+  class RProp: public Trainer {
 
     public: //api
 

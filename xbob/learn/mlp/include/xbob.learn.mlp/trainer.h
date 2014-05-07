@@ -44,12 +44,12 @@ namespace bob { namespace learn { namespace mlp {
    *    \times a^{(l-1)}) + (\mu) \times w_{n-1}
    *    @f]
    */
-  class BaseTrainer {
+  class Trainer {
 
     public: //api
 
       /**
-       * @brief Initializes a new BaseTrainer trainer according to a given
+       * @brief Initializes a new Trainer trainer according to a given
        * training batch size.
        *
        * @param batch_size The number of examples passed at each iteration. If
@@ -67,11 +67,10 @@ namespace bob { namespace learn { namespace mlp {
        * @note Good values for batch sizes are tens of samples. This may affect
        * the convergence.
        */
-      BaseTrainer(size_t batch_size,
-          boost::shared_ptr<Cost> cost);
+      Trainer(size_t batch_size, boost::shared_ptr<Cost> cost);
 
       /**
-       * @brief Initializes a new BaseTrainer trainer according to a given
+       * @brief Initializes a new Trainer trainer according to a given
        * machine settings and a training batch size.
        *
        * @param batch_size The number of examples passed at each iteration. If
@@ -88,12 +87,11 @@ namespace bob { namespace learn { namespace mlp {
        * @note Good values for batch sizes are tens of samples. This may affect
        * the convergence.
        */
-      BaseTrainer(size_t batch_size,
-          boost::shared_ptr<Cost> cost,
+      Trainer(size_t batch_size, boost::shared_ptr<Cost> cost,
           const Machine& machine);
 
       /**
-       * @brief Initializes a new BaseTrainer trainer according to a given
+       * @brief Initializes a new Trainer trainer according to a given
        * machine settings and a training batch size.
        *
        * @param batch_size The number of examples passed at each iteration. If
@@ -110,25 +108,23 @@ namespace bob { namespace learn { namespace mlp {
        * @note Good values for batch sizes are tens of samples. This may affect
        * the convergence.
        */
-      BaseTrainer(size_t batch_size,
-          boost::shared_ptr<Cost> cost,
-          const Machine& machine,
-          bool train_biases);
+      Trainer(size_t batch_size, boost::shared_ptr<Cost> cost,
+          const Machine& machine, bool train_biases);
 
       /**
        * @brief Destructor virtualisation
        */
-      virtual ~BaseTrainer();
+      virtual ~Trainer();
 
       /**
        * @brief Copy construction.
        */
-      BaseTrainer(const BaseTrainer& other);
+      Trainer(const Trainer& other);
 
       /**
        * @brief Copy operator
        */
-      BaseTrainer& operator=(const BaseTrainer& other);
+      Trainer& operator=(const Trainer& other);
 
       /**
        * @brief Gets the batch size
