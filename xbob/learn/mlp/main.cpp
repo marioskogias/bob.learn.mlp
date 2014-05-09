@@ -105,8 +105,6 @@ static PyObject* create_module (void) {
 
   PyXbobLearnMLP_API[PyBobLearnMLPMachine_Check_NUM] = (void *)&PyBobLearnMLPMachine_Check;
 
-  PyXbobLearnMLP_API[PyBobLearnMLPMachine_NewFromSize_NUM] = (void *)&PyBobLearnMLPMachine_NewFromSize;
-
   /************************************
    * Bindings for xbob.learn.mlp.Cost *
    ************************************/
@@ -114,6 +112,8 @@ static PyObject* create_module (void) {
   PyXbobLearnMLP_API[PyBobLearnCost_Type_NUM] = (void *)&PyBobLearnCost_Type;
 
   PyXbobLearnMLP_API[PyBobLearnCost_Check_NUM] = (void *)&PyBobLearnCost_Check;
+
+  PyXbobLearnMLP_API[PyBobLearnCost_NewFromCost_NUM] = (void *)&PyBobLearnCost_NewFromCost;
 
   PyXbobLearnMLP_API[PyBobLearnSquareError_Type_NUM] = (void *)&PyBobLearnSquareError_Type;
 

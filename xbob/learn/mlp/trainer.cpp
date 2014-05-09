@@ -30,9 +30,37 @@ trainers and re-use the base infrastructured provided by this\n\
 module, such as the computation of partial derivatives (using\n\
 the :py:meth:`backward_step` method).\n\
 \n\
-To create a new trainer, either pass another trainer you'd like\n\
-the parameters copied from or pass the batch-size, cost functor,\n\
-machine and a biases-training flag.\n\
+To create a new trainer, either pass the batch-size, cost functor,\n\
+machine and a biases-training flag or another trainer you'd like\n\
+the parameters copied from.\n\
+\n\
+Keyword parameters:\n\
+\n\
+batch_size, int\n\
+   The size of each batch used for the forward and backward steps.\n\
+   If you set this to ``1``, then you are implementing stochastic\n\
+   training.\n\
+   \n\
+   .. note::\n\
+   \n\
+      This setting affects the convergence.\n\
+\n\
+cost, :py:class:`xbob.learn.mlp.Cost`\n\
+   An object that can calculate the cost at every iteration.\n\
+\n\
+machine, :py:class:`xbob.learn.mlp.Machine`\n\
+   This parameter that will be used as a basis for this trainer's\n\
+   internal properties (cache sizes, for instance).\n\
+\n\
+train_biases, bool\n\
+   A boolean indicating if we should train the biases weights (set\n\
+   it to ``True``) or not (set it to ``False``).\n\
+\n\
+other, :py:class:`xbob.learn.mlp.Trainer`\n\
+   Another trainer from which this new copy will get its properties\n\
+   from. If you use this constructor than a new (deep) copy of the\n\
+   trainer is created.\n\
+\n\
 ");
 
 static int PyBobLearnMLPTrainer_init_discrete
@@ -163,6 +191,752 @@ static PyObject* PyBobLearnMLPTrainer_new
 
 }
 
+PyDoc_STRVAR(s_batch_size_str, "batch_size");
+PyDoc_STRVAR(s_batch_size_doc,
+"How many examples should be fed each time through the network\n\
+for testing or training. This number reflects the internal sizes\n\
+of structures setup to accomodate the input and the output of\n\
+the network.");
+
+static PyObject* PyBobLearnMLPTrainer_getBatchSize
+(PyBobLearnMLPTrainerObject* self, void* /*closure*/) {
+  return Py_BuildValue("n", self->cxx->getBatchSize());
+}
+
+static int PyBobLearnMLPTrainer_setBatchSize
+(PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
+
+  Py_ssize_t value = PyNumber_AsSsize_t(o, PyExc_OverflowError);
+  if (PyErr_Occurred()) return -1;
+  self->cxx->setBatchSize(value);
+  return 0;
+
+}
+
+PyDoc_STRVAR(s_cost_object_str, "cost_object");
+PyDoc_STRVAR(s_cost_object_doc,
+"An object, derived from :py:class:`xbob.learn.mlp.Cost` (e.g.\n\
+:py:class:`xbob.learn.mlp.SquareError` or \n\
+:py:class:`bob.trainer.CrossEntropyLoss`), that is used to evaluate\n\
+the cost (a.k.a. *loss*) and the derivatives given the input, the\n\
+target and the MLP structure.");
+
+static PyObject* PyBobLearnMLPTrainer_getCost
+(PyBobLearnMLPTrainerObject* self, void* /*closure*/) {
+  return PyBobLearnCost_NewFromCost(self->cxx->getCost());
+}
+
+static int PyBobLearnMLPTrainer_setCost
+(PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
+
+  if (!PyBobLearnCost_Check(o)) {
+    PyErr_Format(PyExc_TypeError, "%s.cost requires an object of type `Cost' (or an inherited type), not `%s'", Py_TYPE(self)->tp_name, Py_TYPE(o)->tp_name);
+    return -1;
+  }
+
+  auto py = reinterpret_cast<PyBobLearnCostObject*>(o);
+  self->cxx->setCost(py->cxx);
+  return 0;
+
+}
+
+PyDoc_STRVAR(s_train_biases_str, "train_biases");
+PyDoc_STRVAR(s_train_biases_doc,
+"A flag, indicating if this trainer will adjust the biases\n\
+of the network");
+
+static PyObject* PyBobLearnMLPTrainer_getTrainBiases
+(PyBobLearnMLPTrainerObject* self, void* /*closure*/) {
+  if (self->cxx->getTrainBiases()) Py_RETURN_TRUE;
+  Py_RETURN_FALSE;
+}
+
+static int PyBobLearnMLPTrainer_setTrainBiases
+(PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
+  self->cxx->setTrainBiases(PyObject_IsTrue(o));
+  return -1;
+}
+
+template <int N>
+PyObject* convert_vector(const std::vector<blitz::Array<double,N>>& v) {
+  PyObject* retval = PyTuple_New(v.size());
+  auto retval_ = make_safe(retval);
+  if (!retval) return 0;
+  for (int k=0; k<v.size(); ++k) {
+    auto arr = PyBlitzArrayCxx_NewFromConstArray(v[k]);
+    if (!arr) return 0;
+    PyTuple_SET_ITEM(retval, k, arr);
+  }
+  Py_INCREF(retval);
+  return retval;
+}
+
+template <int N>
+int convert_tuple(PyBobLearnMLPTrainerObject* self, const char* attr,
+    PyObject* o, std::vector<blitz::Array<double,N>>& seq) {
+
+  if (!PyIter_Check(o) && !PySequence_Check(o)) {
+    PyErr_Format(PyExc_TypeError, "setting attribute `%s' of `%s' requires an iterable, but you passed `%s' which does not implement the iterator protocol", Py_TYPE(self)->tp_name, attr, Py_TYPE(o)->tp_name);
+    return -1;
+  }
+
+  /* Checks and converts all entries */
+  std::vector<boost::shared_ptr<PyBlitzArrayObject>> seq_;
+
+  PyObject* iterator = PyObject_GetIter(o);
+  if (!iterator) return -1;
+  auto iterator_ = make_safe(iterator);
+
+  while (PyObject* item = PyIter_Next(iterator)) {
+    auto item_ = make_safe(item);
+
+    PyBlitzArrayObject* bz = 0;
+
+    if (!PyBlitzArray_Converter(item, &bz)) {
+      PyErr_Format(PyExc_TypeError, "`%s' (while setting `%s') could not convert object of type `%s' at position %" PY_FORMAT_SIZE_T "d of input sequence into an array - check your input", Py_TYPE(self)->tp_name, attr, Py_TYPE(item)->tp_name, seq.size());
+      return -1;
+    }
+
+    if (bz->ndim != N || bz->type_num != NPY_FLOAT64) {
+      PyErr_Format(PyExc_TypeError, "`%s' only supports 2D 64-bit float arrays for attribute `%s' (or any other object coercible to that), but at position %" PY_FORMAT_SIZE_T "d I have found an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, attr, seq.size(), bz->ndim, PyBlitzArray_TypenumAsString(bz->type_num));
+      Py_DECREF(bz);
+      return -1;
+    }
+
+    seq_.push_back(make_safe(bz)); ///< prevents data deletion
+    seq.push_back(*PyBlitzArrayCxx_AsBlitz<double,N>(bz)); ///< only a view!
+  }
+
+  if (PyErr_Occurred()) return -1;
+
+  return 0;
+}
+
+PyDoc_STRVAR(s_error_str, "error");
+PyDoc_STRVAR(s_error_doc,
+"The error (a.k.a. :math:`\\delta`'s) back-propagated through the\n\
+network, given an input and a target.");
+
+static PyObject* PyBobLearnMLPTrainer_getError
+(PyBobLearnMLPTrainerObject* self, void* /*closure*/) {
+  return convert_vector<2>(self->cxx->getError());
+}
+
+static int PyBobLearnMLPTrainer_setError
+(PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
+
+  std::vector<blitz::Array<double,2>> bzvec;
+  int retval = convert_tuple<2>(self, s_error_str, o, bzvec);
+  if (retval < 0) return retval;
+
+  try {
+    self->cxx->setError(bzvec);
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return -1;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot reset `%s' of %s: unknown exception caught", Py_TYPE(self)->tp_name, s_error_str);
+    return -1;
+  }
+
+  return 0;
+
+}
+
+PyDoc_STRVAR(s_output_str, "output");
+PyDoc_STRVAR(s_output_doc,
+"The outputs of each neuron in the network");
+
+static PyObject* PyBobLearnMLPTrainer_getOutput
+(PyBobLearnMLPTrainerObject* self, void* /*closure*/) {
+  return convert_vector<2>(self->cxx->getOutput());
+}
+
+static int PyBobLearnMLPTrainer_setOutput
+(PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
+
+  std::vector<blitz::Array<double,2>> bzvec;
+  int retval = convert_tuple<2>(self, s_output_str, o, bzvec);
+  if (retval < 0) return retval;
+
+  try {
+    self->cxx->setOutput(bzvec);
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return -1;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot reset `%s' of %s: unknown exception caught", Py_TYPE(self)->tp_name, s_output_str);
+    return -1;
+  }
+
+  return 0;
+
+}
+
+PyDoc_STRVAR(s_derivatives_str, "derivatives");
+PyDoc_STRVAR(s_derivatives_doc,
+"The calculated derivatives of the cost w.r.t. to the specific\n\
+**weights** of the network, organized to match the organization\n\
+of weights of the machine being trained.");
+
+static PyObject* PyBobLearnMLPTrainer_getDerivatives
+(PyBobLearnMLPTrainerObject* self, void* /*closure*/) {
+  return convert_vector<2>(self->cxx->getDerivatives());
+}
+
+static int PyBobLearnMLPTrainer_setDerivatives
+(PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
+
+  std::vector<blitz::Array<double,2>> bzvec;
+  int retval = convert_tuple<2>(self, s_derivatives_str, o, bzvec);
+  if (retval < 0) return retval;
+
+  try {
+    self->cxx->setDerivatives(bzvec);
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return -1;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot reset `%s' of %s: unknown exception caught", Py_TYPE(self)->tp_name, s_derivatives_str);
+    return -1;
+  }
+
+  return 0;
+
+}
+
+PyDoc_STRVAR(s_bias_derivatives_str, "bias_derivatives");
+PyDoc_STRVAR(s_bias_derivatives_doc,
+"The calculated derivatives of the cost w.r.t. to the specific\n\
+**biases** of the network, organized to match the organization\n\
+of biases of the machine being trained.");
+
+static PyObject* PyBobLearnMLPTrainer_getBiasDerivatives
+(PyBobLearnMLPTrainerObject* self, void* /*closure*/) {
+  return convert_vector<1>(self->cxx->getBiasDerivatives());
+}
+
+static int PyBobLearnMLPTrainer_setBiasDerivatives
+(PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
+
+  std::vector<blitz::Array<double,1>> bzvec;
+  int retval = convert_tuple<1>(self, s_bias_derivatives_str, o, bzvec);
+  if (retval < 0) return retval;
+
+  try {
+    self->cxx->setBiasDerivatives(bzvec);
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return -1;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot reset `%s' of %s: unknown exception caught", Py_TYPE(self)->tp_name, s_bias_derivatives_str);
+    return -1;
+  }
+
+  return 0;
+
+}
+
+static PyGetSetDef PyBobLearnMLPTrainer_getseters[] = {
+    {
+      s_batch_size_str,
+      (getter)PyBobLearnMLPTrainer_getBatchSize,
+      (setter)PyBobLearnMLPTrainer_setBatchSize,
+      s_batch_size_doc,
+      0
+    },
+    {
+      s_cost_object_str,
+      (getter)PyBobLearnMLPTrainer_getCost,
+      (setter)PyBobLearnMLPTrainer_setCost,
+      s_cost_object_doc,
+      0
+    },
+    {
+      s_train_biases_str,
+      (getter)PyBobLearnMLPTrainer_getTrainBiases,
+      (setter)PyBobLearnMLPTrainer_setTrainBiases,
+      s_train_biases_doc,
+      0
+    },
+    {
+      s_error_str,
+      (getter)PyBobLearnMLPTrainer_getError,
+      (setter)PyBobLearnMLPTrainer_setError,
+      s_error_doc,
+      0
+    },
+    {
+      s_output_str,
+      (getter)PyBobLearnMLPTrainer_getOutput,
+      (setter)PyBobLearnMLPTrainer_setOutput,
+      s_output_doc,
+      0
+    },
+    {
+      s_derivatives_str,
+      (getter)PyBobLearnMLPTrainer_getDerivatives,
+      (setter)PyBobLearnMLPTrainer_setDerivatives,
+      s_derivatives_doc,
+      0
+    },
+    {
+      s_bias_derivatives_str,
+      (getter)PyBobLearnMLPTrainer_getBiasDerivatives,
+      (setter)PyBobLearnMLPTrainer_setBiasDerivatives,
+      s_bias_derivatives_doc,
+      0
+    },
+    {0}  /* Sentinel */
+};
+
+PyDoc_STRVAR(s_is_compatible_str, "is_compatible");
+PyDoc_STRVAR(s_is_compatible_doc, "Checks if a given machine is compatible with inner settings");
+
+static PyObject* PyBobLearnMLPTrainer_isCompatible
+(PyBobLearnMLPTrainerObject* self, PyObject* o) {
+
+  if (!PyBobLearnMLPMachine_Check(o)) {
+    PyErr_Format(PyExc_TypeError, "`%s.%s()' requires a `%s' as input, not `%s'",
+        Py_TYPE(self)->tp_name, s_is_compatible_str,
+        PyBobLearnMLPMachine_Type.tp_name, Py_TYPE(o)->tp_name);
+    return 0;
+  }
+
+  auto machine = reinterpret_cast<PyBobLearnMLPMachineObject*>(o);
+
+  if (self->cxx->isCompatible(*machine->cxx)) Py_RETURN_TRUE;
+  Py_RETURN_FALSE;
+
+}
+
+PyDoc_STRVAR(s_initialize_str, "initialize");
+PyDoc_STRVAR(s_initialize_doc, "Initialize the trainer with the given machine");
+
+static PyObject* PyBobLearnMLPTrainer_initialize
+(PyBobLearnMLPTrainerObject* self, PyObject* o) {
+
+  if (!PyBobLearnMLPMachine_Check(o)) {
+    PyErr_Format(PyExc_TypeError, "`%s.%s()' requires a `%s' as input, not `%s'",
+        Py_TYPE(self)->tp_name, s_initialize_str,
+        PyBobLearnMLPMachine_Type.tp_name, Py_TYPE(o)->tp_name);
+    return 0;
+  }
+
+  auto machine = reinterpret_cast<PyBobLearnMLPMachineObject*>(o);
+
+  try {
+    self->cxx->initialize(*machine->cxx);
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return 0;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot initialize `%s': unknown exception caught", Py_TYPE(self)->tp_name);
+    return 0;
+  }
+
+  Py_RETURN_NONE;
+
+}
+
+PyDoc_STRVAR(s_forward_step_str, "forward_step");
+PyDoc_STRVAR(s_forward_step_doc, "Forwards a batch of data through the MLP and updates the internal buffers.");
+
+static PyObject* PyBobLearnMLPTrainer_forwardStep
+(PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
+
+  /* Parses input arguments in a single shot */
+  static const char* const_kwlist[] = {"machine", "input"};
+  static char** kwlist = const_cast<char**>(const_kwlist);
+
+  PyBobLearnMLPMachineObject* machine = 0;
+  PyBlitzArrayObject* input = 0;
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!O&", kwlist,
+        &PyBobLearnMLPMachine_Type, &machine,
+        &PyBlitzArray_Converter, &input)) return 0;
+
+  if (input->type_num != NPY_FLOAT64 || input->ndim != 2) {
+    PyErr_Format(PyExc_TypeError, "`%s' only supports 2D 64-bit float arrays for input array `input'", Py_TYPE(self)->tp_name);
+    return 0;
+  }
+
+  try {
+    self->cxx->forward_step(*machine->cxx, *PyBlitzArrayCxx_AsBlitz<double,2>(input));
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return 0;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot perform forward-step for `%s': unknown exception caught", Py_TYPE(self)->tp_name);
+    return 0;
+  }
+
+  Py_RETURN_NONE;
+
+}
+
+PyDoc_STRVAR(s_backward_step_str, "backward_step");
+PyDoc_STRVAR(s_backward_step_doc,
+"Backwards a batch of data through the MLP and updates the\n\
+internal buffers (errors and derivatives).");
+
+static PyObject* PyBobLearnMLPTrainer_backwardStep
+(PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
+
+  /* Parses input arguments in a single shot */
+  static const char* const_kwlist[] = {"machine", "input", "target"};
+  static char** kwlist = const_cast<char**>(const_kwlist);
+
+  PyBobLearnMLPMachineObject* machine = 0;
+  PyBlitzArrayObject* input = 0;
+  PyBlitzArrayObject* target = 0;
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!O&O&", kwlist,
+        &PyBobLearnMLPMachine_Type, &machine,
+        &PyBlitzArray_Converter, &input,
+        &PyBlitzArray_Converter, &target)) return 0;
+
+  if (input->type_num != NPY_FLOAT64 || input->ndim != 2) {
+    PyErr_Format(PyExc_TypeError, "`%s' only supports 2D 64-bit float arrays for input array `input'", Py_TYPE(self)->tp_name);
+    return 0;
+  }
+
+  if (target->type_num != NPY_FLOAT64 || target->ndim != 2) {
+    PyErr_Format(PyExc_TypeError, "`%s' only supports 2D 64-bit float arrays for input array `target'", Py_TYPE(self)->tp_name);
+    return 0;
+  }
+
+  try {
+    self->cxx->backward_step(*machine->cxx,
+        *PyBlitzArrayCxx_AsBlitz<double,2>(input),
+        *PyBlitzArrayCxx_AsBlitz<double,2>(target)
+        );
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return 0;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot perform backward-step for `%s': unknown exception caught", Py_TYPE(self)->tp_name);
+    return 0;
+  }
+
+  Py_RETURN_NONE;
+
+}
+
+PyDoc_STRVAR(s_cost_str, "cost");
+PyDoc_STRVAR(s_cost_doc,
+"o.cost(target, [machine, input]) -> float\n\
+\n\
+Calculates the cost for a given target.\n\
+\n\
+The cost for a given target is defined as the sum of individual\n\
+costs for every output in the current network, averaged over all\n\
+the examples.\n\
+\n\
+You can use this function in two ways. Either by initially calling\n\
+:py:meth:`forward_step` passing ``machine`` and ``input`` and then\n\
+calling this method with just the ``target`` or passing all three\n\
+objects in a single call. With the latter strategy, the\n\
+:py:meth:`forward_step` will be called internally.\n\
+\n\
+This function returns a single scalar, of ``float`` type,\n\
+representing the average cost for all input given the expected\n\
+target.\n\
+");
+
+static PyObject* PyBobLearnMLPTrainer_cost
+(PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
+
+  /* Parses input arguments in a single shot */
+  static const char* const_kwlist[] = {"target", "machine", "input"};
+  static char** kwlist = const_cast<char**>(const_kwlist);
+
+  PyBlitzArrayObject* target = 0;
+  PyBobLearnMLPMachineObject* machine = 0;
+  PyBlitzArrayObject* input = 0;
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O!O&", kwlist,
+        &PyBlitzArray_Converter, &target,
+        &PyBobLearnMLPMachine_Type, &machine,
+        &PyBlitzArray_Converter, &input)) return 0;
+
+  if ((machine && !input) || (input && !machine)) {
+    PyErr_Format(PyExc_RuntimeError, "`%s.%s' expects that you either provide only the target (after a call to `forward_step') with a given machine and input or target, machine *and* input. You cannot provide a machine and not an input or vice-versa", Py_TYPE(self)->tp_name, s_cost_str);
+    return 0;
+  }
+
+  if (input && (input->type_num != NPY_FLOAT64 || input->ndim != 2)) {
+    PyErr_Format(PyExc_TypeError, "`%s.%s' only supports 2D 64-bit float arrays for argument `input' (or any other object coercible to that), but you provided an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, s_cost_str, input->ndim, PyBlitzArray_TypenumAsString(input->type_num));
+    return 0;
+  }
+
+  if (target->type_num != NPY_FLOAT64 || target->ndim != 2) {
+    PyErr_Format(PyExc_TypeError, "`%s.%s' only supports 2D 64-bit float arrays for argument `target' (or any other object coercible to that), but you provided an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your target", Py_TYPE(self)->tp_name, s_cost_str, target->ndim, PyBlitzArray_TypenumAsString(target->type_num));
+    return 0;
+  }
+
+  try {
+    if (machine) {
+      return Py_BuildValue("d", self->cxx->cost(*machine->cxx,
+            *PyBlitzArrayCxx_AsBlitz<double,2>(input),
+            *PyBlitzArrayCxx_AsBlitz<double,2>(target)));
+    }
+    else {
+      return Py_BuildValue("d",
+          self->cxx->cost(*PyBlitzArrayCxx_AsBlitz<double,2>(target)));
+    }
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return 0;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot estimate cost for `%s': unknown exception caught", Py_TYPE(self)->tp_name);
+    return 0;
+  }
+
+  PyErr_Format(PyExc_RuntimeError, " `%s': unexpected condition - DEBUG ME", Py_TYPE(self)->tp_name);
+  return 0;
+
+}
+
+PyDoc_STRVAR(s_hidden_layers_str, "hidden_layers");
+PyDoc_STRVAR(s_hidden_layers_doc,
+    "The number of hidden layers on the target machine.");
+
+static PyObject* PyBobLearnMLPTrainer_hiddenLayers
+(PyBobLearnMLPTrainerObject* self) {
+  return Py_BuildValue("n", self->cxx->numberOfHiddenLayers());
+}
+
+PyDoc_STRVAR(s_set_error_str, "set_error");
+PyDoc_STRVAR(s_set_error_doc, "Sets the error for a given layer in the network.");
+
+static PyObject* PyBobLearnMLPTrainer_setErrorOnLayer
+(PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
+
+  /* Parses input arguments in a single shot */
+  static const char* const_kwlist[] = {"array", "layer"};
+  static char** kwlist = const_cast<char**>(const_kwlist);
+
+  PyBlitzArrayObject* array = 0;
+  Py_ssize_t layer = 0;
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&n", kwlist,
+        &PyBlitzArray_Converter, &array, &layer)) return 0;
+
+  if (array->type_num != NPY_FLOAT64 || array->ndim != 2) {
+    PyErr_Format(PyExc_TypeError, "`%s.%s' only supports 2D 64-bit float arrays for argument `array' (or any other object coercible to that), but you provided an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, s_set_error_str, array->ndim, PyBlitzArray_TypenumAsString(array->type_num));
+    return 0;
+  }
+
+  try {
+    self->cxx->setError(*PyBlitzArrayCxx_AsBlitz<double,2>(array), layer);
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return 0;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot set error at layer %" PY_FORMAT_SIZE_T "d for `%s': unknown exception caught", layer, Py_TYPE(self)->tp_name);
+    return 0;
+  }
+
+  Py_RETURN_NONE;
+
+}
+
+PyDoc_STRVAR(s_set_output_str, "set_output");
+PyDoc_STRVAR(s_set_output_doc, "Sets the output for a given layer in the network.");
+
+static PyObject* PyBobLearnMLPTrainer_setOutputOnLayer
+(PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
+
+  /* Parses input arguments in a single shot */
+  static const char* const_kwlist[] = {"array", "layer"};
+  static char** kwlist = const_cast<char**>(const_kwlist);
+
+  PyBlitzArrayObject* array = 0;
+  Py_ssize_t layer = 0;
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&n", kwlist,
+        &PyBlitzArray_Converter, &array, &layer)) return 0;
+
+  if (array->type_num != NPY_FLOAT64 || array->ndim != 2) {
+    PyErr_Format(PyExc_TypeError, "`%s.%s' only supports 2D 64-bit float arrays for argument `array' (or any other object coercible to that), but you provided an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, s_set_output_str, array->ndim, PyBlitzArray_TypenumAsString(array->type_num));
+    return 0;
+  }
+
+  try {
+    self->cxx->setOutput(*PyBlitzArrayCxx_AsBlitz<double,2>(array), layer);
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return 0;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot set output at layer %" PY_FORMAT_SIZE_T "d for `%s': unknown exception caught", layer, Py_TYPE(self)->tp_name);
+    return 0;
+  }
+
+  Py_RETURN_NONE;
+
+}
+
+PyDoc_STRVAR(s_set_derivative_str, "set_derivative");
+PyDoc_STRVAR(s_set_derivative_doc,
+    "Sets the cost derivative w.r.t. the **weights** for a given layer.");
+
+static PyObject* PyBobLearnMLPTrainer_setDerivativeOnLayer
+(PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
+
+  /* Parses input arguments in a single shot */
+  static const char* const_kwlist[] = {"array", "layer"};
+  static char** kwlist = const_cast<char**>(const_kwlist);
+
+  PyBlitzArrayObject* array = 0;
+  Py_ssize_t layer = 0;
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&n", kwlist,
+        &PyBlitzArray_Converter, &array, &layer)) return 0;
+
+  if (array->type_num != NPY_FLOAT64 || array->ndim != 2) {
+    PyErr_Format(PyExc_TypeError, "`%s.%s' only supports 2D 64-bit float arrays for argument `array' (or any other object coercible to that), but you provided an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, s_set_derivative_str, array->ndim, PyBlitzArray_TypenumAsString(array->type_num));
+    return 0;
+  }
+
+  try {
+    self->cxx->setDerivative(*PyBlitzArrayCxx_AsBlitz<double,2>(array), layer);
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return 0;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot set derivative at layer %" PY_FORMAT_SIZE_T "d for `%s': unknown exception caught", layer, Py_TYPE(self)->tp_name);
+    return 0;
+  }
+
+  Py_RETURN_NONE;
+
+}
+
+PyDoc_STRVAR(s_set_bias_derivative_str, "set_bias_derivative");
+PyDoc_STRVAR(s_set_bias_derivative_doc,
+    "Sets the cost derivative w.r.t. the **biases** for a given layer.");
+
+static PyObject* PyBobLearnMLPTrainer_setBiasDerivativeOnLayer
+(PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
+
+  /* Parses input arguments in a single shot */
+  static const char* const_kwlist[] = {"array", "layer"};
+  static char** kwlist = const_cast<char**>(const_kwlist);
+
+  PyBlitzArrayObject* array = 0;
+  Py_ssize_t layer = 0;
+
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&n", kwlist,
+        &PyBlitzArray_Converter, &array, &layer)) return 0;
+
+  if (array->type_num != NPY_FLOAT64 || array->ndim != 1) {
+    PyErr_Format(PyExc_TypeError, "`%s.%s' only supports 1D 64-bit float arrays for argument `array' (or any other object coercible to that), but you provided an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, s_set_bias_derivative_str, array->ndim, PyBlitzArray_TypenumAsString(array->type_num));
+    return 0;
+  }
+
+  try {
+    self->cxx->setBiasDerivative(*PyBlitzArrayCxx_AsBlitz<double,1>(array), layer);
+  }
+  catch (std::exception& ex) {
+    PyErr_SetString(PyExc_RuntimeError, ex.what());
+    return 0;
+  }
+  catch (...) {
+    PyErr_Format(PyExc_RuntimeError, "cannot set bias derivative at layer %" PY_FORMAT_SIZE_T "d for `%s': unknown exception caught", layer, Py_TYPE(self)->tp_name);
+    return 0;
+  }
+
+  Py_RETURN_NONE;
+
+}
+
+static PyMethodDef PyBobLearnMLPTrainer_methods[] = {
+  {
+    s_is_compatible_str,
+    (PyCFunction)PyBobLearnMLPTrainer_isCompatible,
+    METH_O,
+    s_is_compatible_doc,
+  },
+  {
+    s_initialize_str,
+    (PyCFunction)PyBobLearnMLPTrainer_initialize,
+    METH_O,
+    s_initialize_doc,
+  },
+  {
+    s_forward_step_str,
+    (PyCFunction)PyBobLearnMLPTrainer_forwardStep,
+    METH_VARARGS|METH_KEYWORDS,
+    s_forward_step_doc,
+  },
+  {
+    s_backward_step_str,
+    (PyCFunction)PyBobLearnMLPTrainer_backwardStep,
+    METH_VARARGS|METH_KEYWORDS,
+    s_backward_step_doc,
+  },
+  {
+    s_cost_str,
+    (PyCFunction)PyBobLearnMLPTrainer_cost,
+    METH_VARARGS|METH_KEYWORDS,
+    s_cost_doc,
+  },
+  {
+    s_hidden_layers_str,
+    (PyCFunction)PyBobLearnMLPTrainer_hiddenLayers,
+    METH_NOARGS,
+    s_hidden_layers_doc,
+  },
+  {
+    s_set_error_str,
+    (PyCFunction)PyBobLearnMLPTrainer_setErrorOnLayer,
+    METH_VARARGS|METH_KEYWORDS,
+    s_set_error_doc,
+  },
+  {
+    s_set_output_str,
+    (PyCFunction)PyBobLearnMLPTrainer_setOutputOnLayer,
+    METH_VARARGS|METH_KEYWORDS,
+    s_set_output_doc,
+  },
+  {
+    s_set_derivative_str,
+    (PyCFunction)PyBobLearnMLPTrainer_setDerivativeOnLayer,
+    METH_VARARGS|METH_KEYWORDS,
+    s_set_derivative_doc,
+  },
+  {
+    s_set_bias_derivative_str,
+    (PyCFunction)PyBobLearnMLPTrainer_setBiasDerivativeOnLayer,
+    METH_VARARGS|METH_KEYWORDS,
+    s_set_bias_derivative_doc,
+  },
+  {0} /* Sentinel */
+};
+
 PyTypeObject PyBobLearnMLPTrainer_Type = {
     PyVarObject_HEAD_INIT(0, 0)
     s_trainer_str,                                 /* tp_name */
@@ -191,9 +965,9 @@ PyTypeObject PyBobLearnMLPTrainer_Type = {
     0,                                             /* tp_weaklistoffset */
     0,                                             /* tp_iter */
     0,                                             /* tp_iternext */
-    0, //PyBobLearnMLPTrainer_methods,                  /* tp_methods */
+    PyBobLearnMLPTrainer_methods,                  /* tp_methods */
     0,                                             /* tp_members */
-    0, //PyBobLearnMLPTrainer_getseters,                /* tp_getset */
+    PyBobLearnMLPTrainer_getseters,                /* tp_getset */
     0,                                             /* tp_base */
     0,                                             /* tp_dict */
     0,                                             /* tp_descr_get */

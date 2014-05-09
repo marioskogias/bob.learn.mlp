@@ -1036,17 +1036,6 @@ static PyObject* PyBobLearnMLPMachine_new
 
 }
 
-PyObject* PyBobLearnMLPMachine_NewFromSize
-(Py_ssize_t input, Py_ssize_t output) {
-
-  PyBobLearnMLPMachineObject* retval = (PyBobLearnMLPMachineObject*)PyBobLearnMLPMachine_new(&PyBobLearnMLPMachine_Type, 0, 0);
-
-  retval->cxx = new bob::learn::mlp::Machine(input, output);
-
-  return reinterpret_cast<PyObject*>(retval);
-
-}
-
 PyTypeObject PyBobLearnMLPMachine_Type = {
     PyVarObject_HEAD_INIT(0, 0)
     s_machine_str,                                 /* tp_name */

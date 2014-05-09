@@ -30,10 +30,10 @@ enum _PyBobLearnMLP_ENUM {
   // Bindings for xbob.learn.mlp.Machine
   PyBobLearnMLPMachine_Type_NUM,
   PyBobLearnMLPMachine_Check_NUM,
-  PyBobLearnMLPMachine_NewFromSize_NUM,
   // Bindings for xbob.learn.mlp.Cost and variants
   PyBobLearnCost_Type_NUM,
   PyBobLearnCost_Check_NUM,
+  PyBobLearnCost_NewFromCost_NUM,
   PyBobLearnSquareError_Type_NUM,
   PyBobLearnCrossEntropyLoss_Type_NUM,
   // Bindings for xbob.learn.mlp.DataShuffler
@@ -66,9 +66,6 @@ typedef struct {
 #define PyBobLearnMLPMachine_Check_RET int
 #define PyBobLearnMLPMachine_Check_PROTO (PyObject* o)
 
-#define PyBobLearnMLPMachine_NewFromSize_RET PyObject*
-#define PyBobLearnMLPMachine_NewFromSize_PROTO (Py_ssize_t i, Py_ssize_t o)
-
 typedef struct {
   PyObject_HEAD
   boost::shared_ptr<bob::learn::mlp::Cost> cxx;
@@ -78,6 +75,9 @@ typedef struct {
 
 #define PyBobLearnCost_Check_RET int
 #define PyBobLearnCost_Check_PROTO (PyObject* o)
+
+#define PyBobLearnCost_NewFromCost_RET PyObject*
+#define PyBobLearnCost_NewFromCost_PROTO (boost::shared_ptr<bob::learn::mlp::Cost>)
 
 typedef struct {
   PyBobLearnCostObject parent;
@@ -135,8 +135,6 @@ typedef struct {
 
   PyBobLearnMLPMachine_Check_RET PyBobLearnMLPMachine_Check PyBobLearnMLPMachine_Check_PROTO;
 
-  PyBobLearnMLPMachine_NewFromSize_RET PyBobLearnMLPMachine_NewFromSize PyBobLearnMLPMachine_NewFromSize_PROTO;
-
   /************************************
    * Bindings for xbob.learn.mlp.Cost *
    ************************************/
@@ -148,6 +146,8 @@ typedef struct {
   extern PyBobLearnSquareError_Type_TYPE PyBobLearnSquareError_Type;
 
   extern PyBobLearnCrossEntropyLoss_Type_TYPE PyBobLearnCrossEntropyLoss_Type;
+
+  PyBobLearnCost_NewFromCost_RET PyBobLearnCost_NewFromCost PyBobLearnCost_NewFromCost_PROTO;
 
   /********************************************
    * Bindings for xbob.learn.mlp.DataShuffler *
@@ -205,8 +205,6 @@ typedef struct {
 
 # define PyBobLearnMLPMachine_Check (*(PyBobLearnMLPMachine_Check_RET (*)PyBobLearnMLPMachine_Check_PROTO) PyXbobLearnMLP_API[PyBobLearnMLPMachine_Check_NUM])
 
-# define PyBobLearnMLPMachine_NewFromSize (*(PyBobLearnMLPMachine_NewFromSize_RET (*)PyBobLearnMLPMachine_NewFromSize_PROTO) PyXbobLearnMLP_API[PyBobLearnMLPMachine_NewFromSize_NUM])
-
   /************************************
    * Bindings for xbob.learn.mlp.Cost *
    ************************************/
@@ -214,6 +212,8 @@ typedef struct {
 # define PyBobLearnCost_Type (*(PyBobLearnCost_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnCost_Type_NUM])
 
 # define PyBobLearnCost_Check (*(PyBobLearnCost_Check_RET (*)PyBobLearnCost_Check_PROTO) PyXbobLearnMLP_API[PyBobLearnCost_Check_NUM])
+
+# define PyBobLearnCost_NewFromCost (*(PyBobLearnCost_NewFromCost_RET (*)PyBobLearnCost_NewFromCost_PROTO) PyXbobLearnMLP_API[PyBobLearnCost_NewFromCost_NUM])
 
 # define PyBobLearnSquareError_Type (*(PyBobLearnSquareError_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnSquareError_Type_NUM])
 

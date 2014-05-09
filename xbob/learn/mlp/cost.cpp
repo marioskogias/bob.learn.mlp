@@ -441,6 +441,27 @@ static PyMethodDef PyBobLearnCost_methods[] = {
   {0} /* Sentinel */
 };
 
+static PyObject* PyBobLearnCost_new (PyTypeObject* type, PyObject*, PyObject*) {
+
+  /* Allocates the python object itself */
+  PyBobLearnCostObject* self = (PyBobLearnCostObject*)type->tp_alloc(type, 0);
+
+  self->cxx.reset();
+
+  return reinterpret_cast<PyObject*>(self);
+
+}
+
+PyObject* PyBobLearnCost_NewFromCost (boost::shared_ptr<bob::learn::mlp::Cost> p) {
+
+  PyBobLearnCostObject* retval = (PyBobLearnCostObject*)PyBobLearnCost_new(&PyBobLearnCost_Type, 0, 0);
+
+  retval->cxx = p;
+
+  return reinterpret_cast<PyObject*>(retval);
+
+}
+
 PyTypeObject PyBobLearnCost_Type = {
     PyVarObject_HEAD_INIT(0, 0)
     s_cost_str,                               /* tp_name */
@@ -477,7 +498,9 @@ PyTypeObject PyBobLearnCost_Type = {
     0,                                        /* tp_descr_get */
     0,                                        /* tp_descr_set */
     0,                                        /* tp_dictoffset */
-    (initproc)PyBobLearnCost_init             /* tp_init */
+    (initproc)PyBobLearnCost_init,            /* tp_init */
+    0,                                        /* tp_alloc */
+    PyBobLearnCost_new,                       /* tp_new */
 };
 
 PyDoc_STRVAR(s_squareerror_str, XBOB_EXT_MODULE_PREFIX ".SquareError");
