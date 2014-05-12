@@ -59,7 +59,7 @@ def check_training(machine, cost, bias_training, batch_size, learning_rate,
 
   python_trainer = PythonBackProp(batch_size, cost, machine, bias_training,
       learning_rate, momentum)
-  cxx_trainer = MLPBackPropTrainer(batch_size, cost, machine, bias_training)
+  cxx_trainer = BackProp(batch_size, cost, machine, bias_training)
   cxx_trainer.learning_rate = learning_rate
   cxx_trainer.momentum = momentum
 

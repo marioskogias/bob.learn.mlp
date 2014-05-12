@@ -276,8 +276,15 @@ static PyObject* PyBobLearnMLPMachine_getWeights
 static int PyBobLearnMLPMachine_setWeights (PyBobLearnMLPMachineObject* self,
     PyObject* weights, void* /*closure*/) {
 
+  if (PyNumber_Check(weights)) {
+    double v = PyFloat_AsDouble(weights);
+    if (PyErr_Occurred()) return -1;
+    self->cxx->setWeights(v);
+    return 0;
+  }
+
   if (!PyIter_Check(weights) && !PySequence_Check(weights)) {
-    PyErr_Format(PyExc_TypeError, "setting attribute `weights' of `%s' requires an iterable, but you passed `%s' which does not implement the iterator protocol", Py_TYPE(self)->tp_name, Py_TYPE(weights)->tp_name);
+    PyErr_Format(PyExc_TypeError, "setting attribute `weights' of `%s' requires either a float or an iterable, but you passed `%s' which does not implement the iterator protocol", Py_TYPE(self)->tp_name, Py_TYPE(weights)->tp_name);
     return -1;
   }
 
@@ -356,8 +363,15 @@ static PyObject* PyBobLearnMLPMachine_getBiases
 static int PyBobLearnMLPMachine_setBiases (PyBobLearnMLPMachineObject* self,
     PyObject* biases, void* /*closure*/) {
 
+  if (PyNumber_Check(biases)) {
+    double v = PyFloat_AsDouble(biases);
+    if (PyErr_Occurred()) return -1;
+    self->cxx->setBiases(v);
+    return 0;
+  }
+
   if (!PyIter_Check(biases) && !PySequence_Check(biases)) {
-    PyErr_Format(PyExc_TypeError, "setting attribute `biases' of `%s' requires an iterable, but you passed `%s' which does not implement the iterator protocol", Py_TYPE(self)->tp_name, Py_TYPE(biases)->tp_name);
+    PyErr_Format(PyExc_TypeError, "setting attribute `biases' of `%s' requires either a float or an iterable, but you passed `%s' which does not implement the iterator protocol", Py_TYPE(self)->tp_name, Py_TYPE(biases)->tp_name);
     return -1;
   }
 
@@ -423,12 +437,19 @@ static PyObject* PyBobLearnMLPMachine_getInputSubtraction
 static int PyBobLearnMLPMachine_setInputSubtraction
 (PyBobLearnMLPMachineObject* self, PyObject* o, void* /*closure*/) {
 
+  if (PyNumber_Check(o)) {
+    double v = PyFloat_AsDouble(o);
+    if (PyErr_Occurred()) return -1;
+    self->cxx->setInputSubtraction(v);
+    return 0;
+  }
+
   PyBlitzArrayObject* input_subtract = 0;
   if (!PyBlitzArray_Converter(o, &input_subtract)) return -1;
   auto input_subtract_ = make_safe(input_subtract);
 
   if (input_subtract->type_num != NPY_FLOAT64 || input_subtract->ndim != 1) {
-    PyErr_Format(PyExc_TypeError, "`%s' only supports 64-bit floats 1D arrays for property array `input_subtract'", Py_TYPE(self)->tp_name);
+    PyErr_Format(PyExc_TypeError, "`%s' only supports either a single florat or 64-bit floats 1D arrays for property array `input_subtract'", Py_TYPE(self)->tp_name);
     return -1;
   }
 
@@ -463,12 +484,19 @@ static PyObject* PyBobLearnMLPMachine_getInputDivision
 static int PyBobLearnMLPMachine_setInputDivision (PyBobLearnMLPMachineObject* self,
     PyObject* o, void* /*closure*/) {
 
+  if (PyNumber_Check(o)) {
+    double v = PyFloat_AsDouble(o);
+    if (PyErr_Occurred()) return -1;
+    self->cxx->setInputDivision(v);
+    return 0;
+  }
+
   PyBlitzArrayObject* input_divide = 0;
   if (!PyBlitzArray_Converter(o, &input_divide)) return -1;
   auto input_divide_ = make_safe(input_divide);
 
   if (input_divide->type_num != NPY_FLOAT64 || input_divide->ndim != 1) {
-    PyErr_Format(PyExc_TypeError, "`%s' only supports 64-bit floats 1D arrays for property array `input_divide'", Py_TYPE(self)->tp_name);
+    PyErr_Format(PyExc_TypeError, "`%s' only supports either a single float or 64-bit floats 1D arrays for property array `input_divide'", Py_TYPE(self)->tp_name);
     return -1;
   }
 

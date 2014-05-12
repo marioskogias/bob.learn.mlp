@@ -13,6 +13,8 @@
 #include <xbob.learn.mlp/api.h>
 #include <structmember.h>
 
+#include "utils.h"
+
 /****************************************
  * Implementation of base Trainer class *
  ****************************************/
@@ -21,6 +23,7 @@ PyDoc_STRVAR(s_trainer_str, XBOB_EXT_MODULE_PREFIX ".Trainer");
 
 PyDoc_STRVAR(s_trainer_doc,
 "Trainer(batch_size, cost, [trainer, [train_biases]]) -> new Trainer\n\
+\n\
 Trainer(other) -> new Trainer\n\
 \n\
 The base python class for MLP trainers based on cost derivatives.\n\
@@ -221,12 +224,12 @@ PyDoc_STRVAR(s_cost_object_doc,
 the cost (a.k.a. *loss*) and the derivatives given the input, the\n\
 target and the MLP structure.");
 
-static PyObject* PyBobLearnMLPTrainer_getCost
+static PyObject* PyBobLearnMLPTrainer_getCostObject
 (PyBobLearnMLPTrainerObject* self, void* /*closure*/) {
   return PyBobLearnCost_NewFromCost(self->cxx->getCost());
 }
 
-static int PyBobLearnMLPTrainer_setCost
+static int PyBobLearnMLPTrainer_setCostObject
 (PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
 
   if (!PyBobLearnCost_Check(o)) {
@@ -257,61 +260,6 @@ static int PyBobLearnMLPTrainer_setTrainBiases
   return -1;
 }
 
-template <int N>
-PyObject* convert_vector(const std::vector<blitz::Array<double,N>>& v) {
-  PyObject* retval = PyTuple_New(v.size());
-  auto retval_ = make_safe(retval);
-  if (!retval) return 0;
-  for (int k=0; k<v.size(); ++k) {
-    auto arr = PyBlitzArrayCxx_NewFromConstArray(v[k]);
-    if (!arr) return 0;
-    PyTuple_SET_ITEM(retval, k, arr);
-  }
-  Py_INCREF(retval);
-  return retval;
-}
-
-template <int N>
-int convert_tuple(PyBobLearnMLPTrainerObject* self, const char* attr,
-    PyObject* o, std::vector<blitz::Array<double,N>>& seq) {
-
-  if (!PyIter_Check(o) && !PySequence_Check(o)) {
-    PyErr_Format(PyExc_TypeError, "setting attribute `%s' of `%s' requires an iterable, but you passed `%s' which does not implement the iterator protocol", Py_TYPE(self)->tp_name, attr, Py_TYPE(o)->tp_name);
-    return -1;
-  }
-
-  /* Checks and converts all entries */
-  std::vector<boost::shared_ptr<PyBlitzArrayObject>> seq_;
-
-  PyObject* iterator = PyObject_GetIter(o);
-  if (!iterator) return -1;
-  auto iterator_ = make_safe(iterator);
-
-  while (PyObject* item = PyIter_Next(iterator)) {
-    auto item_ = make_safe(item);
-
-    PyBlitzArrayObject* bz = 0;
-
-    if (!PyBlitzArray_Converter(item, &bz)) {
-      PyErr_Format(PyExc_TypeError, "`%s' (while setting `%s') could not convert object of type `%s' at position %" PY_FORMAT_SIZE_T "d of input sequence into an array - check your input", Py_TYPE(self)->tp_name, attr, Py_TYPE(item)->tp_name, seq.size());
-      return -1;
-    }
-
-    if (bz->ndim != N || bz->type_num != NPY_FLOAT64) {
-      PyErr_Format(PyExc_TypeError, "`%s' only supports 2D 64-bit float arrays for attribute `%s' (or any other object coercible to that), but at position %" PY_FORMAT_SIZE_T "d I have found an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, attr, seq.size(), bz->ndim, PyBlitzArray_TypenumAsString(bz->type_num));
-      Py_DECREF(bz);
-      return -1;
-    }
-
-    seq_.push_back(make_safe(bz)); ///< prevents data deletion
-    seq.push_back(*PyBlitzArrayCxx_AsBlitz<double,N>(bz)); ///< only a view!
-  }
-
-  if (PyErr_Occurred()) return -1;
-
-  return 0;
-}
-
 PyDoc_STRVAR(s_error_str, "error");
 PyDoc_STRVAR(s_error_doc,
 "The error (a.k.a. :math:`\\delta`'s) back-propagated through the\n\
@@ -326,7 +274,7 @@ static int PyBobLearnMLPTrainer_setError
 (PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,2>> bzvec;
-  int retval = convert_tuple<2>(self, s_error_str, o, bzvec);
+  int retval = convert_tuple<2>((PyObject*)self, s_error_str, o, bzvec);
   if (retval < 0) return retval;
 
   try {
@@ -358,7 +306,7 @@ static int PyBobLearnMLPTrainer_setOutput
 (PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,2>> bzvec;
-  int retval = convert_tuple<2>(self, s_output_str, o, bzvec);
+  int retval = convert_tuple<2>((PyObject*)self, s_output_str, o, bzvec);
   if (retval < 0) return retval;
 
   try {
@@ -392,7 +340,7 @@ static int PyBobLearnMLPTrainer_setDerivatives
 (PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,2>> bzvec;
-  int retval = convert_tuple<2>(self, s_derivatives_str, o, bzvec);
+  int retval = convert_tuple<2>((PyObject*)self, s_derivatives_str, o, bzvec);
   if (retval < 0) return retval;
 
   try {
@@ -426,7 +374,7 @@ static int PyBobLearnMLPTrainer_setBiasDerivatives
 (PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,1>> bzvec;
-  int retval = convert_tuple<1>(self, s_bias_derivatives_str, o, bzvec);
+  int retval = convert_tuple<1>((PyObject*)self, s_bias_derivatives_str, o, bzvec);
   if (retval < 0) return retval;
 
   try {
@@ -455,8 +403,8 @@ static PyGetSetDef PyBobLearnMLPTrainer_getseters[] = {
     },
     {
       s_cost_object_str,
-      (getter)PyBobLearnMLPTrainer_getCost,
-      (setter)PyBobLearnMLPTrainer_setCost,
+      (getter)PyBobLearnMLPTrainer_getCostObject,
+      (setter)PyBobLearnMLPTrainer_setCostObject,
       s_cost_object_doc,
       0
     },
@@ -556,7 +504,7 @@ static PyObject* PyBobLearnMLPTrainer_forwardStep
 (PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
 
   /* Parses input arguments in a single shot */
-  static const char* const_kwlist[] = {"machine", "input"};
+  static const char* const_kwlist[] = {"machine", "input", 0};
   static char** kwlist = const_cast<char**>(const_kwlist);
 
   PyBobLearnMLPMachineObject* machine = 0;
@@ -596,7 +544,7 @@ static PyObject* PyBobLearnMLPTrainer_backwardStep
 (PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
 
   /* Parses input arguments in a single shot */
-  static const char* const_kwlist[] = {"machine", "input", "target"};
+  static const char* const_kwlist[] = {"machine", "input", "target", 0};
   static char** kwlist = const_cast<char**>(const_kwlist);
 
   PyBobLearnMLPMachineObject* machine = 0;
@@ -639,7 +587,9 @@ static PyObject* PyBobLearnMLPTrainer_backwardStep
 
 PyDoc_STRVAR(s_cost_str, "cost");
 PyDoc_STRVAR(s_cost_doc,
-"o.cost(target, [machine, input]) -> float\n\
+"o.cost(target) -> float\n\
+\n\
+o.cost(machine, input, target) -> float\n\
 \n\
 Calculates the cost for a given target.\n\
 \n\
@@ -661,18 +611,28 @@ target.\n\
 static PyObject* PyBobLearnMLPTrainer_cost
 (PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
 
-  /* Parses input arguments in a single shot */
-  static const char* const_kwlist[] = {"target", "machine", "input"};
-  static char** kwlist = const_cast<char**>(const_kwlist);
+  Py_ssize_t nargs = (args?PyTuple_Size(args):0) + (kwds?PyDict_Size(kwds):0);
 
-  PyBlitzArrayObject* target = 0;
   PyBobLearnMLPMachineObject* machine = 0;
   PyBlitzArrayObject* input = 0;
+  PyBlitzArrayObject* target = 0;
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O!O&", kwlist,
-        &PyBlitzArray_Converter, &target,
-        &PyBobLearnMLPMachine_Type, &machine,
-        &PyBlitzArray_Converter, &input)) return 0;
+  if (nargs == 1) {
+    static const char* const_kwlist[] = {"target", 0};
+    static char** kwlist = const_cast<char**>(const_kwlist);
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&", kwlist,
+          &PyBlitzArray_Converter, &target)) return 0;
+  }
+  else { //there must be three
+    static const char* const_kwlist[] = {"machine", "input", "target", 0};
+    static char** kwlist = const_cast<char**>(const_kwlist);
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O!O&O&", kwlist,
+          &PyBobLearnMLPMachine_Type, &machine,
+          &PyBlitzArray_Converter, &input,
+          &PyBlitzArray_Converter, &target)) return 0;
+  }
+
+  /* Parses input arguments in a single shot */
 
   if ((machine && !input) || (input && !machine)) {
     PyErr_Format(PyExc_RuntimeError, "`%s.%s' expects that you either provide only the target (after a call to `forward_step') with a given machine and input or target, machine *and* input. You cannot provide a machine and not an input or vice-versa", Py_TYPE(self)->tp_name, s_cost_str);
@@ -730,7 +690,7 @@ static PyObject* PyBobLearnMLPTrainer_setErrorOnLayer
 (PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
 
   /* Parses input arguments in a single shot */
-  static const char* const_kwlist[] = {"array", "layer"};
+  static const char* const_kwlist[] = {"array", "layer", 0};
   static char** kwlist = const_cast<char**>(const_kwlist);
 
   PyBlitzArrayObject* array = 0;
@@ -767,7 +727,7 @@ static PyObject* PyBobLearnMLPTrainer_setOutputOnLayer
 (PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
 
   /* Parses input arguments in a single shot */
-  static const char* const_kwlist[] = {"array", "layer"};
+  static const char* const_kwlist[] = {"array", "layer", 0};
   static char** kwlist = const_cast<char**>(const_kwlist);
 
   PyBlitzArrayObject* array = 0;
@@ -805,7 +765,7 @@ static PyObject* PyBobLearnMLPTrainer_setDerivativeOnLayer
 (PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
 
   /* Parses input arguments in a single shot */
-  static const char* const_kwlist[] = {"array", "layer"};
+  static const char* const_kwlist[] = {"array", "layer", 0};
   static char** kwlist = const_cast<char**>(const_kwlist);
 
   PyBlitzArrayObject* array = 0;
@@ -843,7 +803,7 @@ static PyObject* PyBobLearnMLPTrainer_setBiasDerivativeOnLayer
 (PyBobLearnMLPTrainerObject* self, PyObject* args, PyObject* kwds) {
 
   /* Parses input arguments in a single shot */
-  static const char* const_kwlist[] = {"array", "layer"};
+  static const char* const_kwlist[] = {"array", "layer", 0};
   static char** kwlist = const_cast<char**>(const_kwlist);
 
   PyBlitzArrayObject* array = 0;

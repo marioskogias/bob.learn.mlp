@@ -56,6 +56,9 @@ static PyObject* create_module (void) {
   PyBobLearnMLPTrainer_Type.tp_new = PyType_GenericNew;
   if (PyType_Ready(&PyBobLearnMLPTrainer_Type) < 0) return 0;
 
+  PyBobLearnMLPBackProp_Type.tp_base = &PyBobLearnMLPTrainer_Type;
+  if (PyType_Ready(&PyBobLearnMLPBackProp_Type) < 0) return 0;
+
 # if PY_VERSION_HEX >= 0x03000000
   PyObject* m = PyModule_Create(&module_definition);
 # else
@@ -86,6 +89,9 @@ static PyObject* create_module (void) {
 
   Py_INCREF(&PyBobLearnMLPTrainer_Type);
   if (PyModule_AddObject(m, "Trainer", (PyObject *)&PyBobLearnMLPTrainer_Type) < 0) return 0;
+
+  Py_INCREF(&PyBobLearnMLPBackProp_Type);
+  if (PyModule_AddObject(m, "BackProp", (PyObject *)&PyBobLearnMLPBackProp_Type) < 0) return 0;
 
   static void* PyXbobLearnMLP_API[PyXbobLearnMLP_API_pointers];
 

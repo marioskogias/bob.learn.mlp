@@ -16,6 +16,7 @@
 #include "cross_entropy.h"
 #include "shuffler.h"
 #include "trainer.h"
+#include "backprop.h"
 
 #define XBOB_LEARN_MLP_MODULE_PREFIX xbob.learn.mlp
 #define XBOB_LEARN_MLP_MODULE_NAME _library
@@ -42,6 +43,8 @@ enum _PyBobLearnMLP_ENUM {
   // Bindings for xbob.learn.mlp.Trainer
   PyBobLearnMLPTrainer_Type_NUM,
   PyBobLearnMLPTrainer_Check_NUM,
+  PyBobLearnMLPBackProp_Type_NUM,
+  PyBobLearnMLPBackProp_Check_NUM,
   // Total number of C API pointers
   PyXbobLearnMLP_API_pointers
 };
@@ -117,6 +120,16 @@ typedef struct {
 #define PyBobLearnMLPTrainer_Check_RET int
 #define PyBobLearnMLPTrainer_Check_PROTO (PyObject* o)
 
+typedef struct {
+  PyBobLearnMLPTrainerObject parent;
+  bob::learn::mlp::BackProp* cxx;
+} PyBobLearnMLPBackPropObject;
+
+#define PyBobLearnMLPBackProp_Type_TYPE PyTypeObject
+
+#define PyBobLearnMLPBackProp_Check_RET int
+#define PyBobLearnMLPBackProp_Check_PROTO (PyObject* o)
+
 #ifdef XBOB_LEARN_MLP_MODULE
 
   /* This section is used when compiling `xbob.learn.mlp' itself */
@@ -164,6 +177,10 @@ typedef struct {
   extern PyBobLearnMLPTrainer_Type_TYPE PyBobLearnMLPTrainer_Type;
 
   PyBobLearnMLPTrainer_Check_RET PyBobLearnMLPTrainer_Check PyBobLearnMLPTrainer_Check_PROTO;
+
+  extern PyBobLearnMLPBackProp_Type_TYPE PyBobLearnMLPBackProp_Type;
+
+  PyBobLearnMLPBackProp_Check_RET PyBobLearnMLPBackProp_Check PyBobLearnMLPBackProp_Check_PROTO;
 
 #else
 
@@ -234,6 +251,10 @@ typedef struct {
 # define PyBobLearnMLPTrainer_Type (*(PyBobLearnMLPTrainer_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnMLPTrainer_Type_NUM])
 
 # define PyBobLearnMLPTrainer_Check (*(PyBobLearnMLPTrainer_Check_RET (*)PyBobLearnMLPTrainer_Check_PROTO) PyXbobLearnMLP_API[PyBobLearnMLPTrainer_Check_NUM])
+
+# define PyBobLearnMLPBackProp_Type (*(PyBobLearnMLPBackProp_Type_TYPE *)PyXbobLearnMLP_API[PyBobLearnMLPBackProp_Type_NUM])
+
+# define PyBobLearnMLPBackProp_Check (*(PyBobLearnMLPBackProp_Check_RET (*)PyBobLearnMLPBackProp_Check_PROTO) PyXbobLearnMLP_API[PyBobLearnMLPBackProp_Check_NUM])
 
 # if !defined(NO_IMPORT_ARRAY)
 
