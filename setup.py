@@ -21,7 +21,7 @@ include_dirs = [
     xbob.core.get_include(),
     ]
 
-packages = ['bob-machine >= 1.2.2']
+packages = ['bob-io' >= 1.2.2, 'bob-machine >= 1.2.2']
 version = '2.0.0a0'
 
 setup(
