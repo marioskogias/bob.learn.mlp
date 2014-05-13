@@ -235,4 +235,15 @@ Trainers
    Returns ``1`` if it is, and ``0`` otherwise.
 
 
+Pure C/C++ API
+--------------
+
+As explained above, each ``PyObject`` produced by this library contains a
+pointer to a pure C++ implementation of a similar object. The C++ of such
+objects is described in this section.
+
+.. todo::
+
+   Describe the C++ API of this package.
+
 .. include:: links.rst
