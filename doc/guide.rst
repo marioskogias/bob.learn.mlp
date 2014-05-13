@@ -136,9 +136,8 @@ The class used to train a MLP [1]_ with backpropagation [2]_ is
   |project|: :py:class:`xbob.learn.mlp.SquareError`, like before, or
   :py:class:`xbob.learn.mlp.CrossEntropyLoss` (normally in association with
   :py:class:`bob.learn.activation.Logistic`). You can implement your own
-  cost/loss functions. Nevertheless, to do so, you must do it using our C++ API
-  and then bind it to Python in your own :doc:`Satellite Package
-  <OrganizeYourCode>`.
+  cost/loss functions. Nevertheless, to do so, you must do it using our
+  C/C++-API and then bind it to Python in your own package.
 
 Backpropagation [2]_ requires a learning rate to be set. In the previous
 example, the default value ``0.1`` has been used. This might be updated using

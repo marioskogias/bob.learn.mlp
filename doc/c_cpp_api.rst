@@ -118,6 +118,9 @@ Cost
    Returns the object on success or a NULL pointer on failure.
 
 
+Data Shuffler
+-------------
+
 .. cpp:type PyBobLearnDataShufflerObject
 
    The pythonic representation for a :py:class:`xbob.learn.mlp.DataShuffler`
@@ -141,6 +144,9 @@ Cost
    :cpp:class:`PyBobLearnDataShufflerObject`.  Returns ``1`` if it is, and
    ``0`` otherwise.
 
+
+Trainers
+--------
 
 .. cpp:type PyBobLearnMLPTrainerObject
 
