@@ -268,19 +268,19 @@ Keyword arguments:\n\
 \n\
 output, ND array, float64 | scalar\n\
   Real output from the machine. May be a N-dimensional array\n\
-or a plain scalar.\n\
+  or a plain scalar.\n\
 \n\
 target, ND array, float64 | scalar\n\
   Target output you are training to achieve. The data type\n\
-and extents for this object must match that of ``target``.\n\
+  and extents for this object must match that of ``target``.\n\
 \n\
 result (optional), ND array, float64\n\
   Where to place the result from the calculation. You can\n\
-pass this argument if the input are N-dimensional arrays.\n\
-Otherwise, it is an error to pass such a container. If the\n\
-inputs are arrays and an object for ``result`` is passed,\n\
-then its dimensions and data-type must match that of both\n\
-``output`` and ``result``.\n\
+  pass this argument if the input are N-dimensional arrays.\n\
+  Otherwise, it is an error to pass such a container. If the\n\
+  inputs are arrays and an object for ``result`` is passed,\n\
+  then its dimensions and data-type must match that of both\n\
+  ``output`` and ``result``.\n\
 \n\
 Returns the cost as a scalar, if the input were scalars or\n\
 as an array with matching size of ``output`` and ``target``\n\
@@ -317,19 +317,19 @@ Keyword arguments:\n\
 \n\
 output, ND array, float64 | scalar\n\
   Real output from the machine. May be a N-dimensional array\n\
-or a plain scalar.\n\
+  or a plain scalar.\n\
 \n\
 target, ND array, float64 | scalar\n\
   Target output you are training to achieve. The data type\n\
-and extents for this object must match that of ``target``.\n\
+  and extents for this object must match that of ``target``.\n\
 \n\
 result (optional), ND array, float64\n\
   Where to place the result from the calculation. You can\n\
-pass this argument if the input are N-dimensional arrays.\n\
-Otherwise, it is an error to pass such a container. If the\n\
-inputs are arrays and an object for ``result`` is passed,\n\
-then its dimensions and data-type must match that of both\n\
-``output`` and ``result``.\n\
+  pass this argument if the input are N-dimensional arrays.\n\
+  Otherwise, it is an error to pass such a container. If the\n\
+  inputs are arrays and an object for ``result`` is passed,\n\
+  then its dimensions and data-type must match that of both\n\
+  ``output`` and ``result``.\n\
 \n\
 Returns the cost as a scalar, if the input were scalars or\n\
 as an array with matching size of ``output`` and ``target``\n\

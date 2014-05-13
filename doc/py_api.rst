@@ -1,14 +1,14 @@
 .. vim: set fileencoding=utf-8 :
 .. Andre Anjos <andre.dos.anjos@gmail.com>
-.. Sat 16 Nov 20:52:58 2013
+.. Tue 13 May 09:42:45 2014 CEST
 
 ============
  Python API
 ============
 
 This section includes information for using the pure Python API of
-``xbob.learn.linear``.
+``xbob.learn.mlp``.
 
 
-.. automodule:: xbob.learn.linear
+.. automodule:: xbob.learn.mlp
 

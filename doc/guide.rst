@@ -1,221 +1,169 @@
 .. vim: set fileencoding=utf-8 :
-.. Laurent El Shafey <Laurent.El-Shafey@idiap.ch>
-.. Wed Mar 14 12:31:35 2012 +0100
-.. modified by Elie Khoury <elie.khoury@idiap.ch>
-.. Mon May 06 15:50:20 2013 +0100
-.. consolidated by Andre Anjos <andre.anjos@idiap.ch>
-.. Wed 15 Jan 2014 12:20:47 CET
+.. Andre Anjos <andre.anjos@idiap.ch>
+.. Tue 13 May 09:30:06 2014 CEST
 ..
 .. Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
 
 .. testsetup:: *
 
-   import os
    import numpy
+   import xbob.learn.mlp
    import tempfile
-   import xbob.learn.linear
-
-   numpy.set_printoptions(precision=3, suppress=True)
+   import os
 
    current_directory = os.path.realpath(os.curdir)
    temp_dir = tempfile.mkdtemp(prefix='bob_doctest_')
    os.chdir(temp_dir)
 
-==============================
- Linear Machines and Trainers
-==============================
+====================================================
+ Multi-Layer Perceptron (MLP) Machines and Trainers
+====================================================
 
-Machines are one of the core components of |project|. They represent
-statistical models or other functions defined by parameters that can be learnt
-or manually set. The simplest of |project|'s machines is a
-:py:class:`xbob.learn.linear.Machine`. This package contains the definition of
-this class as well as trainers that can learn linear machine parameters from
-data.
+A `multi-layer perceptron
+<http://en.wikipedia.org/wiki/Multilayer_perceptron>`_ (MLP) is a neural
+network architecture that has some well-defined characteristics such as a
+feed-forward structure. You can create a new MLP using one of the trainers
+described below. We start this tutorial by examplifying how to actually use an
+MLP.
 
-Linear machines
----------------
-
-Linear machines execute the simple operation :math:`y = \mathbf{W} x`, where
-:math:`y` is the output vector, :math:`x` is the input vector and :math:`W` is
-a matrix (2D array) stored in the machine. The input vector :math:`x` should be
-composed of double-precision floating-point elements. The output will also be
-in double-precision. Here is how to use a
-:py:class:`xbob.learn.linear.Machine`:
+To instantiate a new (uninitialized) :py:class:`xbob.learn.mlp.Machine` pass a
+shape descriptor as a :py:func:`tuple`. The shape parameter should contain the
+input size as the first parameter and the output size as the last parameter.
+The parameters in between define the number of neurons in the hidden layers of
+the MLP. For example ``(3, 3, 1)`` defines an MLP with 3 inputs, 1 single
+hidden layer with 3 neurons and 1 output, whereas a shape like ``(10, 5, 3,
+2)`` defines an MLP with 10 inputs, 5 neurons in the first hidden layer, 3
+neurons in the second hidden layer and 2 outputs.  Here is an example:
 
 .. doctest::
 
-  >>> W = numpy.array([[0.5, 0.5], [1.0, 1.0]], 'float64')
-  >>> W
+  >>> mlp = xbob.learn.mlp.Machine((3, 3, 2, 1))
+
+As it is, the network is uninitialized. For the sake of demonstrating how to use
+MLPs, let's set the weight and biases manually (we would normally use a trainer
+for this):
+
+.. doctest::
+
+  >>> input_to_hidden0 = numpy.ones((3,3), 'float64')
+  >>> input_to_hidden0
+  array([[ 1.,  1.,  1.],
+         [ 1.,  1.,  1.],
+         [ 1.,  1.,  1.]])
+  >>> hidden0_to_hidden1 = 0.5*numpy.ones((3,2), 'float64')
+  >>> hidden0_to_hidden1
   array([[ 0.5,  0.5],
-         [ 1. ,  1. ]])
-  >>> machine = xbob.learn.linear.Machine(W)
-  >>> machine.shape
-  (2, 2)
-  >>> x = numpy.array([0.3, 0.4], 'float64')
-  >>> y = machine(x)
-  >>> y
-  array([ 0.55,  0.55])
+         [ 0.5,  0.5],
+         [ 0.5,  0.5]])
+  >>> hidden1_to_output = numpy.array([0.3, 0.2], 'float64').reshape(2,1)
+  >>> hidden1_to_output
+  array([[ 0.3],
+         [ 0.2]])
+  >>> bias_hidden0 = numpy.array([-0.2, -0.3, -0.1], 'float64')
+  >>> bias_hidden0
+  array([-0.2, -0.3, -0.1])
+  >>> bias_hidden1 = numpy.array([-0.7, 0.2], 'float64')
+  >>> bias_hidden1
+  array([-0.7,  0.2])
+  >>> bias_output = numpy.array([0.5], 'float64')
+  >>> bias_output
+  array([ 0.5])
+  >>> mlp.weights = (input_to_hidden0, hidden0_to_hidden1, hidden1_to_output)
+  >>> mlp.biases = (bias_hidden0, bias_hidden1, bias_output)
 
-As was shown in the above example, the way to pass data through a machine is to
-call its :py:meth:`xbob.learn.linear.Machine.__call__()` operator.
+At this point, a few things should be noted:
 
-The first thing to notice about machines is that they can be stored and
-retrieved in HDF5 files (for more details in manipulating HDF5 files, please
-consult the documentation for :py:mod:`xbob.io`. To save the before metioned
-machine to a file, just use the machine's
-:py:meth:`xbob.learn.linear.Machine.save`` command. Because several machines
-can be stored on the same :py:class:`xbob.io.HDF5File`, we let the user open
-the file and set it up before the machine can write to it:
+1. Weights should **always** be 2D arrays, even if they are connecting 1 neuron
+   to many (or many to 1). You can use the NumPy_ ``reshape()`` array method
+   for this purpose as shown above
+2. Biases should **always** be 1D arrays.
+3. By default, MLPs use the :py:class:`xbob.learn.activation.HyperbolicTangent`
+   as activation function. There are currently 4 other activation functions
+   available in |project|:
 
-.. doctest::
+   * The identity function: :py:class:`xbob.learn.activation.Identity`;
+   * The sigmoid function (also known as the `logistic function
+     <http://mathworld.wolfram.com/SigmoidFunction.html>`_ function):
+     :py:class:`xbob.learn.activation.Logistic`;
+   * A scaled version of the hyperbolic tangent function:
+     :py:class:`xbob.learn.activation.MultipliedHyperbolicTangent`; and
+   * A scaled version of the identity activation:
+     :py:class:`xbob.learn.activation.Linear`
 
-  >>> myh5_file = xbob.io.HDF5File('linear.hdf5', 'w')
-  >>> #do other operations on myh5_file to set it up, optionally
-  >>> machine.save(myh5_file)
-  >>> del myh5_file #close
-
-You can load the machine again in a similar way:
-
-.. doctest::
-
-  >>> myh5_file = xbob.io.HDF5File('linear.hdf5')
-  >>> reloaded = xbob.learn.linear.Machine(myh5_file)
-  >>> numpy.array_equal(machine.weights, reloaded.weights)
-  True
-
-The shape of a :py:class:`xbob.learn.linear.Machine` (see
-:py:attr:`xbob.learn.linear.Machine.shape`) indicates the size of the input
-vector that is expected by this machine and the size of the output vector it
-produces, in a tuple format like ``(input_size, output_size)``:
-
-.. doctest::
-
-  >>> machine.shape
-  (2, 2)
-
-A :py:class:`xbob.learn.linear.Machine`` also supports pre-setting
-normalization vectors that are applied to every input :math:`x`. You can set a
-subtraction factor and a division factor, so that the actual input :math:`x'`
-that is fed to the matrix :math:`W` is :math:`x' = (x - s) ./ d`. The variables
-:math:`s` and :math:`d` are vectors that have to have the same size as the
-input vector :math:`x`. The operator :math:`./` indicates an element-wise
-division. By default, :math:`s := 0.0` and :math:`d := 1.0`.
+Let's try changing all of the activation functions to a simpler one, just for
+this example:
 
 .. doctest::
 
-  >>> machine.input_subtract
-  array([ 0.,  0.])
-  >>> machine.input_divide
-  array([ 1.,  1.])
+  >>> mlp.hidden_activation = xbob.learn.activation.Identity()
+  >>> mlp.output_activation = xbob.learn.activation.Identity()
 
-To set a new value for :math:`s` or :math:`d` just assign the desired machine
-property:
+Once the network weights and biases are set, we can feed forward an example
+through this machine. This is done using the ``()`` operator, like for a
+:py:class:`xbob.learn.Linear.Machine`:
 
 .. doctest::
 
-  >>> machine.input_subtract = numpy.array([0.5, 0.8])
-  >>> machine.input_divide = numpy.array([2.0, 4.0])
-  >>> y = machine(x)
-  >>> y
-  array([-0.15, -0.15])
+  >>> mlp(numpy.array([0.1, -0.1, 0.2], 'float64'))
+  array([ 0.33])
+
+MLPs can be `trained` through backpropagation [2]_, which is a supervised
+learning technique. This training procedure requires a set of features with
+labels (or targets). Using |project|, this is passed to the `train()` method of
+available MLP trainers in two different 2D `NumPy`_ arrays, one for the input
+(features) and one for the output (targets).
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> d0 = numpy.array([[.3, .7]]) # input
+   >>> t0 = numpy.array([[.0]]) # target
+
+The class used to train a MLP [1]_ with backpropagation [2]_ is
+:py:class:`xbob.learn.MLP.BackProp`. An example is shown below.
+
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> trainer = xbob.learn.mlp.BackProp(1, xbob.learn.mlp.SquareError(mlp.output_activation), mlp, train_biases=False) #  Creates a BackProp trainer with a batch size of 1
+   >>> trainer.train(mlp, d0, t0) # Performs the Back Propagation
 
 .. note::
 
-  In the event you save a machine that has the subtraction and/or a division
-  factor set, the vectors are saved and restored automatically w/o user
-  intervention.
+  The second parameter of the trainer defines the cost function to be used for
+  the training. You can use two different types of pre-programmed costs in
+  |project|: :py:class:`xbob.learn.mlp.SquareError`, like before, or
+  :py:class:`xbob.learn.mlp.CrossEntropyLoss` (normally in association with
+  :py:class:`bob.learn.activation.Logistic`). You can implement your own
+  cost/loss functions. Nevertheless, to do so, you must do it using our C++ API
+  and then bind it to Python in your own :doc:`Satellite Package
+  <OrganizeYourCode>`.
 
-Linear machine trainers
------------------------
+Backpropagation [2]_ requires a learning rate to be set. In the previous
+example, the default value ``0.1`` has been used. This might be updated using
+the :py:attr:`xbob.learn.mlp.BackProp.learning_rate` attribute.
 
-Next, we examine available ways to train a :py:class:`xbob.learn.linear.Machine`
-so they can do something useful for you.
-
-Principal component analysis
-============================
-
-**PCA** [1]_ is one way to train a :py:class:`xbob.learn.linear.Machine`. The
-associated |project| class is :py:class:`xbob.learn.linear.PCATrainer` as the
-training procedure mainly relies on a singular value decomposition.
-
-**PCA** belongs to the category of `unsupervised` learning algorithms, which
-means that the training data is not labelled. Therefore, the training set can
-be represented by a set of features stored in a container. Using |project|,
-this container is a 2D :py:class:`numpy.ndarray`.
+Another training alternative exists referred to as **resilient propagation**
+(R-Prop) [3]_, which dynamically computes an optimal learning rate. The
+corresponding class is :py:class:`xbob.learn.mlp.RProp`, and the overall
+training procedure remains identical.
 
 .. doctest::
    :options: +NORMALIZE_WHITESPACE
 
-   >>> data = numpy.array([[3,-3,100], [4,-4,50], [3.5,-3.5,-50], [3.8,-3.7,-100]], dtype='float64')
-   >>> print(data)
-   [[   3.    -3.   100. ]
-    [   4.    -4.    50. ]
-    [   3.5   -3.5  -50. ]
-    [   3.8   -3.7 -100. ]]
+   >>> trainer = xbob.learn.mlp.RProp(1, xbob.learn.mlp.SquareError(mlp.output_activation), mlp, train_biases=False)
+   >>> trainer.train(mlp, d0, t0)
 
-Once the training set has been defined, the overall procedure to train a
-:py:class:`xbob.learn.linear.Machine` with a
-:py:class:`xbob.learn.linear.PCATrainer` is simple and shown below. Please note
-that the concepts remains very similar for most of the other `trainers` and
-`machines`.
+.. note::
 
-.. doctest::
-   :options: +NORMALIZE_WHITESPACE
-
-   >>> trainer = xbob.learn.linear.PCATrainer() # Creates a PCA trainer
-   >>> [machine, eig_vals] = trainer.train(data)  # Trains the machine with the given data
-   >>> print(machine.weights)  # The weights of the returned (linear) Machine after the training procedure
-   [[ 0.002 -0.706 -0.708]
-    [-0.002  0.708 -0.706]
-    [-1.    -0.003 -0.   ]]
-
-Next, input data can be projected using this learned projection matrix
-:math:`W`.
-
-.. doctest::
-   :options: +NORMALIZE_WHITESPACE
-
-   >>> e = numpy.array([3.2,-3.3,-10], 'float64')
-   >>> print(machine(e))
-   [ 9.999 0.47 0.092]
-
-
-Linear discriminant analysis
-============================
-
-**LDA** [2]_ is another way to train a :py:class:`xbob.learn.linear.Machine`.
-The associated |project| class is
-:py:class:`xbob.learn.linear.FisherLDATrainer`.
-
-In contrast to **PCA** [1]_, **LDA** [2]_ is a `supervised` technique.
-Furthermore, the training data should be organized differently. It is indeed
-required to be a list of 2D :py:class:`numpy.ndarray`\'s, one for each class.
-
-.. doctest::
-   :options: +NORMALIZE_WHITESPACE
-
-   >>> data1 = numpy.array([[3,-3,100], [4,-4,50], [40,-40,150]], dtype='float64')
-   >>> data2 = numpy.array([[3,6,-50], [4,8,-100], [40,79,-800]], dtype='float64')
-   >>> data = [data1,data2]
-
-Once the training set has been defined, the procedure to train the
-:py:class:`xbob.learn.linear.Machine` with **LDA** is very similar to the one
-for **PCA**. This is shown below.
-
-.. doctest::
-   :options: +NORMALIZE_WHITESPACE
-
-   >>> trainer = xbob.learn.linear.FisherLDATrainer()
-   >>> [machine,eig_vals] = trainer.train(data)  # Trains the machine with the given data
-   >>> print(eig_vals)  # doctest: +SKIP
-   [ 13.10097786 0. ]
-   >>> machine.resize(3,1)  # Make the output space of dimension 1
-   >>> print(machine.weights)  # The new weights after the training procedure
-   [[ 0.609]
-    [ 0.785]
-    [ 0.111]]
-
+   The trainers are **not** re-initialized when you call it several times. This
+   is done so as to allow you to implement your own stopping criteria. To reset
+   an MLP trainer, use their ``reset`` method.
 
 .. Place here your external references
-.. [1] http://en.wikipedia.org/wiki/Principal_component_analysis
-.. [2] http://en.wikipedia.org/wiki/Linear_discriminant_analysis
+
+.. include:: links.rst
+.. [1] http://en.wikipedia.org/wiki/Multilayer_perceptron
+.. [2] http://en.wikipedia.org/wiki/Backpropagation
+.. [3] http://en.wikipedia.org/wiki/Rprop
