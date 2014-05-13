@@ -121,7 +121,7 @@ Cost
 Data Shuffler
 -------------
 
-.. cpp:type PyBobLearnDataShufflerObject
+.. cpp:type:: PyBobLearnDataShufflerObject
 
    The pythonic representation for a :py:class:`xbob.learn.mlp.DataShuffler`
    object.
@@ -148,7 +148,7 @@ Data Shuffler
 Trainers
 --------
 
-.. cpp:type PyBobLearnMLPTrainerObject
+.. cpp:type:: PyBobLearnMLPTrainerObject
 
    The pythonic representation for a :py:class:`xbob.learn.mlp.Trainer` object.
    All back-propagation-based trainers should inherit from this type as it
@@ -174,7 +174,7 @@ Trainers
    otherwise.
 
 
-.. cpp:type PyBobLearnBackPropObject
+.. cpp:type:: PyBobLearnBackPropObject
 
    The pythonic representation for a :py:class:`xbob.learn.mlp.BackProp` object.
    All back-propagation-based trainers should inherit from this type as it
@@ -205,7 +205,7 @@ Trainers
    ``0`` otherwise.
 
 
-.. cpp:type PyBobLearnRPropObject
+.. cpp:type:: PyBobLearnRPropObject
 
    The pythonic representation for a :py:class:`xbob.learn.mlp.RProp` object.
    All back-propagation-based trainers should inherit from this type as it
