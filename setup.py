@@ -63,6 +63,7 @@ setup(
         ),
       Extension("xbob.learn.mlp._library",
         [
+          "xbob/learn/mlp/rprop.cpp",
           "xbob/learn/mlp/backprop.cpp",
           "xbob/learn/mlp/trainer.cpp",
           "xbob/learn/mlp/cxx/machine.cpp",

@@ -470,15 +470,14 @@ static PyObject* PyBobLearnMLPBackProp_train
 
 }
 
-/**
-PyDoc_STRVAR(s_set_derivative_str, "set_derivative");
-PyDoc_STRVAR(s_set_derivative_doc,
-    "Sets the cost derivative w.r.t. the **weights** for a given layer.");
+PyDoc_STRVAR(s_set_previous_derivative_str, "set_previous_derivative");
+PyDoc_STRVAR(s_set_previous_derivative_doc,
+    "Sets the previous cost derivative for a given weight layer (index).");
 
-static PyObject* PyBobLearnMLPBackProp_setDerivativeOnLayer
-(PyBobLearnMLPBackPropObject* self, PyObject* args, PyObject* kwds) {
+static PyObject* PyBobLearnMLPRProp_setPreviousDerivativeOnLayer
+(PyBobLearnMLPRPropObject* self, PyObject* args, PyObject* kwds) {
 
-  /* Parses input arguments in a single shot *\/
+  /* Parses input arguments in a single shot */
   static const char* const_kwlist[] = {"array", "layer", 0};
   static char** kwlist = const_cast<char**>(const_kwlist);
 
@@ -489,19 +488,20 @@ static PyObject* PyBobLearnMLPBackProp_setDerivativeOnLayer
         &PyBlitzArray_Converter, &array, &layer)) return 0;
 
   if (array->type_num != NPY_FLOAT64 || array->ndim != 2) {
-    PyErr_Format(PyExc_TypeError, "`%s.%s' only supports 2D 64-bit float arrays for argument `array' (or any other object coercible to that), but you provided an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, s_set_derivative_str, array->ndim, PyBlitzArray_TypenumAsString(array->type_num));
+    PyErr_Format(PyExc_TypeError, "`%s.%s' only supports 2D 64-bit float arrays for argument `array' (or any other object coercible to that), but you provided an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, s_set_previous_derivative_str, array->ndim, PyBlitzArray_TypenumAsString(array->type_num));
     return 0;
   }
 
   try {
-    self->cxx->setDerivative(*PyBlitzArrayCxx_AsBlitz<double,2>(array), layer);
+    self->cxx->setPreviousDerivative(*PyBlitzArrayCxx_AsBlitz<double,2>(array),
+        layer);
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
     return 0;
   }
   catch (...) {
-    PyErr_Format(PyExc_RuntimeError, "cannot set derivative at layer %" PY_FORMAT_SIZE_T "d for `%s': unknown exception caught", layer, Py_TYPE(self)->tp_name);
+    PyErr_Format(PyExc_RuntimeError, "cannot set previous derivative at layer %" PY_FORMAT_SIZE_T "d for `%s': unknown exception caught", layer, Py_TYPE(self)->tp_name);
     return 0;
   }
 
@@ -509,14 +509,14 @@ static PyObject* PyBobLearnMLPBackProp_setDerivativeOnLayer
 
 }
 
-PyDoc_STRVAR(s_set_bias_derivative_str, "set_bias_derivative");
-PyDoc_STRVAR(s_set_bias_derivative_doc,
-    "Sets the cost derivative w.r.t. the **biases** for a given layer.");
+PyDoc_STRVAR(s_set_previous_bias_derivative_str, "set_previous_bias_derivative");
+PyDoc_STRVAR(s_set_previous_bias_derivative_doc,
+    "Sets the cost bias derivative for a given bias layer (index).");
 
-static PyObject* PyBobLearnMLPBackProp_setBiasDerivativeOnLayer
-(PyBobLearnMLPBackPropObject* self, PyObject* args, PyObject* kwds) {
+static PyObject* PyBobLearnMLPRProp_setPreviousBiasDerivativeOnLayer
+(PyBobLearnMLPRPropObject* self, PyObject* args, PyObject* kwds) {
 
-  /* Parses input arguments in a single shot *\/
+  /* Parses input arguments in a single shot */
   static const char* const_kwlist[] = {"array", "layer", 0};
   static char** kwlist = const_cast<char**>(const_kwlist);
 
@@ -527,26 +527,25 @@ static PyObject* PyBobLearnMLPBackProp_setBiasDerivativeOnLayer
         &PyBlitzArray_Converter, &array, &layer)) return 0;
 
   if (array->type_num != NPY_FLOAT64 || array->ndim != 1) {
-    PyErr_Format(PyExc_TypeError, "`%s.%s' only supports 1D 64-bit float arrays for argument `array' (or any other object coercible to that), but you provided an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, s_set_bias_derivative_str, array->ndim, PyBlitzArray_TypenumAsString(array->type_num));
+    PyErr_Format(PyExc_TypeError, "`%s.%s' only supports 1D 64-bit float arrays for argument `array' (or any other object coercible to that), but you provided an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, s_set_previous_bias_derivative_str, array->ndim, PyBlitzArray_TypenumAsString(array->type_num));
     return 0;
   }
 
   try {
-    self->cxx->setBiasDerivative(*PyBlitzArrayCxx_AsBlitz<double,1>(array), layer);
+    self->cxx->setPreviousBiasDerivative(*PyBlitzArrayCxx_AsBlitz<double,1>(array), layer);
   }
   catch (std::exception& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.what());
     return 0;
   }
   catch (...) {
-    PyErr_Format(PyExc_RuntimeError, "cannot set bias derivative at layer %" PY_FORMAT_SIZE_T "d for `%s': unknown exception caught", layer, Py_TYPE(self)->tp_name);
+    PyErr_Format(PyExc_RuntimeError, "cannot set previous bias derivative at layer %" PY_FORMAT_SIZE_T "d for `%s': unknown exception caught", layer, Py_TYPE(self)->tp_name);
     return 0;
   }
 
   Py_RETURN_NONE;
 
 }
-**/
 
 static PyMethodDef PyBobLearnMLPBackProp_methods[] = {
   {
@@ -561,20 +560,18 @@ static PyMethodDef PyBobLearnMLPBackProp_methods[] = {
     METH_VARARGS|METH_KEYWORDS,
     s_train_doc,
   },
-  /**
   {
-    s_set_derivative_str,
-    (PyCFunction)PyBobLearnMLPBackProp_setDerivativeOnLayer,
+    s_set_previous_derivative_str,
+    (PyCFunction)PyBobLearnMLPRProp_setPreviousDerivativeOnLayer,
     METH_VARARGS|METH_KEYWORDS,
-    s_set_derivative_doc,
+    s_set_previous_derivative_doc,
   },
   {
-    s_set_bias_derivative_str,
-    (PyCFunction)PyBobLearnMLPBackProp_setBiasDerivativeOnLayer,
+    s_set_previous_bias_derivative_str,
+    (PyCFunction)PyBobLearnMLPRProp_setPreviousBiasDerivativeOnLayer,
     METH_VARARGS|METH_KEYWORDS,
-    s_set_bias_derivative_doc,
+    s_set_previous_bias_derivative_doc,
   },
-  **/
   {0} /* Sentinel */
 };
 
