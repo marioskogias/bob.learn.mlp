@@ -15,8 +15,8 @@ import nose.tools
 from . import Machine
 from .test_utils import Machine as PythonMachine
 
-import xbob.io
-from xbob.io.test_utils import temporary_filename
+import xbob.io.base
+from xbob.io.base.test_utils import temporary_filename
 from xbob.learn.activation import Logistic, HyperbolicTangent
 from xbob.core.random import mt19937
 
@@ -224,8 +224,8 @@ def test_persistence():
 
   # creates a file that will be used in the next test!
   machine_file = temporary_filename()
-  m.save(xbob.io.HDF5File(machine_file, 'w'))
-  m2 = Machine(xbob.io.HDF5File(machine_file))
+  m.save(xbob.io.base.HDF5File(machine_file, 'w'))
+  m2 = Machine(xbob.io.base.HDF5File(machine_file))
 
   assert m.is_similar_to(m2)
   nose.tools.eq_(m, m2)

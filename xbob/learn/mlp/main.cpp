@@ -13,7 +13,7 @@
 #endif
 #include <xbob.blitz/capi.h>
 #include <xbob.blitz/cleanup.h>
-#include <xbob.io/api.h>
+#include <xbob.io.base/api.h>
 #include <xbob.learn.activation/api.h>
 #include <xbob.core/random.h>
 
@@ -177,7 +177,7 @@ static PyObject* create_module (void) {
     return 0;
   }
 
-  if (import_xbob_io() < 0) {
+  if (import_xbob_io_base() < 0) {
     PyErr_Print();
     PyErr_Format(PyExc_ImportError, "cannot import `%s'", XBOB_EXT_MODULE_NAME);
     return 0;

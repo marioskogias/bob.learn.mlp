@@ -4,9 +4,9 @@
 # Mon 16 Apr 08:18:08 2012 CEST
 
 from setuptools import setup, find_packages, dist
-dist.Distribution(dict(setup_requires=['xbob.blitz', 'xbob.io', 'xbob.learn.activation', 'xbob.core']))
+dist.Distribution(dict(setup_requires=['xbob.blitz', 'xbob.io.base', 'xbob.learn.activation', 'xbob.core']))
 from xbob.blitz.extension import Extension
-import xbob.io
+import xbob.io.base
 import xbob.core
 import xbob.learn.activation
 
@@ -16,7 +16,7 @@ package_dir = os.path.join(package_dir, 'xbob', 'learn', 'mlp', 'include')
 include_dirs = [
     package_dir,
     xbob.blitz.get_include(),
-    xbob.io.get_include(),
+    xbob.io.base.get_include(),
     xbob.learn.activation.get_include(),
     xbob.core.get_include(),
     ]
@@ -42,7 +42,7 @@ setup(
     install_requires=[
       'setuptools',
       'xbob.blitz',
-      'xbob.io',
+      'xbob.io.base',
       'xbob.learn.activation',
       'xbob.core',
     ],

@@ -10,7 +10,7 @@
 #define XBOB_LEARN_MLP_MODULE
 #include <xbob.blitz/cppapi.h>
 #include <xbob.blitz/cleanup.h>
-#include <xbob.io/api.h>
+#include <xbob.io.base/api.h>
 #include <xbob.learn.activation/api.h>
 #include <xbob.learn.mlp/api.h>
 #include <xbob.core/random.h>

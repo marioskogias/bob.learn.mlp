@@ -20,7 +20,7 @@ PyObject* convert_vector(const std::vector<blitz::Array<double,N>>& v) {
   PyObject* retval = PyTuple_New(v.size());
   auto retval_ = make_safe(retval);
   if (!retval) return 0;
-  for (int k=0; k<v.size(); ++k) {
+  for (unsigned int k=0; k<v.size(); ++k) {
     auto arr = PyBlitzArrayCxx_NewFromConstArray(v[k]);
     if (!arr) return 0;
     PyTuple_SET_ITEM(retval, k, PyBlitzArray_NUMPY_WRAP(arr));
