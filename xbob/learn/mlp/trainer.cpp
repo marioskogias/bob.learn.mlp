@@ -274,7 +274,7 @@ static int PyBobLearnMLPTrainer_setError
 (PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,2>> bzvec;
-  int retval = convert_tuple<2>((PyObject*)self, s_error_str, o, bzvec);
+  int retval = convert_tuple<2>(Py_TYPE(self)->tp_name, s_error_str, o, bzvec);
   if (retval < 0) return retval;
 
   try {
@@ -306,7 +306,7 @@ static int PyBobLearnMLPTrainer_setOutput
 (PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,2>> bzvec;
-  int retval = convert_tuple<2>((PyObject*)self, s_output_str, o, bzvec);
+  int retval = convert_tuple<2>(Py_TYPE(self)->tp_name, s_output_str, o, bzvec);
   if (retval < 0) return retval;
 
   try {
@@ -340,7 +340,8 @@ static int PyBobLearnMLPTrainer_setDerivatives
 (PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,2>> bzvec;
-  int retval = convert_tuple<2>((PyObject*)self, s_derivatives_str, o, bzvec);
+  int retval = convert_tuple<2>(Py_TYPE(self)->tp_name, s_derivatives_str, o,
+      bzvec);
   if (retval < 0) return retval;
 
   try {
@@ -374,7 +375,8 @@ static int PyBobLearnMLPTrainer_setBiasDerivatives
 (PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,1>> bzvec;
-  int retval = convert_tuple<1>((PyObject*)self, s_bias_derivatives_str, o, bzvec);
+  int retval = convert_tuple<1>(Py_TYPE(self)->tp_name, s_bias_derivatives_str,
+      o, bzvec);
   if (retval < 0) return retval;
 
   try {

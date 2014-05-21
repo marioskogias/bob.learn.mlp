@@ -5,7 +5,6 @@
  * Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
  */
 
-#include <bob/core/assert.h>
 #include <xbob.learn.mlp/roll.h>
 
 int bob::learn::mlp::detail::getNbParameters(const bob::learn::mlp::Machine& machine)
@@ -19,7 +18,6 @@ int bob::learn::mlp::detail::getNbParameters(
   const std::vector<blitz::Array<double,2> >& w,
   const std::vector<blitz::Array<double,1> >& b)
 {
-  bob::core::array::assertSameDimensionLength(w.size(), b.size());
   int N = 0;
   for (int i=0; i<(int)w.size(); ++i)
     N += b[i].numElements() + w[i].numElements();
@@ -37,11 +35,6 @@ void bob::learn::mlp::unroll(const bob::learn::mlp::Machine& machine,
 void bob::learn::mlp::unroll(const std::vector<blitz::Array<double,2> >& w,
   const std::vector<blitz::Array<double,1> >& b, blitz::Array<double,1>& vec)
 {
-  // 1/ Check number of elements
-  const int N = bob::learn::mlp::detail::getNbParameters(w, b);
-  bob::core::array::assertSameDimensionLength(vec.extent(0), N);
-
-  // 2/ Roll
   blitz::Range rall = blitz::Range::all();
   int offset=0;
   for (int i=0; i<(int)w.size(); ++i)
@@ -74,11 +67,6 @@ void bob::learn::mlp::roll(bob::learn::mlp::Machine& machine,
 void bob::learn::mlp::roll(std::vector<blitz::Array<double,2> >& w,
   std::vector<blitz::Array<double,1> >& b, const blitz::Array<double,1>& vec)
 {
-  // 1/ Check number of elements
-  const int N = bob::learn::mlp::detail::getNbParameters(w, b);
-  bob::core::array::assertSameDimensionLength(vec.extent(0), N);
-
-  // 2/ Roll
   blitz::Range rall = blitz::Range::all();
   int offset=0;
   for (int i=0; i<(int)w.size(); ++i)

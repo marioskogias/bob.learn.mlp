@@ -15,6 +15,13 @@
 #include <xbob.blitz/cleanup.h>
 #include <xbob.learn.mlp/api.h>
 
+/**
+ * Converts a vector of blitz::Array<double,N> into a python iterable over
+ * arrays.
+ *
+ * Returns NULL if a problem occurs, the PyObject* resulting from the
+ * conversion if all is good.
+ */
 template <int N>
 PyObject* convert_vector(const std::vector<blitz::Array<double,N>>& v) {
   PyObject* retval = PyTuple_New(v.size());
@@ -29,12 +36,18 @@ PyObject* convert_vector(const std::vector<blitz::Array<double,N>>& v) {
   return retval;
 }
 
+/**
+ * Converts an iterable of pythonic arrays into a vector of
+ * blitz::Array<double,N>, checking for errors.
+ *
+ * Returns -1 if a problem occurs, 0 if all is good.
+ */
 template <int N>
-int convert_tuple(PyObject* self, const char* attr,
+int convert_tuple(const char* name, const char* attr,
     PyObject* o, std::vector<blitz::Array<double,N>>& seq) {
 
   if (!PyIter_Check(o) && !PySequence_Check(o)) {
-    PyErr_Format(PyExc_TypeError, "setting attribute `%s' of `%s' requires an iterable, but you passed `%s' which does not implement the iterator protocol", Py_TYPE(self)->tp_name, attr, Py_TYPE(o)->tp_name);
+    PyErr_Format(PyExc_TypeError, "parameter `%s' of `%s' requires an iterable, but you passed `%s' which does not implement the iterator protocol", name, attr, Py_TYPE(o)->tp_name);
     return -1;
   }
 
@@ -51,12 +64,12 @@ int convert_tuple(PyObject* self, const char* attr,
     PyBlitzArrayObject* bz = 0;
 
     if (!PyBlitzArray_Converter(item, &bz)) {
-      PyErr_Format(PyExc_TypeError, "`%s' (while setting `%s') could not convert object of type `%s' at position %" PY_FORMAT_SIZE_T "d of input sequence into an array - check your input", Py_TYPE(self)->tp_name, attr, Py_TYPE(item)->tp_name, seq.size());
+      PyErr_Format(PyExc_TypeError, "`%s' (while reading `%s') could not convert object of type `%s' at position %" PY_FORMAT_SIZE_T "d of input sequence into an array - check your input", name, attr, Py_TYPE(item)->tp_name, seq.size());
       return -1;
     }
 
     if (bz->ndim != N || bz->type_num != NPY_FLOAT64) {
-      PyErr_Format(PyExc_TypeError, "`%s' only supports 2D 64-bit float arrays for attribute `%s' (or any other object coercible to that), but at position %" PY_FORMAT_SIZE_T "d I have found an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", Py_TYPE(self)->tp_name, attr, seq.size(), bz->ndim, PyBlitzArray_TypenumAsString(bz->type_num));
+      PyErr_Format(PyExc_TypeError, "`%s' only supports 2D 64-bit float arrays for parameter `%s' (or any other object coercible to that), but at position %" PY_FORMAT_SIZE_T "d I have found an object with %" PY_FORMAT_SIZE_T "d dimensions and with type `%s' which is not compatible - check your input", name, attr, seq.size(), bz->ndim, PyBlitzArray_TypenumAsString(bz->type_num));
       Py_DECREF(bz);
       return -1;
     }

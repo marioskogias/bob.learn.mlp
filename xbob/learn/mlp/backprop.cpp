@@ -256,8 +256,8 @@ static int PyBobLearnMLPBackProp_setPreviousDerivatives
 (PyBobLearnMLPBackPropObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,2>> bzvec;
-  int retval = convert_tuple<2>((PyObject*)self, s_previous_derivatives_str,
-      o, bzvec);
+  int retval = convert_tuple<2>(Py_TYPE(self)->tp_name,
+      s_previous_derivatives_str, o, bzvec);
   if (retval < 0) return retval;
 
   try {
@@ -292,7 +292,7 @@ static int PyBobLearnMLPBackProp_setPreviousBiasDerivatives
 (PyBobLearnMLPBackPropObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,1>> bzvec;
-  int retval = convert_tuple<1>((PyObject*)self,
+  int retval = convert_tuple<1>(Py_TYPE(self)->tp_name,
       s_previous_bias_derivatives_str, o, bzvec);
   if (retval < 0) return retval;
 

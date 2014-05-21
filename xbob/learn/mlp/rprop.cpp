@@ -319,8 +319,8 @@ static int PyBobLearnMLPRProp_setPreviousDerivatives
 (PyBobLearnMLPRPropObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,2>> bzvec;
-  int retval = convert_tuple<2>((PyObject*)self, s_previous_derivatives_str,
-      o, bzvec);
+  int retval = convert_tuple<2>(Py_TYPE(self)->tp_name,
+      s_previous_derivatives_str, o, bzvec);
   if (retval < 0) return retval;
 
   try {
@@ -355,7 +355,7 @@ static int PyBobLearnMLPRProp_setPreviousBiasDerivatives
 (PyBobLearnMLPRPropObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,1>> bzvec;
-  int retval = convert_tuple<1>((PyObject*)self,
+  int retval = convert_tuple<1>(Py_TYPE(self)->tp_name,
       s_previous_bias_derivatives_str, o, bzvec);
   if (retval < 0) return retval;
 
@@ -388,7 +388,7 @@ static int PyBobLearnMLPRProp_setDeltas
 (PyBobLearnMLPRPropObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,2>> bzvec;
-  int retval = convert_tuple<2>((PyObject*)self, s_deltas_str, o, bzvec);
+  int retval = convert_tuple<2>(Py_TYPE(self)->tp_name, s_deltas_str, o, bzvec);
   if (retval < 0) return retval;
 
   try {
@@ -420,7 +420,8 @@ static int PyBobLearnMLPRProp_setBiasDeltas
 (PyBobLearnMLPRPropObject* self, PyObject* o, void* /*closure*/) {
 
   std::vector<blitz::Array<double,1>> bzvec;
-  int retval = convert_tuple<1>((PyObject*)self, s_bias_deltas_str, o, bzvec);
+  int retval = convert_tuple<1>(Py_TYPE(self)->tp_name, s_bias_deltas_str, o,
+      bzvec);
   if (retval < 0) return retval;
 
   try {

@@ -36,7 +36,7 @@ a global activation function. References to fully-connected\n\
 feed-forward networks:\n\
 \n\
   Bishop's Pattern Recognition and Machine Learning, Chapter 5.\n\
-  Figure 5.1 shows what we mean.\n\
+  Figure 5.1 shows what is programmed.\n\
 \n\
 MLPs normally are multi-layered systems, with 1 or more hidden\n\
 layers. As a special case, this implementation also supports\n\
@@ -737,7 +737,7 @@ PyObject* PyBobLearnMLPMachine_Repr(PyBobLearnMLPMachineObject* self) {
 
 PyDoc_STRVAR(s_forward_str, "forward");
 PyDoc_STRVAR(s_forward_doc,
-"o.forward(input [, output]) -> array\n\
+"o.forward(input, [output]) -> array\n\
 \n\
 Projects ``input`` through its internal structure. If\n\
 ``output`` is provided, place output there instead of allocating\n\
@@ -833,6 +833,7 @@ static PyObject* PyBobLearnMLPMachine_forward
       osize[1] = self->cxx->outputSize();
     }
     output = (PyBlitzArrayObject*)PyBlitzArray_SimpleNew(NPY_FLOAT64, input->ndim, osize);
+    if (!output) return 0;
     output_ = make_safe(output);
   }
 
@@ -937,7 +938,7 @@ static PyObject* PyBobLearnMLPMachine_Save
 
 PyDoc_STRVAR(s_is_similar_to_str, "is_similar_to");
 PyDoc_STRVAR(s_is_similar_to_doc,
-"o.is_similar_to(other [, r_epsilon=1e-5 [, a_epsilon=1e-8]]) -> bool\n\
+"o.is_similar_to(other, [r_epsilon=1e-5, [a_epsilon=1e-8]]) -> bool\n\
 \n\
 Compares this MLP with the ``other`` one to be approximately the same.\n\
 \n\
