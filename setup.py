@@ -21,7 +21,7 @@ include_dirs = [
     xbob.core.get_include(),
     ]
 
-packages = ['bob-io >= 1.2.2', 'bob-machine >= 1.2.2']
+packages = ['bob-io >= 2.0.0a2']
 version = '2.0.0a0'
 
 setup(
@@ -66,6 +66,7 @@ setup(
           "xbob/learn/mlp/rprop.cpp",
           "xbob/learn/mlp/backprop.cpp",
           "xbob/learn/mlp/trainer.cpp",
+          "xbob/learn/mlp/cxx/roll.cpp",
           "xbob/learn/mlp/cxx/machine.cpp",
           "xbob/learn/mlp/cxx/cross_entropy.cpp",
           "xbob/learn/mlp/cxx/square_error.cpp",
