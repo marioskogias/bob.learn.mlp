@@ -1,46 +1,31 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 # Andre Anjos <andre.anjos@idiap.ch>
-# Thu Jul 14 18:53:07 2011 +0200
+# Tue Jul 19 09:47:23 2011 +0200
 #
-# Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
+# Copyright (C) 2011-2013 Idiap Research Institute, Martigny, Switzerland
 
-"""Tests for RProp MLP training.
+"""Tests for BackProp MLP training.
 """
 
 import numpy
-from xbob.learn.activation import HyperbolicTangent, Logistic, Identity
+from bob.learn.activation import HyperbolicTangent, Logistic, Identity
 
-from . import Machine, Trainer, CrossEntropyLoss, SquareError, RProp
+from . import Machine, Trainer, CrossEntropyLoss, SquareError, BackProp
 
-def sign(x):
-  """A handy sign function"""
-  if (x == 0): return 0
-  if (x < 0) : return -1
-  return +1
-
-class PythonRProp(Trainer):
-  """A simple version of the R-Prop algorithm written in Python
+class PythonBackProp(Trainer):
+  """A simple version of the vanilla BackProp algorithm written in Python
   """
 
-  def __init__(self, batch_size, cost, machine, train_biases):
+  def __init__(self, batch_size, cost, machine, train_biases,
+      learning_rate=0.1, momentum=0.0):
 
-    super(PythonRProp, self).__init__(batch_size, cost, machine, train_biases)
-
-    # some constants for RProp
-    self.DELTA0 = 0.1
-    self.DELTA_MIN = 1e-6
-    self.DELTA_MAX = 50
-    self.ETA_MINUS = 0.5
-    self.ETA_PLUS = 1.2
-
-    # initial derivatives
+    super(PythonBackProp, self).__init__(batch_size, cost, machine, train_biases)
     self.previous_derivatives = [numpy.zeros(k.shape, dtype=float) for k in machine.weights]
     self.previous_bias_derivatives = [numpy.zeros(k.shape, dtype=float) for k in machine.biases]
 
-    # initial deltas
-    self.deltas = [self.DELTA0*numpy.ones(k.shape, dtype=float) for k in machine.weights]
-    self.bias_deltas = [self.DELTA0*numpy.ones(k.shape, dtype=float) for k in machine.biases]
+    self.learning_rate = learning_rate
+    self.momentum = momentum
 
   def train(self, machine, input, target):
 
@@ -49,64 +34,36 @@ class PythonRProp(Trainer):
     self.backward_step(machine, input, target)
 
     # Updates weights and biases
-    weight_updates = [i * j for (i,j) in zip(self.previous_derivatives, self.derivatives)]
-
-    # Iterate over each weight and bias and see what to do:
-    new_weights = machine.weights
-    for k, up in enumerate(weight_updates):
-      for i in range(up.shape[0]):
-        for j in range(up.shape[1]):
-          if up[i,j] > 0:
-            self.deltas[k][i,j] = min(self.deltas[k][i,j]*ETA_PLUS, DELTA_MAX)
-            new_weights[k][i,j] -= sign(self.derivatives[k][i,j]) * self.deltas[k][i,j]
-            self.previous_derivatives[k][i,j] = self.derivatives[k][i,j]
-          elif up[i,j] < 0:
-            self.deltas[k][i,j] = max(self.deltas[k][i,j]*ETA_MINUS, DELTA_MIN)
-            new_weights[k][i,j] -= self.deltas[k][i,j]
-            self.previous_derivatives[k][i,j] = 0
-          else:
-            new_weights[k][i,j] -= sign(self.derivatives[k][i,j]) * self.deltas[k][i,j]
-            self.previous_derivatives[k][i,j] = self.derivatives[k][i,j]
+    new_weights = list(machine.weights)
+    for k,W in enumerate(new_weights):
+      new_weights[k] = W - (((1-self.momentum)*self.learning_rate*self.derivatives[k]) + (self.momentum*self.previous_derivatives[k]))
+    self.previous_derivatives = [self.learning_rate*k for k in self.derivatives]
     machine.weights = new_weights
 
     if self.train_biases:
-      bias_updates = [i * j for (i,j) in zip(self.previous_bias_derivatives, self.bias_derivatives)]
-      new_biases = machine.biases
-      for k, up in enumerate(bias_updates):
-        for i in range(up.shape[0]):
-          if up[i] > 0:
-            self.bias_deltas[k][i] = min(self.bias_deltas[k][i]*ETA_PLUS, DELTA_MAX)
-            new_biases[k][i] -= sign(self.bias_derivatives[k][i]) * self.bias_deltas[k][i]
-            self.previous_bias_derivatives[k][i] = self.bias_derivatives[k][i]
-          elif up[i] < 0:
-            self.bias_deltas[k][i] = max(self.bias_deltas[k][i]*ETA_MINUS, DELTA_MIN)
-            new_biases[k][i] -= self.bias_deltas[k][i]
-            self.previous_bias_derivatives[k][i] = 0
-          else:
-            new_biases[k][i] -= sign(self.bias_derivatives[k][i]) * self.bias_deltas[k][i]
-            self.previous_bias_derivatives[k][i] = self.bias_derivatives[k][i]
+      new_biases = list(machine.biases)
+      for k,B in enumerate(new_biases):
+        new_biases[k] = B - (((1-self.momentum)*self.learning_rate*self.bias_derivatives[k]) + (self.momentum*self.previous_bias_derivatives[k]))
+      self.previous_bias_derivatives = [self.learning_rate*k for k in self.bias_derivatives]
       machine.biases = new_biases
-
-    else:
-      machine.biases = 0
 
     return prev_cost, self.cost(machine, input, target)
 
-def check_training(machine, cost, bias_training, batch_size):
+def check_training(machine, cost, bias_training, batch_size, learning_rate,
+    momentum):
 
   python_machine = Machine(machine)
 
   X = numpy.random.rand(batch_size, machine.weights[0].shape[0])
   T = numpy.zeros((batch_size, machine.weights[-1].shape[1]))
 
-  python_trainer = PythonRProp(batch_size, cost, machine, bias_training)
-  cxx_trainer = RProp(batch_size, cost, machine, bias_training)
+  python_trainer = PythonBackProp(batch_size, cost, machine, bias_training,
+      learning_rate, momentum)
+  cxx_trainer = BackProp(batch_size, cost, machine, bias_training)
+  cxx_trainer.learning_rate = learning_rate
+  cxx_trainer.momentum = momentum
 
   # checks previous state matches
-  for k,D in enumerate(cxx_trainer.deltas):
-    assert numpy.allclose(D, python_trainer.deltas[k])
-  for k,D in enumerate(cxx_trainer.bias_deltas):
-    assert numpy.allclose(D, python_trainer.bias_deltas[k])
   for k,D in enumerate(cxx_trainer.previous_derivatives):
     assert numpy.allclose(D, python_trainer.previous_derivatives[k])
   for k,D in enumerate(cxx_trainer.previous_bias_derivatives):
@@ -119,14 +76,10 @@ def check_training(machine, cost, bias_training, batch_size):
   assert numpy.alltrue(machine.input_divide == python_machine.input_divide)
 
   prev_cost, cost = python_trainer.train(python_machine, X, T)
-  #assert cost <= prev_cost #not true for R-Prop
+  assert cost <= prev_cost #this should always be true for a fixed dataset
   cxx_trainer.train(machine, X, T)
 
   # checks each component of machine and trainer, make sure they match
-  for k,D in enumerate(cxx_trainer.deltas):
-    assert numpy.allclose(D, python_trainer.deltas[k])
-  for k,D in enumerate(cxx_trainer.bias_deltas):
-    assert numpy.allclose(D, python_trainer.bias_deltas[k])
   for k,D in enumerate(cxx_trainer.derivatives):
     assert numpy.allclose(D, python_trainer.derivatives[k])
   for k,D in enumerate(cxx_trainer.bias_derivatives):
@@ -150,7 +103,7 @@ def test_2in_1out_nobias():
   cost = CrossEntropyLoss(machine.output_activation)
 
   for k in range(10):
-    check_training(machine, cost, False, BATCH_SIZE)
+    check_training(machine, cost, False, BATCH_SIZE, 0.1, 0.0)
 
 def test_1in_2out_nobias():
 
@@ -164,7 +117,7 @@ def test_1in_2out_nobias():
   cost = CrossEntropyLoss(machine.output_activation)
 
   for k in range(10):
-    check_training(machine, cost, False, BATCH_SIZE)
+    check_training(machine, cost, False, BATCH_SIZE, 0.1, 0.0)
 
 def test_2in_3_1out_nobias():
 
@@ -178,7 +131,7 @@ def test_2in_3_1out_nobias():
   cost = SquareError(machine.output_activation)
 
   for k in range(10):
-    check_training(machine, cost, False, BATCH_SIZE)
+    check_training(machine, cost, False, BATCH_SIZE, 0.1, 0.0)
 
 def test_100in_10_10_5out_nobias():
 
@@ -192,7 +145,7 @@ def test_100in_10_10_5out_nobias():
   cost = SquareError(machine.output_activation)
 
   for k in range(10):
-    check_training(machine, cost, False, BATCH_SIZE)
+    check_training(machine, cost, False, BATCH_SIZE, 0.1, 0.0)
 
 def test_2in_3_1out():
 
@@ -205,7 +158,7 @@ def test_2in_3_1out():
   cost = SquareError(machine.output_activation)
 
   for k in range(10):
-    check_training(machine, cost, True, BATCH_SIZE)
+    check_training(machine, cost, True, BATCH_SIZE, 0.1, 0.0)
 
 def test_20in_10_5_3out():
 
@@ -218,7 +171,7 @@ def test_20in_10_5_3out():
   cost = SquareError(machine.output_activation)
 
   for k in range(10):
-    check_training(machine, cost, True, BATCH_SIZE)
+    check_training(machine, cost, True, BATCH_SIZE, 0.1, 0.0)
 
 def test_20in_10_5_3out_with_momentum():
 
@@ -231,4 +184,4 @@ def test_20in_10_5_3out_with_momentum():
   cost = SquareError(machine.output_activation)
 
   for k in range(10):
-    check_training(machine, cost, True, BATCH_SIZE)
+    check_training(machine, cost, True, BATCH_SIZE, 0.1, 0.1)

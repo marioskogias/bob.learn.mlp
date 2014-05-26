@@ -5,17 +5,17 @@
  * @brief Bindings to bob::learn::mlp
  */
 
-#define XBOB_LEARN_MLP_MODULE
-#include <xbob.learn.mlp/api.h>
+#define BOB_LEARN_MLP_MODULE
+#include <bob.learn.mlp/api.h>
 
 #ifdef NO_IMPORT_ARRAY
 #undef NO_IMPORT_ARRAY
 #endif
-#include <xbob.blitz/capi.h>
-#include <xbob.blitz/cleanup.h>
-#include <xbob.io.base/api.h>
-#include <xbob.learn.activation/api.h>
-#include <xbob.core/random.h>
+#include <bob.blitz/capi.h>
+#include <bob.blitz/cleanup.h>
+#include <bob.io.base/api.h>
+#include <bob.learn.activation/api.h>
+#include <bob.core/random.h>
 
 PyDoc_STRVAR(s_unroll_str, "unroll");
 PyDoc_STRVAR(s_unroll_doc,
@@ -31,7 +31,7 @@ generic optimization procedures for the task of training MLPs.\n\
 \n\
 Keyword parameters:\n\
 \n\
-machine, :py:class:`xbob.learn.mlp.Machine`\n\
+machine, :py:class:`bob.learn.mlp.Machine`\n\
   An MLP that will have its weights and biases unrolled into a 1D array\n\
 \n\
 weights, sequence of 2D 64-bit float arrays\n\
@@ -45,7 +45,7 @@ weights, sequence of 2D 64-bit float arrays\n\
      \n\
      Other checks are disabled as this is considered an *expert* API.\n\
      If you plan to unroll the weights and biases on a\n\
-     :py:class:`xbob.learn.mlp.Machine`, notice that in a given\n\
+     :py:class:`bob.learn.mlp.Machine`, notice that in a given\n\
      ``weights`` sequence, the number of outputs in layer ``k``\n\
      must match the number of inputs on layer ``k+1`` and the\n\
      number of biases on layer ``k``. In practice, you must assert\n\
@@ -91,7 +91,7 @@ generic optimization procedures for the task of training MLPs.\n\
 \n\
 Keyword parameters:\n\
 \n\
-machine, :py:class:`xbob.learn.mlp.Machine`\n\
+machine, :py:class:`bob.learn.mlp.Machine`\n\
   An MLP that will have its weights and biases rolled from a 1D array\n\
 \n\
 weights, sequence of 2D 64-bit float arrays\n\
@@ -105,7 +105,7 @@ weights, sequence of 2D 64-bit float arrays\n\
      \n\
      Other checks are disabled as this is considered an *expert* API.\n\
      If you plan to roll the weights and biases on a\n\
-     :py:class:`xbob.learn.mlp.Machine`, notice that in a given\n\
+     :py:class:`bob.learn.mlp.Machine`, notice that in a given\n\
      ``weights`` sequence, the number of outputs in layer ``k``\n\
      must match the number of inputs on layer ``k+1`` and the\n\
      number of biases on layer ``k``. In practice, you must assert\n\
@@ -147,7 +147,7 @@ Returns the total number of parameters in an MLP.\n\
 \n\
 Keyword parameters:\n\
 \n\
-machine, :py:class:`xbob.learn.mlp.Machine`\n\
+machine, :py:class:`bob.learn.mlp.Machine`\n\
   Using the first call API, counts the total number of parameters in\n\
   an MLP.\n\
 \n\
@@ -162,7 +162,7 @@ weights, sequence of 2D 64-bit float arrays\n\
      \n\
      Other checks are disabled as this is considered an *expert* API.\n\
      If you plan to unroll the weights and biases on a\n\
-     :py:class:`xbob.learn.mlp.Machine`, notice that in a given\n\
+     :py:class:`bob.learn.mlp.Machine`, notice that in a given\n\
      ``weights`` sequence the number of outputs in layer ``k``\n\
      must match the number of inputs on layer ``k+1`` and the\n\
      number of bias on layer ``k``. In practice, you must assert\n\
@@ -206,12 +206,12 @@ static PyMethodDef module_methods[] = {
 
 PyDoc_STRVAR(module_docstr, "bob's multi-layer perceptron machine and trainers");
 
-int PyXbobLearnMLP_APIVersion = XBOB_LEARN_MLP_API_VERSION;
+int PyBobLearnMLP_APIVersion = BOB_LEARN_MLP_API_VERSION;
 
 #if PY_VERSION_HEX >= 0x03000000
 static PyModuleDef module_definition = {
   PyModuleDef_HEAD_INIT,
-  XBOB_EXT_MODULE_NAME,
+  BOB_EXT_MODULE_NAME,
   module_docstr,
   -1,
   module_methods,
@@ -248,14 +248,14 @@ static PyObject* create_module (void) {
 # if PY_VERSION_HEX >= 0x03000000
   PyObject* m = PyModule_Create(&module_definition);
 # else
-  PyObject* m = Py_InitModule3(XBOB_EXT_MODULE_NAME, module_methods, module_docstr);
+  PyObject* m = Py_InitModule3(BOB_EXT_MODULE_NAME, module_methods, module_docstr);
 # endif
   if (!m) return 0;
   auto m_ = make_safe(m);
 
   /* register some constants */
-  if (PyModule_AddIntConstant(m, "__api_version__", XBOB_LEARN_MLP_API_VERSION) < 0) return 0;
-  if (PyModule_AddStringConstant(m, "__version__", XBOB_EXT_MODULE_VERSION) < 0) return 0;
+  if (PyModule_AddIntConstant(m, "__api_version__", BOB_LEARN_MLP_API_VERSION) < 0) return 0;
+  if (PyModule_AddStringConstant(m, "__version__", BOB_EXT_MODULE_VERSION) < 0) return 0;
 
   /* register the types to python */
   Py_INCREF(&PyBobLearnMLPMachine_Type);
@@ -282,7 +282,7 @@ static PyObject* create_module (void) {
   Py_INCREF(&PyBobLearnMLPRProp_Type);
   if (PyModule_AddObject(m, "RProp", (PyObject *)&PyBobLearnMLPRProp_Type) < 0) return 0;
 
-  static void* PyXbobLearnMLP_API[PyXbobLearnMLP_API_pointers];
+  static void* PyBobLearnMLP_API[PyBobLearnMLP_API_pointers];
 
   /* exhaustive list of C APIs */
 
@@ -290,91 +290,91 @@ static PyObject* create_module (void) {
    * Versioning *
    **************/
 
-  PyXbobLearnMLP_API[PyXbobLearnMLP_APIVersion_NUM] = (void *)&PyXbobLearnMLP_APIVersion;
+  PyBobLearnMLP_API[PyBobLearnMLP_APIVersion_NUM] = (void *)&PyBobLearnMLP_APIVersion;
 
   /***************************************
-   * Bindings for xbob.learn.mlp.Machine *
+   * Bindings for bob.learn.mlp.Machine *
    ***************************************/
 
-  PyXbobLearnMLP_API[PyBobLearnMLPMachine_Type_NUM] = (void *)&PyBobLearnMLPMachine_Type;
+  PyBobLearnMLP_API[PyBobLearnMLPMachine_Type_NUM] = (void *)&PyBobLearnMLPMachine_Type;
 
-  PyXbobLearnMLP_API[PyBobLearnMLPMachine_Check_NUM] = (void *)&PyBobLearnMLPMachine_Check;
+  PyBobLearnMLP_API[PyBobLearnMLPMachine_Check_NUM] = (void *)&PyBobLearnMLPMachine_Check;
 
   /************************************
-   * Bindings for xbob.learn.mlp.Cost *
+   * Bindings for bob.learn.mlp.Cost *
    ************************************/
 
-  PyXbobLearnMLP_API[PyBobLearnCost_Type_NUM] = (void *)&PyBobLearnCost_Type;
+  PyBobLearnMLP_API[PyBobLearnCost_Type_NUM] = (void *)&PyBobLearnCost_Type;
 
-  PyXbobLearnMLP_API[PyBobLearnCost_Check_NUM] = (void *)&PyBobLearnCost_Check;
+  PyBobLearnMLP_API[PyBobLearnCost_Check_NUM] = (void *)&PyBobLearnCost_Check;
 
-  PyXbobLearnMLP_API[PyBobLearnCost_NewFromCost_NUM] = (void *)&PyBobLearnCost_NewFromCost;
+  PyBobLearnMLP_API[PyBobLearnCost_NewFromCost_NUM] = (void *)&PyBobLearnCost_NewFromCost;
 
-  PyXbobLearnMLP_API[PyBobLearnSquareError_Type_NUM] = (void *)&PyBobLearnSquareError_Type;
+  PyBobLearnMLP_API[PyBobLearnSquareError_Type_NUM] = (void *)&PyBobLearnSquareError_Type;
 
-  PyXbobLearnMLP_API[PyBobLearnCrossEntropyLoss_Type_NUM] = (void *)&PyBobLearnCrossEntropyLoss_Type;
+  PyBobLearnMLP_API[PyBobLearnCrossEntropyLoss_Type_NUM] = (void *)&PyBobLearnCrossEntropyLoss_Type;
 
   /********************************************
-   * Bindings for xbob.learn.mlp.DataShuffler *
+   * Bindings for bob.learn.mlp.DataShuffler *
    ********************************************/
 
-  PyXbobLearnMLP_API[PyBobLearnDataShuffler_Type_NUM] = (void *)&PyBobLearnDataShuffler_Type;
+  PyBobLearnMLP_API[PyBobLearnDataShuffler_Type_NUM] = (void *)&PyBobLearnDataShuffler_Type;
 
-  PyXbobLearnMLP_API[PyBobLearnDataShuffler_Check_NUM] = (void *)&PyBobLearnDataShuffler_Check;
+  PyBobLearnMLP_API[PyBobLearnDataShuffler_Check_NUM] = (void *)&PyBobLearnDataShuffler_Check;
 
   /***************************************
-   * Bindings for xbob.learn.mlp.Trainer *
+   * Bindings for bob.learn.mlp.Trainer *
    ***************************************/
 
-  PyXbobLearnMLP_API[PyBobLearnMLPTrainer_Type_NUM] = (void *)&PyBobLearnMLPTrainer_Type;
+  PyBobLearnMLP_API[PyBobLearnMLPTrainer_Type_NUM] = (void *)&PyBobLearnMLPTrainer_Type;
 
-  PyXbobLearnMLP_API[PyBobLearnMLPTrainer_Check_NUM] = (void *)&PyBobLearnMLPTrainer_Check;
+  PyBobLearnMLP_API[PyBobLearnMLPTrainer_Check_NUM] = (void *)&PyBobLearnMLPTrainer_Check;
 
-  PyXbobLearnMLP_API[PyBobLearnMLPBackProp_Type_NUM] = (void *)&PyBobLearnMLPBackProp_Type;
+  PyBobLearnMLP_API[PyBobLearnMLPBackProp_Type_NUM] = (void *)&PyBobLearnMLPBackProp_Type;
 
-  PyXbobLearnMLP_API[PyBobLearnMLPBackProp_Check_NUM] = (void *)&PyBobLearnMLPBackProp_Check;
+  PyBobLearnMLP_API[PyBobLearnMLPBackProp_Check_NUM] = (void *)&PyBobLearnMLPBackProp_Check;
 
-  PyXbobLearnMLP_API[PyBobLearnMLPRProp_Type_NUM] = (void *)&PyBobLearnMLPRProp_Type;
+  PyBobLearnMLP_API[PyBobLearnMLPRProp_Type_NUM] = (void *)&PyBobLearnMLPRProp_Type;
 
-  PyXbobLearnMLP_API[PyBobLearnMLPRProp_Check_NUM] = (void *)&PyBobLearnMLPRProp_Check;
+  PyBobLearnMLP_API[PyBobLearnMLPRProp_Check_NUM] = (void *)&PyBobLearnMLPRProp_Check;
 
 #if PY_VERSION_HEX >= 0x02070000
 
   /* defines the PyCapsule */
 
-  PyObject* c_api_object = PyCapsule_New((void *)PyXbobLearnMLP_API,
-      XBOB_EXT_MODULE_PREFIX "." XBOB_EXT_MODULE_NAME "._C_API", 0);
+  PyObject* c_api_object = PyCapsule_New((void *)PyBobLearnMLP_API,
+      BOB_EXT_MODULE_PREFIX "." BOB_EXT_MODULE_NAME "._C_API", 0);
 
 #else
 
-  PyObject* c_api_object = PyCObject_FromVoidPtr((void *)PyXbobLearnMLP_API, 0);
+  PyObject* c_api_object = PyCObject_FromVoidPtr((void *)PyBobLearnMLP_API, 0);
 
 #endif
 
   if (c_api_object) PyModule_AddObject(m, "_C_API", c_api_object);
 
   /* imports dependencies */
-  if (import_xbob_blitz() < 0) {
+  if (import_bob_blitz() < 0) {
     PyErr_Print();
-    PyErr_Format(PyExc_ImportError, "cannot import `%s'", XBOB_EXT_MODULE_NAME);
+    PyErr_Format(PyExc_ImportError, "cannot import `%s'", BOB_EXT_MODULE_NAME);
     return 0;
   }
 
-  if (import_xbob_io_base() < 0) {
+  if (import_bob_io_base() < 0) {
     PyErr_Print();
-    PyErr_Format(PyExc_ImportError, "cannot import `%s'", XBOB_EXT_MODULE_NAME);
+    PyErr_Format(PyExc_ImportError, "cannot import `%s'", BOB_EXT_MODULE_NAME);
     return 0;
   }
 
-  if (import_xbob_learn_activation() < 0) {
+  if (import_bob_learn_activation() < 0) {
     PyErr_Print();
-    PyErr_Format(PyExc_ImportError, "cannot import `%s'", XBOB_EXT_MODULE_NAME);
+    PyErr_Format(PyExc_ImportError, "cannot import `%s'", BOB_EXT_MODULE_NAME);
     return 0;
   }
 
-  if (import_xbob_core_random() < 0) {
+  if (import_bob_core_random() < 0) {
     PyErr_Print();
-    PyErr_Format(PyExc_ImportError, "cannot import `%s'", XBOB_EXT_MODULE_NAME);
+    PyErr_Format(PyExc_ImportError, "cannot import `%s'", BOB_EXT_MODULE_NAME);
     return 0;
   }
 
@@ -383,7 +383,7 @@ static PyObject* create_module (void) {
 
 }
 
-PyMODINIT_FUNC XBOB_EXT_ENTRY_NAME (void) {
+PyMODINIT_FUNC BOB_EXT_ENTRY_NAME (void) {
 # if PY_VERSION_HEX >= 0x03000000
   return
 # endif

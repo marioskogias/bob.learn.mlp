@@ -6,11 +6,11 @@
  C++ API
 =========
 
-The C++ API of ``xbob.learn.mlp`` allows users to leverage from automatic
-converters for classes in :py:class:`xbob.learn.mlp`.  To use the C API,
-clients should first, include the header file ``<xbob.learn.mlp.h>`` on
+The C++ API of ``bob.learn.mlp`` allows users to leverage from automatic
+converters for classes in :py:class:`bob.learn.mlp`.  To use the C API,
+clients should first, include the header file ``<bob.learn.mlp.h>`` on
 their compilation units and then, make sure to call once
-``import_xbob_learn_mlp()`` at their module instantiation, as explained at
+``import_bob_learn_mlp()`` at their module instantiation, as explained at
 the `Python manual
 <http://docs.python.org/2/extending/extending.html#using-capsules>`_.
 
@@ -19,7 +19,7 @@ the import function:
 
 .. code-block:: c++
 
-   #include <xbob.learn.mlp/api.h>
+   #include <bob.learn.mlp/api.h>
 
    PyMODINIT_FUNC initclient(void) {
 
@@ -27,10 +27,10 @@ the import function:
 
      if (!m) return 0;
 
-     if (import_xbob_blitz() < 0) return 0;
-     if (import_xbob_io() < 0) return 0;
-     if (import_xbob_learn_activation() < 0) return 0;
-     if (import_xbob_learn_mlp() < 0) return 0;
+     if (import_bob_blitz() < 0) return 0;
+     if (import_bob_io() < 0) return 0;
+     if (import_bob_learn_activation() < 0) return 0;
+     if (import_bob_learn_mlp() < 0) return 0;
 
      return m;
 
@@ -39,14 +39,14 @@ the import function:
 .. note::
 
   The include directory can be discovered using
-  :py:func:`xbob.learn.mlp.get_include`.
+  :py:func:`bob.learn.mlp.get_include`.
 
 Machine
 -------
 
 .. cpp:type:: PyBobLearnMLPMachineObject
 
-   The pythonic object representation for a :py:class:`xbob.learn.mlp.Machine`
+   The pythonic object representation for a :py:class:`bob.learn.mlp.Machine`
    object.
 
    .. code-block:: cpp
@@ -56,7 +56,7 @@ Machine
         bob::learn::mlp::Machine* cxx;
       } PyBobLearnMLPMachineObject;
 
-   .. cpp:member:: xbob::learn::mlp::Machine* cxx
+   .. cpp:member:: bob::learn::mlp::Machine* cxx
 
       A pointer to the machine implentation in C++.
 
@@ -73,7 +73,7 @@ Cost
 
 .. cpp:type:: PyBobLearnCostObject
 
-   The pythonic object representation for a :py:class:`xbob.learn.mlp.Cost`
+   The pythonic object representation for a :py:class:`bob.learn.mlp.Cost`
    object.  It is the base class of all derive cost types available in
    |project|.
 
@@ -84,7 +84,7 @@ Cost
         boost::shared_ptr<bob::learn::mlp::Cost> cxx;
       } PyBobLearnCostObject;
 
-   .. cpp:member:: boost::shared_ptr<xbob::learn::mlp::Cost> cxx
+   .. cpp:member:: boost::shared_ptr<bob::learn::mlp::Cost> cxx
 
       A pointer to the cost object implemented in C++. The cost object is an
       abstract interface. You cannot instantiate a cost from scratch, but only
@@ -105,8 +105,8 @@ Cost
 
    These are the cost object specializations you can use from Python:
 
-   * :py:class:`xbob.learn.mlp.SquareError`
-   * :py:class:`xbob.learn.mlp.CrossEntropyLoss`
+   * :py:class:`bob.learn.mlp.SquareError`
+   * :py:class:`bob.learn.mlp.CrossEntropyLoss`
 
    For each of those types, object types in C exist.
 
@@ -123,7 +123,7 @@ Data Shuffler
 
 .. cpp:type:: PyBobLearnDataShufflerObject
 
-   The pythonic representation for a :py:class:`xbob.learn.mlp.DataShuffler`
+   The pythonic representation for a :py:class:`bob.learn.mlp.DataShuffler`
    object.
 
    .. code-block:: cpp
@@ -133,7 +133,7 @@ Data Shuffler
         bob::learn::mlp::DataShuffler* cxx;
       } PyBobLearnCostObject;
 
-   .. cpp:member:: xbob::learn::mlp::DataShuffler* cxx
+   .. cpp:member:: bob::learn::mlp::DataShuffler* cxx
 
       A pointer to the data shuffler object implemented in C++.
 
@@ -150,7 +150,7 @@ Trainers
 
 .. cpp:type:: PyBobLearnMLPTrainerObject
 
-   The pythonic representation for a :py:class:`xbob.learn.mlp.Trainer` object.
+   The pythonic representation for a :py:class:`bob.learn.mlp.Trainer` object.
    All back-propagation-based trainers should inherit from this type as it
    implements most of the basic functionality needed by such a learning
    technique.
@@ -162,7 +162,7 @@ Trainers
         bob::learn::mlp::Trainer* cxx;
       } PyBobLearnCostObject;
 
-   .. cpp:member:: xbob::learn::mlp::Trainer* cxx
+   .. cpp:member:: bob::learn::mlp::Trainer* cxx
 
       A pointer to the base trainer object implemented in C++.
 
@@ -176,7 +176,7 @@ Trainers
 
 .. cpp:type:: PyBobLearnBackPropObject
 
-   The pythonic representation for a :py:class:`xbob.learn.mlp.BackProp` object.
+   The pythonic representation for a :py:class:`bob.learn.mlp.BackProp` object.
    All back-propagation-based trainers should inherit from this type as it
    implements most of the basic functionality needed by such a learning
    technique.
@@ -193,7 +193,7 @@ Trainers
       The parent abstract class pointer. Use ``parent.cxx`` to access the
       abstract C++ base interface.
 
-   .. cpp:member:: xbob::learn::mlp::BackProp* cxx
+   .. cpp:member:: bob::learn::mlp::BackProp* cxx
 
       A pointer to the derived trainer object implemented in C++.
 
@@ -207,7 +207,7 @@ Trainers
 
 .. cpp:type:: PyBobLearnRPropObject
 
-   The pythonic representation for a :py:class:`xbob.learn.mlp.RProp` object.
+   The pythonic representation for a :py:class:`bob.learn.mlp.RProp` object.
    All back-propagation-based trainers should inherit from this type as it
    implements most of the basic functionality needed by such a learning
    technique.
@@ -224,7 +224,7 @@ Trainers
       The parent abstract class pointer. Use ``parent.cxx`` to access the
       abstract C++ base interface.
 
-   .. cpp:member:: xbob::learn::mlp::RProp* cxx
+   .. cpp:member:: bob::learn::mlp::RProp* cxx
 
       A pointer to the derived trainer object implemented in C++.
 

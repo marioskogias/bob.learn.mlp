@@ -17,7 +17,7 @@
 #include <bob/core/assert.h>
 #include <bob/math/linear.h>
 
-#include <xbob.learn.mlp/machine.h>
+#include <bob.learn.mlp/machine.h>
 
 bob::learn::mlp::Machine::Machine (size_t input, size_t output):
   m_input_sub(input),

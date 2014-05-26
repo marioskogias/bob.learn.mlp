@@ -5,7 +5,7 @@
  * Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
  */
 
-#include <xbob.learn.mlp/roll.h>
+#include <bob.learn.mlp/roll.h>
 
 int bob::learn::mlp::detail::getNbParameters(const bob::learn::mlp::Machine& machine)
 {

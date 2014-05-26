@@ -12,7 +12,7 @@
 #include <bob/core/check.h>
 #include <bob/math/linear.h>
 
-#include <xbob.learn.mlp/backprop.h>
+#include <bob.learn.mlp/backprop.h>
 
 bob::learn::mlp::BackProp::BackProp(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost):

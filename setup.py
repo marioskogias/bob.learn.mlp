@@ -4,21 +4,21 @@
 # Mon 16 Apr 08:18:08 2012 CEST
 
 from setuptools import setup, find_packages, dist
-dist.Distribution(dict(setup_requires=['xbob.blitz', 'xbob.io.base', 'xbob.learn.activation', 'xbob.core']))
-from xbob.blitz.extension import Extension
-import xbob.io.base
-import xbob.core
-import xbob.learn.activation
+dist.Distribution(dict(setup_requires=['bob.blitz', 'bob.io.base', 'bob.learn.activation', 'bob.core']))
+from bob.blitz.extension import Extension
+import bob.io.base
+import bob.core
+import bob.learn.activation
 
 import os
 package_dir = os.path.dirname(os.path.realpath(__file__))
-package_dir = os.path.join(package_dir, 'xbob', 'learn', 'mlp', 'include')
+package_dir = os.path.join(package_dir, 'bob', 'learn', 'mlp', 'include')
 include_dirs = [
     package_dir,
-    xbob.blitz.get_include(),
-    xbob.io.base.get_include(),
-    xbob.learn.activation.get_include(),
-    xbob.core.get_include(),
+    bob.blitz.get_include(),
+    bob.io.base.get_include(),
+    bob.learn.activation.get_include(),
+    bob.core.get_include(),
     ]
 
 packages = ['bob-io >= 2.0.0a2', 'bob-machine >= 2.0.0a2']
@@ -26,10 +26,10 @@ version = '2.0.0a0'
 
 setup(
 
-    name='xbob.learn.mlp',
+    name='bob.learn.mlp',
     version=version,
     description='Bindings for bob.machine\'s Multi-layer Perceptron and Trainers',
-    url='http://github.com/bioidiap/xbob.learn.mlp',
+    url='http://github.com/bioidiap/bob.learn.mlp',
     license='BSD',
     author='Andre Anjos',
     author_email='andre.anjos@idiap.ch',
@@ -41,44 +41,44 @@ setup(
 
     install_requires=[
       'setuptools',
-      'xbob.blitz',
-      'xbob.io.base',
-      'xbob.learn.activation',
-      'xbob.core',
+      'bob.blitz',
+      'bob.io.base',
+      'bob.learn.activation',
+      'bob.core',
     ],
 
     namespace_packages=[
-      "xbob",
-      "xbob.learn",
+      "bob",
+      "bob.learn",
       ],
 
     ext_modules = [
-      Extension("xbob.learn.mlp.version",
+      Extension("bob.learn.mlp.version",
         [
-          "xbob/learn/mlp/version.cpp",
+          "bob/learn/mlp/version.cpp",
           ],
         packages = packages,
         include_dirs = include_dirs,
         version = version,
         ),
-      Extension("xbob.learn.mlp._library",
+      Extension("bob.learn.mlp._library",
         [
-          "xbob/learn/mlp/roll.cpp",
-          "xbob/learn/mlp/rprop.cpp",
-          "xbob/learn/mlp/backprop.cpp",
-          "xbob/learn/mlp/trainer.cpp",
-          "xbob/learn/mlp/shuffler.cpp",
-          "xbob/learn/mlp/cost.cpp",
-          "xbob/learn/mlp/machine.cpp",
-          "xbob/learn/mlp/main.cpp",
-          "xbob/learn/mlp/cxx/roll.cpp",
-          "xbob/learn/mlp/cxx/machine.cpp",
-          "xbob/learn/mlp/cxx/cross_entropy.cpp",
-          "xbob/learn/mlp/cxx/square_error.cpp",
-          "xbob/learn/mlp/cxx/shuffler.cpp",
-          "xbob/learn/mlp/cxx/trainer.cpp",
-          "xbob/learn/mlp/cxx/backprop.cpp",
-          "xbob/learn/mlp/cxx/rprop.cpp",
+          "bob/learn/mlp/roll.cpp",
+          "bob/learn/mlp/rprop.cpp",
+          "bob/learn/mlp/backprop.cpp",
+          "bob/learn/mlp/trainer.cpp",
+          "bob/learn/mlp/shuffler.cpp",
+          "bob/learn/mlp/cost.cpp",
+          "bob/learn/mlp/machine.cpp",
+          "bob/learn/mlp/main.cpp",
+          "bob/learn/mlp/cxx/roll.cpp",
+          "bob/learn/mlp/cxx/machine.cpp",
+          "bob/learn/mlp/cxx/cross_entropy.cpp",
+          "bob/learn/mlp/cxx/square_error.cpp",
+          "bob/learn/mlp/cxx/shuffler.cpp",
+          "bob/learn/mlp/cxx/trainer.cpp",
+          "bob/learn/mlp/cxx/backprop.cpp",
+          "bob/learn/mlp/cxx/rprop.cpp",
           ],
         packages = packages,
         include_dirs = include_dirs,

@@ -7,11 +7,11 @@
  * Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
  */
 
-#define XBOB_LEARN_MLP_MODULE
-#include <xbob.blitz/cppapi.h>
-#include <xbob.blitz/cleanup.h>
-#include <xbob.learn.mlp/api.h>
-#include <xbob.learn.activation/api.h>
+#define BOB_LEARN_MLP_MODULE
+#include <bob.blitz/cppapi.h>
+#include <bob.blitz/cleanup.h>
+#include <bob.learn.mlp/api.h>
+#include <bob.learn.activation/api.h>
 #include <structmember.h>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
@@ -20,7 +20,7 @@
  * Implementation of Cost base class *
  *************************************/
 
-PyDoc_STRVAR(s_cost_str, XBOB_EXT_MODULE_PREFIX ".Cost");
+PyDoc_STRVAR(s_cost_str, BOB_EXT_MODULE_PREFIX ".Cost");
 
 PyDoc_STRVAR(s_cost_doc,
 "A base class for evaluating the performance cost.\n\
@@ -80,7 +80,7 @@ PyObject* PyBobLearnCost_Repr(PyBobLearnCostObject* self) {
   /**
    * Expected output:
    *
-   * <xbob.learn.linear.Cost [...]>
+   * <bob.learn.linear.Cost [...]>
    */
 
   auto retval = PyUnicode_FromFormat("<%s [act: %s]>",
@@ -503,7 +503,7 @@ PyTypeObject PyBobLearnCost_Type = {
     PyBobLearnCost_new,                       /* tp_new */
 };
 
-PyDoc_STRVAR(s_squareerror_str, XBOB_EXT_MODULE_PREFIX ".SquareError");
+PyDoc_STRVAR(s_squareerror_str, BOB_EXT_MODULE_PREFIX ".SquareError");
 
 PyDoc_STRVAR(s_squareerror_doc,
 "SquareError(actfun) -> new SquareError functor\n\
@@ -604,7 +604,7 @@ PyTypeObject PyBobLearnSquareError_Type = {
     (initproc)PyBobLearnSquareError_init,     /* tp_init */
 };
 
-PyDoc_STRVAR(s_crossentropyloss_str, XBOB_EXT_MODULE_PREFIX ".CrossEntropyLoss");
+PyDoc_STRVAR(s_crossentropyloss_str, BOB_EXT_MODULE_PREFIX ".CrossEntropyLoss");
 
 PyDoc_STRVAR(s_crossentropyloss_doc,
 "CrossEntropyLoss(actfun) -> new CrossEntropyLoss functor\n\
@@ -623,7 +623,7 @@ Keyword arguments:\n\
 \n\
 actfun\n\
   The activation function object used at the last layer. If you\n\
-  set this to :py:class:`xbob.learn.activation.Logistic`, a\n\
+  set this to :py:class:`bob.learn.activation.Logistic`, a\n\
   mathematical simplification is possible in which\n\
   ``backprop_error()`` can benefit increasing the numerical\n\
   stability of the training process. The simplification goes\n\
@@ -689,7 +689,7 @@ PyDoc_STRVAR(s_logistic_activation_doc,
 "o.logistic_activation() -> bool\n\
 \n\
 Tells if this functor is set to operate together with a\n\
-:py:class:`xbob.learn.activation.Logistic` activation function.\n\
+:py:class:`bob.learn.activation.Logistic` activation function.\n\
 ");
 
 static PyObject* PyBobLearnCrossEntropyLoss_getLogisticActivation

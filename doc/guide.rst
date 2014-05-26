@@ -7,7 +7,7 @@
 .. testsetup:: *
 
    import numpy
-   import xbob.learn.mlp
+   import bob.learn.mlp
    import tempfile
    import os
 
@@ -26,7 +26,7 @@ feed-forward structure. You can create a new MLP using one of the trainers
 described below. We start this tutorial by examplifying how to actually use an
 MLP.
 
-To instantiate a new (uninitialized) :py:class:`xbob.learn.mlp.Machine` pass a
+To instantiate a new (uninitialized) :py:class:`bob.learn.mlp.Machine` pass a
 shape descriptor as a :py:func:`tuple`. The shape parameter should contain the
 input size as the first parameter and the output size as the last parameter.
 The parameters in between define the number of neurons in the hidden layers of
@@ -37,7 +37,7 @@ neurons in the second hidden layer and 2 outputs.  Here is an example:
 
 .. doctest::
 
-  >>> mlp = xbob.learn.mlp.Machine((3, 3, 2, 1))
+  >>> mlp = bob.learn.mlp.Machine((3, 3, 2, 1))
 
 As it is, the network is uninitialized. For the sake of demonstrating how to use
 MLPs, let's set the weight and biases manually (we would normally use a trainer
@@ -77,30 +77,30 @@ At this point, a few things should be noted:
    to many (or many to 1). You can use the NumPy_ ``reshape()`` array method
    for this purpose as shown above
 2. Biases should **always** be 1D arrays.
-3. By default, MLPs use the :py:class:`xbob.learn.activation.HyperbolicTangent`
+3. By default, MLPs use the :py:class:`bob.learn.activation.HyperbolicTangent`
    as activation function. There are currently 4 other activation functions
    available in |project|:
 
-   * The identity function: :py:class:`xbob.learn.activation.Identity`;
+   * The identity function: :py:class:`bob.learn.activation.Identity`;
    * The sigmoid function (also known as the `logistic function
      <http://mathworld.wolfram.com/SigmoidFunction.html>`_ function):
-     :py:class:`xbob.learn.activation.Logistic`;
+     :py:class:`bob.learn.activation.Logistic`;
    * A scaled version of the hyperbolic tangent function:
-     :py:class:`xbob.learn.activation.MultipliedHyperbolicTangent`; and
+     :py:class:`bob.learn.activation.MultipliedHyperbolicTangent`; and
    * A scaled version of the identity activation:
-     :py:class:`xbob.learn.activation.Linear`
+     :py:class:`bob.learn.activation.Linear`
 
 Let's try changing all of the activation functions to a simpler one, just for
 this example:
 
 .. doctest::
 
-  >>> mlp.hidden_activation = xbob.learn.activation.Identity()
-  >>> mlp.output_activation = xbob.learn.activation.Identity()
+  >>> mlp.hidden_activation = bob.learn.activation.Identity()
+  >>> mlp.output_activation = bob.learn.activation.Identity()
 
 Once the network weights and biases are set, we can feed forward an example
 through this machine. This is done using the ``()`` operator, like for a
-:py:class:`xbob.learn.Linear.Machine`:
+:py:class:`bob.learn.Linear.Machine`:
 
 .. doctest::
 
@@ -120,38 +120,38 @@ available MLP trainers in two different 2D `NumPy`_ arrays, one for the input
    >>> t0 = numpy.array([[.0]]) # target
 
 The class used to train a MLP [1]_ with backpropagation [2]_ is
-:py:class:`xbob.learn.MLP.BackProp`. An example is shown below.
+:py:class:`bob.learn.MLP.BackProp`. An example is shown below.
 
 
 .. doctest::
    :options: +NORMALIZE_WHITESPACE
 
-   >>> trainer = xbob.learn.mlp.BackProp(1, xbob.learn.mlp.SquareError(mlp.output_activation), mlp, train_biases=False) #  Creates a BackProp trainer with a batch size of 1
+   >>> trainer = bob.learn.mlp.BackProp(1, bob.learn.mlp.SquareError(mlp.output_activation), mlp, train_biases=False) #  Creates a BackProp trainer with a batch size of 1
    >>> trainer.train(mlp, d0, t0) # Performs the Back Propagation
 
 .. note::
 
   The second parameter of the trainer defines the cost function to be used for
   the training. You can use two different types of pre-programmed costs in
-  |project|: :py:class:`xbob.learn.mlp.SquareError`, like before, or
-  :py:class:`xbob.learn.mlp.CrossEntropyLoss` (normally in association with
+  |project|: :py:class:`bob.learn.mlp.SquareError`, like before, or
+  :py:class:`bob.learn.mlp.CrossEntropyLoss` (normally in association with
   :py:class:`bob.learn.activation.Logistic`). You can implement your own
   cost/loss functions. Nevertheless, to do so, you must do it using our
   C/C++-API and then bind it to Python in your own package.
 
 Backpropagation [2]_ requires a learning rate to be set. In the previous
 example, the default value ``0.1`` has been used. This might be updated using
-the :py:attr:`xbob.learn.mlp.BackProp.learning_rate` attribute.
+the :py:attr:`bob.learn.mlp.BackProp.learning_rate` attribute.
 
 Another training alternative exists referred to as **resilient propagation**
 (R-Prop) [3]_, which dynamically computes an optimal learning rate. The
-corresponding class is :py:class:`xbob.learn.mlp.RProp`, and the overall
+corresponding class is :py:class:`bob.learn.mlp.RProp`, and the overall
 training procedure remains identical.
 
 .. doctest::
    :options: +NORMALIZE_WHITESPACE
 
-   >>> trainer = xbob.learn.mlp.RProp(1, xbob.learn.mlp.SquareError(mlp.output_activation), mlp, train_biases=False)
+   >>> trainer = bob.learn.mlp.RProp(1, bob.learn.mlp.SquareError(mlp.output_activation), mlp, train_biases=False)
    >>> trainer.train(mlp, d0, t0)
 
 .. note::

@@ -10,10 +10,10 @@
 #ifndef BOB_LEARN_MLP_UTILS_H
 #define BOB_LEARN_MLP_UTILS_H
 
-#define XBOB_LEARN_MLP_MODULE
-#include <xbob.blitz/cppapi.h>
-#include <xbob.blitz/cleanup.h>
-#include <xbob.learn.mlp/api.h>
+#define BOB_LEARN_MLP_MODULE
+#include <bob.blitz/cppapi.h>
+#include <bob.blitz/cleanup.h>
+#include <bob.learn.mlp/api.h>
 
 /**
  * Converts a vector of blitz::Array<double,N> into a python iterable over

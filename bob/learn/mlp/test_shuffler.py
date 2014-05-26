@@ -14,7 +14,7 @@ import nose.tools
 
 from . import DataShuffler
 
-import xbob.core.random
+import bob.core.random
 
 # Some data structures used for the tests
 fixture = dict()
@@ -149,8 +149,8 @@ def test_seeding():
       [fixture['target1'], fixture['target2'], fixture['target3']])
 
   # Use the same seed for 2 different random number generators
-  rng1 = xbob.core.random.mt19937(32)
-  rng2 = xbob.core.random.mt19937(32)
+  rng1 = bob.core.random.mt19937(32)
+  rng2 = bob.core.random.mt19937(32)
 
   [data1, target1] = shuffle1(N, rng=rng1)
   [data2, target2] = shuffle2(N, rng=rng2)
@@ -189,17 +189,17 @@ def test_normalization():
 
 def test_normalization_big():
 
-  rng = xbob.core.random.mt19937()
+  rng = bob.core.random.mt19937()
 
   set1 = []
-  draw25 = xbob.core.random.normal(mean=2.0, sigma=5.0, dtype=float)
+  draw25 = bob.core.random.normal(mean=2.0, sigma=5.0, dtype=float)
   for i in range(10000):
     set1.append(numpy.array([draw25(rng)], dtype='float64'))
   set1 = numpy.array(set1)
   target1 = numpy.array([1], dtype='float64')
 
   set2 = []
-  draw32 = xbob.core.random.normal(mean=3.0, sigma=2.0, dtype=float)
+  draw32 = bob.core.random.normal(mean=3.0, sigma=2.0, dtype=float)
   for i in range(10000):
     set2.append(numpy.array([draw32(rng)], dtype='float64'))
   set2 = numpy.array(set2)

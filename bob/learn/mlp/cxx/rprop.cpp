@@ -13,7 +13,7 @@
 #include <bob/core/array_copy.h>
 #include <bob/math/linear.h>
 
-#include <xbob.learn.mlp/rprop.h>
+#include <bob.learn.mlp/rprop.h>
 
 bob::learn::mlp::RProp::RProp(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost):

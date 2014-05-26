@@ -12,7 +12,7 @@ import math
 from . import SquareError, CrossEntropyLoss
 from .test_utils import estimate_gradient
 
-from xbob.learn.activation import Logistic, Identity
+from bob.learn.activation import Logistic, Identity
 
 def is_close(x, y, eps=1e-10):
   return (abs(x - y) < eps)

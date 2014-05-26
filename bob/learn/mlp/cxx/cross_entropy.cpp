@@ -7,7 +7,7 @@
  * Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
  */
 
-#include <xbob.learn.mlp/cross_entropy.h>
+#include <bob.learn.mlp/cross_entropy.h>
 
 namespace bob { namespace learn { namespace mlp {
 

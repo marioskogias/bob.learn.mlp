@@ -6,11 +6,11 @@
  */
 
 
-#define XBOB_LEARN_MLP_MODULE
-#include <xbob.learn.mlp/api.h>
-#include <xbob.learn.mlp/roll.h>
-#include <xbob.blitz/capi.h>
-#include <xbob.blitz/cleanup.h>
+#define BOB_LEARN_MLP_MODULE
+#include <bob.learn.mlp/api.h>
+#include <bob.learn.mlp/roll.h>
+#include <bob.blitz/capi.h>
+#include <bob.blitz/cleanup.h>
 
 #include "utils.h"
 

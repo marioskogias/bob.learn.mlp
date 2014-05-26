@@ -7,10 +7,10 @@
  * Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
  */
 
-#define XBOB_LEARN_MLP_MODULE
-#include <xbob.blitz/cppapi.h>
-#include <xbob.blitz/cleanup.h>
-#include <xbob.learn.mlp/api.h>
+#define BOB_LEARN_MLP_MODULE
+#include <bob.blitz/cppapi.h>
+#include <bob.blitz/cleanup.h>
+#include <bob.learn.mlp/api.h>
 #include <structmember.h>
 
 #include "utils.h"
@@ -19,7 +19,7 @@
  * Implementation of BackProp trainer *
  **************************************/
 
-PyDoc_STRVAR(s_trainer_str, XBOB_EXT_MODULE_PREFIX ".BackProp");
+PyDoc_STRVAR(s_trainer_str, BOB_EXT_MODULE_PREFIX ".BackProp");
 
 PyDoc_STRVAR(s_trainer_doc,
 "BackProp(batch_size, cost, [trainer, [train_biases]]) -> new BackProp\n\
@@ -46,10 +46,10 @@ batch_size, int\n\
    \n\
       This setting affects the convergence.\n\
 \n\
-cost, :py:class:`xbob.learn.mlp.Cost`\n\
+cost, :py:class:`bob.learn.mlp.Cost`\n\
    An object that can calculate the cost at every iteration.\n\
 \n\
-machine, :py:class:`xbob.learn.mlp.Machine`\n\
+machine, :py:class:`bob.learn.mlp.Machine`\n\
    This parameter that will be used as a basis for this trainer's\n\
    internal properties (cache sizes, for instance).\n\
 \n\
@@ -57,7 +57,7 @@ train_biases, bool\n\
    A boolean indicating if we should train the biases weights (set\n\
    it to ``True``) or not (set it to ``False``).\n\
 \n\
-other, :py:class:`xbob.learn.mlp.Trainer`\n\
+other, :py:class:`bob.learn.mlp.Trainer`\n\
    Another trainer from which this new copy will get its properties\n\
    from. If you use this constructor than a new (deep) copy of the\n\
    trainer is created.\n\
@@ -395,7 +395,7 @@ thrown.\n\
    \n\
    The machine is **not** initialized randomly at each call to this\n\
    method. It is your task to call\n\
-   :py:meth:`xbob.learn.mlp.Machine.randomize` once at the machine\n\
+   :py:meth:`bob.learn.mlp.Machine.randomize` once at the machine\n\
    you want to train and then call this method as many times as you\n\
    think is necessary. This design allows for a *stopping criteria*\n\
    to be encoded outside the scope of this trainer and for this method\n\
@@ -405,9 +405,9 @@ thrown.\n\
 \n\
 Keyword arguments:\n\
 \n\
-machine, :py:class:`xbob.learn.mlp.Machine`\n\
+machine, :py:class:`bob.learn.mlp.Machine`\n\
    The machine that will be trained. You must have called\n\
-   :py:meth:`xbob.learn.mlp.Trainer.initialize` which a similarly\n\
+   :py:meth:`bob.learn.mlp.Trainer.initialize` which a similarly\n\
    configured machine before being able to call this method, or an\n\
    exception may be thrown.\n\
 \n\

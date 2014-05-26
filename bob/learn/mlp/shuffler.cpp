@@ -7,18 +7,18 @@
  * Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
  */
 
-#define XBOB_LEARN_MLP_MODULE
-#include <xbob.blitz/cppapi.h>
-#include <xbob.blitz/cleanup.h>
-#include <xbob.learn.mlp/api.h>
-#include <xbob.core/random.h>
+#define BOB_LEARN_MLP_MODULE
+#include <bob.blitz/cppapi.h>
+#include <bob.blitz/cleanup.h>
+#include <bob.learn.mlp/api.h>
+#include <bob.core/random.h>
 #include <structmember.h>
 
 /*********************************************
  * Implementation of DataShuffler base class *
  *********************************************/
 
-PyDoc_STRVAR(s_shuffler_str, XBOB_EXT_MODULE_PREFIX ".DataShuffler");
+PyDoc_STRVAR(s_shuffler_str, BOB_EXT_MODULE_PREFIX ".DataShuffler");
 
 PyDoc_STRVAR(s_shuffler_doc,
 "DataShuffler(data, target) -> New DataShuffler\n\
@@ -175,7 +175,7 @@ provided. It is an error not to provide one of ``data``,\n\
 ``target`` or ``n``.\n\
 \n\
 If a random generator ``rng`` is provided, it must of the type\n\
-:py:class:`xbob.core.random.mt19937`. In this case, the shuffler\n\
+:py:class:`bob.core.random.mt19937`. In this case, the shuffler\n\
 is going to use this generator instead of its internal one. This\n\
 mechanism is useful for repeating draws in case of tests.\n\
 \n\

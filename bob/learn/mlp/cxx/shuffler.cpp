@@ -14,7 +14,7 @@
 #include <bob/core/assert.h>
 #include <bob/core/array_copy.h>
 
-#include <xbob.learn.mlp/shuffler.h>
+#include <bob.learn.mlp/shuffler.h>
 
 bob::learn::mlp::DataShuffler::DataShuffler
 (const std::vector<blitz::Array<double,2> >& data,

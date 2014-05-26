@@ -11,7 +11,7 @@
 #include <bob/core/check.h>
 #include <bob/math/linear.h>
 
-#include <xbob.learn.mlp/trainer.h>
+#include <bob.learn.mlp/trainer.h>
 
 bob::learn::mlp::Trainer::Trainer(size_t batch_size,
     boost::shared_ptr<bob::learn::mlp::Cost> cost):

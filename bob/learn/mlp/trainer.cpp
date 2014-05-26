@@ -7,10 +7,10 @@
  * Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
  */
 
-#define XBOB_LEARN_MLP_MODULE
-#include <xbob.blitz/cppapi.h>
-#include <xbob.blitz/cleanup.h>
-#include <xbob.learn.mlp/api.h>
+#define BOB_LEARN_MLP_MODULE
+#include <bob.blitz/cppapi.h>
+#include <bob.blitz/cleanup.h>
+#include <bob.learn.mlp/api.h>
 #include <structmember.h>
 
 #include "utils.h"
@@ -19,7 +19,7 @@
  * Implementation of base Trainer class *
  ****************************************/
 
-PyDoc_STRVAR(s_trainer_str, XBOB_EXT_MODULE_PREFIX ".Trainer");
+PyDoc_STRVAR(s_trainer_str, BOB_EXT_MODULE_PREFIX ".Trainer");
 
 PyDoc_STRVAR(s_trainer_doc,
 "Trainer(batch_size, cost, [trainer, [train_biases]]) -> new Trainer\n\
@@ -48,10 +48,10 @@ batch_size, int\n\
    \n\
       This setting affects the convergence.\n\
 \n\
-cost, :py:class:`xbob.learn.mlp.Cost`\n\
+cost, :py:class:`bob.learn.mlp.Cost`\n\
    An object that can calculate the cost at every iteration.\n\
 \n\
-machine, :py:class:`xbob.learn.mlp.Machine`\n\
+machine, :py:class:`bob.learn.mlp.Machine`\n\
    This parameter that will be used as a basis for this trainer's\n\
    internal properties (cache sizes, for instance).\n\
 \n\
@@ -59,7 +59,7 @@ train_biases, bool\n\
    A boolean indicating if we should train the biases weights (set\n\
    it to ``True``) or not (set it to ``False``).\n\
 \n\
-other, :py:class:`xbob.learn.mlp.Trainer`\n\
+other, :py:class:`bob.learn.mlp.Trainer`\n\
    Another trainer from which this new copy will get its properties\n\
    from. If you use this constructor than a new (deep) copy of the\n\
    trainer is created.\n\
@@ -218,8 +218,8 @@ static int PyBobLearnMLPTrainer_setBatchSize
 
 PyDoc_STRVAR(s_cost_object_str, "cost_object");
 PyDoc_STRVAR(s_cost_object_doc,
-"An object, derived from :py:class:`xbob.learn.mlp.Cost` (e.g.\n\
-:py:class:`xbob.learn.mlp.SquareError` or \n\
+"An object, derived from :py:class:`bob.learn.mlp.Cost` (e.g.\n\
+:py:class:`bob.learn.mlp.SquareError` or \n\
 :py:class:`bob.trainer.CrossEntropyLoss`), that is used to evaluate\n\
 the cost (a.k.a. *loss*) and the derivatives given the input, the\n\
 target and the MLP structure.");

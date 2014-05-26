@@ -9,7 +9,7 @@
 
 #include <cmath>
 
-#include <xbob.learn.mlp/square_error.h>
+#include <bob.learn.mlp/square_error.h>
 
 namespace bob { namespace learn { namespace mlp {
 

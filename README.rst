@@ -2,16 +2,16 @@
 .. Andre Anjos <andre.anjos@idiap.ch>
 .. Thu 24 Apr 17:24:10 2014 CEST
 
-.. image:: https://travis-ci.org/bioidiap/xbob.learn.mlp.svg?branch=master
-   :target: https://travis-ci.org/bioidiap/xbob.learn.mlp
-.. image:: https://coveralls.io/repos/bioidiap/xbob.learn.mlp/badge.png
-   :target: https://coveralls.io/r/bioidiap/xbob.learn.mlp
-.. image:: http://img.shields.io/github/tag/bioidiap/xbob.learn.mlp.png
-   :target: https://github.com/bioidiap/xbob.learn.mlp
-.. image:: http://img.shields.io/pypi/v/xbob.learn.mlp.png
-   :target: https://pypi.python.org/pypi/xbob.learn.mlp
-.. image:: http://img.shields.io/pypi/dm/xbob.learn.mlp.png
-   :target: https://pypi.python.org/pypi/xbob.learn.mlp
+.. image:: https://travis-ci.org/bioidiap/bob.learn.mlp.svg?branch=master
+   :target: https://travis-ci.org/bioidiap/bob.learn.mlp
+.. image:: https://coveralls.io/repos/bioidiap/bob.learn.mlp/badge.png
+   :target: https://coveralls.io/r/bioidiap/bob.learn.mlp
+.. image:: http://img.shields.io/github/tag/bioidiap/bob.learn.mlp.png
+   :target: https://github.com/bioidiap/bob.learn.mlp
+.. image:: http://img.shields.io/pypi/v/bob.learn.mlp.png
+   :target: https://pypi.python.org/pypi/bob.learn.mlp
+.. image:: http://img.shields.io/pypi/dm/bob.learn.mlp.png
+   :target: https://pypi.python.org/pypi/bob.learn.mlp
 
 ===============================================================
  Python bindings for Bob's Multi-Layer Perceptron and Trainers
@@ -41,7 +41,7 @@ Testing
 
 You can run a set of tests using the nose test runner::
 
-  $ nosetests -sv xbob.learn.mlp
+  $ nosetests -sv bob.learn.mlp
 
 .. warning::
 
@@ -58,7 +58,7 @@ You can run our documentation tests using sphinx itself::
 
 You can test overall test coverage with::
 
-  $ nosetests --with-coverage --cover-package=xbob.learn.mlp
+  $ nosetests --with-coverage --cover-package=bob.learn.mlp
 
 The ``coverage`` egg must be installed for this to work properly.
 

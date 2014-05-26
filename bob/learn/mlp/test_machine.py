@@ -15,10 +15,10 @@ import nose.tools
 from . import Machine
 from .test_utils import Machine as PythonMachine
 
-import xbob.io.base
-from xbob.io.base.test_utils import temporary_filename
-from xbob.learn.activation import Logistic, HyperbolicTangent
-from xbob.core.random import mt19937
+import bob.io.base
+from bob.io.base.test_utils import temporary_filename
+from bob.learn.activation import Logistic, HyperbolicTangent
+from bob.core.random import mt19937
 
 def test_2in_1out():
 
@@ -224,8 +224,8 @@ def test_persistence():
 
   # creates a file that will be used in the next test!
   machine_file = temporary_filename()
-  m.save(xbob.io.base.HDF5File(machine_file, 'w'))
-  m2 = Machine(xbob.io.base.HDF5File(machine_file))
+  m.save(bob.io.base.HDF5File(machine_file, 'w'))
+  m2 = Machine(bob.io.base.HDF5File(machine_file))
 
   assert m.is_similar_to(m2)
   nose.tools.eq_(m, m2)
@@ -285,14 +285,14 @@ def test_randomness_different():
 def test_randomness_same():
 
   m1 = Machine((2,3,2))
-  rng = xbob.core.random.mt19937(0) #fixed seed
+  rng = bob.core.random.mt19937(0) #fixed seed
   m1.randomize(rng=rng)
 
   for k in range(3):
     time.sleep(0.1)
 
     m2 = Machine((2,3,2))
-    rng = xbob.core.random.mt19937(0) #fixed seed
+    rng = bob.core.random.mt19937(0) #fixed seed
     m2.randomize(rng=rng)
 
     for w1, w2 in zip(m1.weights, m2.weights):

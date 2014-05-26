@@ -7,20 +7,20 @@
  * Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
  */
 
-#define XBOB_LEARN_MLP_MODULE
-#include <xbob.blitz/cppapi.h>
-#include <xbob.blitz/cleanup.h>
-#include <xbob.io.base/api.h>
-#include <xbob.learn.activation/api.h>
-#include <xbob.learn.mlp/api.h>
-#include <xbob.core/random.h>
+#define BOB_LEARN_MLP_MODULE
+#include <bob.blitz/cppapi.h>
+#include <bob.blitz/cleanup.h>
+#include <bob.io.base/api.h>
+#include <bob.learn.activation/api.h>
+#include <bob.learn.mlp/api.h>
+#include <bob.core/random.h>
 #include <structmember.h>
 
 /****************************************
  * Implementation of Machine base class *
  ****************************************/
 
-PyDoc_STRVAR(s_machine_str, XBOB_EXT_MODULE_PREFIX ".Machine");
+PyDoc_STRVAR(s_machine_str, BOB_EXT_MODULE_PREFIX ".Machine");
 
 PyDoc_STRVAR(s_machine_doc,
 "Machine(shape)\n\
@@ -42,7 +42,7 @@ MLPs normally are multi-layered systems, with 1 or more hidden\n\
 layers. As a special case, this implementation also supports\n\
 connecting the input directly to the output by means of a single\n\
 weight matrix. This is equivalent of a\n\
-:py:class:`xbob.learn.linear.Machine`, with the advantage it can\n\
+:py:class:`bob.learn.linear.Machine`, with the advantage it can\n\
 be trained by trainers defined in this package.\n\
 \n\
 An MLP can be constructed in different ways. In the first form,\n\
@@ -698,7 +698,7 @@ PyObject* PyBobLearnMLPMachine_Repr(PyBobLearnMLPMachineObject* self) {
   /**
    * Expected output:
    *
-   * <xbob.learn.linear.MLP float64@(3, 5, 2) [hidden: f(z) = tanh(z), out: f(z) = * tanh(z)]>
+   * <bob.learn.linear.MLP float64@(3, 5, 2) [hidden: f(z) = tanh(z), out: f(z) = * tanh(z)]>
    */
 
   auto weights = make_safe(PyBobLearnMLPMachine_getWeights(self, 0));
@@ -872,7 +872,7 @@ PyDoc_STRVAR(s_load_str, "load");
 PyDoc_STRVAR(s_load_doc,
 "o.load(f) -> None\n\
 \n\
-Loads itself from a :py:class:`xbob.io.HDF5File`\n\
+Loads itself from a :py:class:`bob.io.HDF5File`\n\
 \n\
 ");
 
@@ -906,7 +906,7 @@ PyDoc_STRVAR(s_save_str, "save");
 PyDoc_STRVAR(s_save_doc,
 "o.save(f) -> None\n\
 \n\
-Saves itself at a :py:class:`xbob.io.HDF5File`\n\
+Saves itself at a :py:class:`bob.io.HDF5File`\n\
 \n\
 ");
 
