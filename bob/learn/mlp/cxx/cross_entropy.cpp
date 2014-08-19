@@ -13,7 +13,7 @@ namespace bob { namespace learn { namespace mlp {
 
   CrossEntropyLoss::CrossEntropyLoss(boost::shared_ptr<bob::learn::activation::Activation> actfun)
     : m_actfun(actfun),
-      m_logistic_activation(m_actfun->unique_identifier() == "bob.machine.Activation.Logistic") {}
+      m_logistic_activation(m_actfun->unique_identifier() == "bob.learn.activation.Activation.Logistic") {}
 
   CrossEntropyLoss::~CrossEntropyLoss() {}
 
