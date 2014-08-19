@@ -10,7 +10,8 @@
 #ifndef BOB_LEARN_MLP_SQUAREERROR_H
 #define BOB_LEARN_MLP_SQUAREERROR_H
 
-#include "cost.h"
+#include <bob.learn.mlp/cost.h>
+#include <bob.learn.activation/Activation.h>
 
 namespace bob { namespace learn { namespace mlp {
 
@@ -32,7 +33,7 @@ namespace bob { namespace learn { namespace mlp {
       /**
        * Builds a SquareError functor with an existing activation function.
        */
-      SquareError(boost::shared_ptr<bob::machine::Activation> actfun);
+      SquareError(boost::shared_ptr<bob::learn::activation::Activation> actfun);
 
       /**
        * Virtualized destructor
@@ -89,7 +90,7 @@ namespace bob { namespace learn { namespace mlp {
 
     private: //representation
 
-      boost::shared_ptr<bob::machine::Activation> m_actfun; //act. function
+      boost::shared_ptr<bob::learn::activation::Activation> m_actfun; //act. function
 
   };
 

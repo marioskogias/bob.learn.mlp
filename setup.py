@@ -3,25 +3,12 @@
 # Andre Anjos <andre.anjos@idiap.ch>
 # Mon 16 Apr 08:18:08 2012 CEST
 
+bob_packages = ['bob.core', 'bob.io.base', 'bob.math', 'bob.learn.activation']
+
 from setuptools import setup, find_packages, dist
-dist.Distribution(dict(setup_requires=['bob.blitz', 'bob.io.base', 'bob.learn.activation', 'bob.core']))
-from bob.blitz.extension import Extension
-import bob.io.base
-import bob.core
-import bob.learn.activation
+dist.Distribution(dict(setup_requires=['bob.blitz'] + bob_packages))
+from bob.blitz.extension import Extension, Library, build_ext
 
-import os
-package_dir = os.path.dirname(os.path.realpath(__file__))
-package_dir = os.path.join(package_dir, 'bob', 'learn', 'mlp', 'include')
-include_dirs = [
-    package_dir,
-    bob.blitz.get_include(),
-    bob.io.base.get_include(),
-    bob.learn.activation.get_include(),
-    bob.core.get_include(),
-    ]
-
-packages = ['bob-io >= 2.0.0a2', 'bob-machine >= 2.0.0a2']
 version = '2.0.0a0'
 
 setup(
@@ -44,6 +31,7 @@ setup(
       'setuptools',
       'bob.blitz',
       'bob.io.base',
+      'bob.math',
       'bob.learn.activation',
       'bob.core',
     ],
@@ -57,11 +45,26 @@ setup(
       Extension("bob.learn.mlp.version",
         [
           "bob/learn/mlp/version.cpp",
-          ],
-        packages = packages,
-        include_dirs = include_dirs,
+        ],
+        bob_packages = bob_packages,
         version = version,
-        ),
+      ),
+
+      Library("bob.learn.mlp.bob_learn_mlp",
+        [
+          "bob/learn/mlp/cxx/roll.cpp",
+          "bob/learn/mlp/cxx/machine.cpp",
+          "bob/learn/mlp/cxx/cross_entropy.cpp",
+          "bob/learn/mlp/cxx/square_error.cpp",
+          "bob/learn/mlp/cxx/shuffler.cpp",
+          "bob/learn/mlp/cxx/trainer.cpp",
+          "bob/learn/mlp/cxx/backprop.cpp",
+          "bob/learn/mlp/cxx/rprop.cpp",
+        ],
+        bob_packages = bob_packages,
+        version = version,
+      ),
+
       Extension("bob.learn.mlp._library",
         [
           "bob/learn/mlp/roll.cpp",
@@ -72,25 +75,20 @@ setup(
           "bob/learn/mlp/cost.cpp",
           "bob/learn/mlp/machine.cpp",
           "bob/learn/mlp/main.cpp",
-          "bob/learn/mlp/cxx/roll.cpp",
-          "bob/learn/mlp/cxx/machine.cpp",
-          "bob/learn/mlp/cxx/cross_entropy.cpp",
-          "bob/learn/mlp/cxx/square_error.cpp",
-          "bob/learn/mlp/cxx/shuffler.cpp",
-          "bob/learn/mlp/cxx/trainer.cpp",
-          "bob/learn/mlp/cxx/backprop.cpp",
-          "bob/learn/mlp/cxx/rprop.cpp",
-          ],
-        packages = packages,
-        include_dirs = include_dirs,
+        ],
+        bob_packages = bob_packages,
         version = version,
-        ),
-      ],
+      ),
+    ],
+
+    cmdclass = {
+      'build_ext': build_ext
+    },
 
     entry_points={
       'console_scripts': [
-        ],
-      },
+      ],
+    },
 
     classifiers = [
       'Development Status :: 3 - Alpha',

@@ -15,8 +15,8 @@
 #include <boost/shared_ptr.hpp>
 #include <blitz/array.h>
 
-#include <bob/io/HDF5File.h>
-#include <bob/machine/Activation.h>
+#include <bob.io.base/HDF5File.h>
+#include <bob.learn.activation/Activation.h>
 
 namespace bob { namespace learn { namespace mlp {
 
@@ -90,7 +90,7 @@ namespace bob { namespace learn { namespace mlp {
       /**
        * Starts a new MLP from an existing Configuration object.
        */
-      Machine (bob::io::HDF5File& config);
+      Machine (bob::io::base::HDF5File& config);
 
       /**
        * Just to virtualise the destructor
@@ -123,12 +123,12 @@ namespace bob { namespace learn { namespace mlp {
        * Loads data from an existing configuration object. Resets the current
        * state.
        */
-      void load (bob::io::HDF5File& config);
+      void load (bob::io::base::HDF5File& config);
 
       /**
        * Saves an existing machine to a Configuration object.
        */
-      void save (bob::io::HDF5File& config) const;
+      void save (bob::io::base::HDF5File& config) const;
 
       /**
        * Forwards data through the network, outputs the values of each output
@@ -315,26 +315,26 @@ namespace bob { namespace learn { namespace mlp {
       /**
        * Returns the currently set activation function for the hidden layers
        */
-      boost::shared_ptr<bob::machine::Activation> getHiddenActivation() const
+      boost::shared_ptr<bob::learn::activation::Activation> getHiddenActivation() const
       { return m_hidden_activation; }
 
       /**
        * Sets the activation function for each of the hidden layers.
        */
-      void setHiddenActivation(boost::shared_ptr<bob::machine::Activation> a) {
+      void setHiddenActivation(boost::shared_ptr<bob::learn::activation::Activation> a) {
         m_hidden_activation = a;
       }
 
       /**
        * Returns the currently set output activation function
        */
-      boost::shared_ptr<bob::machine::Activation> getOutputActivation() const
+      boost::shared_ptr<bob::learn::activation::Activation> getOutputActivation() const
       { return m_output_activation; }
 
       /**
        * Sets the activation function for the outputs of the last layer.
        */
-      void setOutputActivation(boost::shared_ptr<bob::machine::Activation> a) {
+      void setOutputActivation(boost::shared_ptr<bob::learn::activation::Activation> a) {
         m_output_activation = a;
       }
 
@@ -366,8 +366,8 @@ namespace bob { namespace learn { namespace mlp {
       blitz::Array<double, 1> m_input_div; ///< input division
       std::vector<blitz::Array<double, 2> > m_weight; ///< weights
       std::vector<blitz::Array<double, 1> > m_bias; ///< biases for the output
-      boost::shared_ptr<bob::machine::Activation> m_hidden_activation; ///< currently set activation type
-      boost::shared_ptr<bob::machine::Activation> m_output_activation; ///< currently set activation type
+      boost::shared_ptr<bob::learn::activation::Activation> m_hidden_activation; ///< currently set activation type
+      boost::shared_ptr<bob::learn::activation::Activation> m_output_activation; ///< currently set activation type
       mutable std::vector<blitz::Array<double, 1> > m_buffer; ///< buffer for the outputs of each layer
 
   };

@@ -11,7 +11,7 @@
 #include <vector>
 #include <blitz/array.h>
 
-#include "machine.h"
+#include <bob.learn.mlp/machine.h>
 
 namespace bob { namespace learn { namespace mlp {
 

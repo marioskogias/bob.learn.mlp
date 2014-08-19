@@ -12,7 +12,6 @@
 
 #include <string>
 #include <boost/shared_ptr.hpp>
-#include "bob/machine/Activation.h"
 
 namespace bob { namespace learn { namespace mlp {
 

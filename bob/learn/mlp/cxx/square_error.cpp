@@ -13,7 +13,7 @@
 
 namespace bob { namespace learn { namespace mlp {
 
-  SquareError::SquareError(boost::shared_ptr<bob::machine::Activation> actfun):
+  SquareError::SquareError(boost::shared_ptr<bob::learn::activation::Activation> actfun):
   m_actfun(actfun) {}
 
   SquareError::~SquareError() {}

@@ -9,9 +9,9 @@
  */
 
 #include <algorithm>
-#include <bob/core/check.h>
-#include <bob/core/array_copy.h>
-#include <bob/math/linear.h>
+#include <bob.core/check.h>
+#include <bob.core/array_copy.h>
+#include <bob.math/linear.h>
 
 #include <bob.learn.mlp/rprop.h>
 

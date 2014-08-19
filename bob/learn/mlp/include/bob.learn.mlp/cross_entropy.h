@@ -10,7 +10,8 @@
 #ifndef BOB_LEARN_MLP_CROSSENTROPYLOSS_H
 #define BOB_LEARN_MLP_CROSSENTROPYLOSS_H
 
-#include "cost.h"
+#include <bob.learn.mlp/cost.h>
+#include <bob.learn.activation/Activation.h>
 
 namespace bob { namespace learn { namespace mlp {
 
@@ -55,7 +56,7 @@ namespace bob { namespace learn { namespace mlp {
        *    b = \hat{y} - y
        * \f]
        */
-      CrossEntropyLoss(boost::shared_ptr<bob::machine::Activation> actfun);
+      CrossEntropyLoss(boost::shared_ptr<bob::learn::activation::Activation> actfun);
 
       /**
        * Virtualized destructor
@@ -64,7 +65,7 @@ namespace bob { namespace learn { namespace mlp {
 
       /**
        * Tells if this CrossEntropyLoss is set to operate together with a
-       * bob::machine::LogisticActivation.
+       * bob::learn::activation::LogisticActivation.
        */
       bool logistic_activation() const { return m_logistic_activation; }
 
@@ -118,7 +119,7 @@ namespace bob { namespace learn { namespace mlp {
 
     private: //representation
 
-      boost::shared_ptr<bob::machine::Activation> m_actfun; //act. function
+      boost::shared_ptr<bob::learn::activation::Activation> m_actfun; //act. function
       bool m_logistic_activation; ///< if 'true', simplify backprop_error()
 
   };

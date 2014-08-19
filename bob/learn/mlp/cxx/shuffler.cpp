@@ -11,8 +11,8 @@
 #include <sys/time.h>
 #include <boost/format.hpp>
 
-#include <bob/core/assert.h>
-#include <bob/core/array_copy.h>
+#include <bob.core/assert.h>
+#include <bob.core/array_copy.h>
 
 #include <bob.learn.mlp/shuffler.h>
 

@@ -12,10 +12,10 @@
 #include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 
-#include <bob/core/check.h>
-#include <bob/core/array_copy.h>
-#include <bob/core/assert.h>
-#include <bob/math/linear.h>
+#include <bob.core/check.h>
+#include <bob.core/array_copy.h>
+#include <bob.core/assert.h>
+#include <bob.math/linear.h>
 
 #include <bob.learn.mlp/machine.h>
 
@@ -24,7 +24,7 @@ bob::learn::mlp::Machine::Machine (size_t input, size_t output):
   m_input_div(input),
   m_weight(1),
   m_bias(1),
-  m_hidden_activation(boost::make_shared<bob::machine::HyperbolicTangentActivation>()),
+  m_hidden_activation(boost::make_shared<bob::learn::activation::HyperbolicTangentActivation>()),
   m_output_activation(m_hidden_activation),
   m_buffer(1)
 {
@@ -40,7 +40,7 @@ bob::learn::mlp::Machine::Machine (size_t input, size_t hidden, size_t output):
   m_input_div(input),
   m_weight(2),
   m_bias(2),
-  m_hidden_activation(boost::make_shared<bob::machine::HyperbolicTangentActivation>()),
+  m_hidden_activation(boost::make_shared<bob::learn::activation::HyperbolicTangentActivation>()),
   m_output_activation(m_hidden_activation),
   m_buffer(2)
 {
@@ -56,7 +56,7 @@ bob::learn::mlp::Machine::Machine (size_t input, const std::vector<size_t>& hidd
   m_input_div(input),
   m_weight(hidden.size()+1),
   m_bias(hidden.size()+1),
-  m_hidden_activation(boost::make_shared<bob::machine::HyperbolicTangentActivation>()),
+  m_hidden_activation(boost::make_shared<bob::learn::activation::HyperbolicTangentActivation>()),
   m_output_activation(m_hidden_activation),
   m_buffer(hidden.size()+1)
 {
@@ -68,7 +68,7 @@ bob::learn::mlp::Machine::Machine (size_t input, const std::vector<size_t>& hidd
 }
 
 bob::learn::mlp::Machine::Machine (const std::vector<size_t>& shape):
-  m_hidden_activation(boost::make_shared<bob::machine::HyperbolicTangentActivation>()),
+  m_hidden_activation(boost::make_shared<bob::learn::activation::HyperbolicTangentActivation>()),
   m_output_activation(m_hidden_activation)
 {
   resize(shape);
@@ -94,7 +94,7 @@ bob::learn::mlp::Machine::Machine (const bob::learn::mlp::Machine& other):
   }
 }
 
-bob::learn::mlp::Machine::Machine (bob::io::HDF5File& config) {
+bob::learn::mlp::Machine::Machine (bob::io::base::HDF5File& config) {
   load(config);
 }
 
@@ -144,7 +144,7 @@ bool bob::learn::mlp::Machine::is_similar_to(const bob::learn::mlp::Machine& oth
 }
 
 
-void bob::learn::mlp::Machine::load (bob::io::HDF5File& config) {
+void bob::learn::mlp::Machine::load (bob::io::base::HDF5File& config) {
   uint8_t nhidden = config.read<uint8_t>("nhidden");
   m_weight.resize(nhidden+1);
   m_bias.resize(nhidden+1);
@@ -167,14 +167,14 @@ void bob::learn::mlp::Machine::load (bob::io::HDF5File& config) {
   //switch between different versions - support for version 2
   if (config.hasAttribute(".", "version")) { //new version
     config.cd("hidden_activation");
-    m_hidden_activation = bob::machine::load_activation(config);
+    m_hidden_activation = bob::learn::activation::load_activation(config);
     config.cd("../output_activation");
-    m_output_activation = bob::machine::load_activation(config);
+    m_output_activation = bob::learn::activation::load_activation(config);
     config.cd("..");
   }
   else { //old version
     uint32_t act = config.read<uint32_t>("activation");
-    m_hidden_activation = bob::machine::make_deprecated_activation(act);
+    m_hidden_activation = bob::learn::activation::make_deprecated_activation(act);
     m_output_activation = m_hidden_activation;
   }
 
@@ -186,7 +186,7 @@ void bob::learn::mlp::Machine::load (bob::io::HDF5File& config) {
   }
 }
 
-void bob::learn::mlp::Machine::save (bob::io::HDF5File& config) const {
+void bob::learn::mlp::Machine::save (bob::io::base::HDF5File& config) const {
   config.setAttribute(".", "version", 1);
   config.setArray("input_sub", m_input_sub);
   config.setArray("input_div", m_input_div);

@@ -17,8 +17,8 @@
 #include <vector>
 #include <boost/function.hpp>
 
-#include "machine.h"
-#include "trainer.h"
+#include <bob.learn.mlp/machine.h>
+#include <bob.learn.mlp/trainer.h>
 
 namespace bob { namespace learn { namespace mlp {
 

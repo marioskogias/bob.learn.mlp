@@ -7,9 +7,9 @@
  */
 
 #include <algorithm>
-#include <bob/core/assert.h>
-#include <bob/core/check.h>
-#include <bob/math/linear.h>
+#include <bob.core/assert.h>
+#include <bob.core/check.h>
+#include <bob.math/linear.h>
 
 #include <bob.learn.mlp/trainer.h>
 
@@ -131,13 +131,13 @@ void bob::learn::mlp::Trainer::forward_step(const bob::learn::mlp::Machine& mach
   const std::vector<blitz::Array<double,2> >& machine_weight = machine.getWeights();
   const std::vector<blitz::Array<double,1> >& machine_bias = machine.getBiases();
 
-  boost::shared_ptr<bob::machine::Activation> hidden_actfun = machine.getHiddenActivation();
-  boost::shared_ptr<bob::machine::Activation> output_actfun = machine.getOutputActivation();
+  boost::shared_ptr<bob::learn::activation::Activation> hidden_actfun = machine.getHiddenActivation();
+  boost::shared_ptr<bob::learn::activation::Activation> output_actfun = machine.getOutputActivation();
 
   for (size_t k=0; k<machine_weight.size(); ++k) { //for all layers
     if (k == 0) bob::math::prod_(input, machine_weight[k], m_output[k]);
     else bob::math::prod_(m_output[k-1], machine_weight[k], m_output[k]);
-    boost::shared_ptr<bob::machine::Activation> cur_actfun =
+    boost::shared_ptr<bob::learn::activation::Activation> cur_actfun =
       (k == (machine_weight.size()-1) ? output_actfun : hidden_actfun );
     for (int i=0; i<(int)m_batch_size; ++i) { //for every example
       for (int j=0; j<m_output[k].extent(1); ++j) { //for all variables
@@ -154,7 +154,7 @@ void bob::learn::mlp::Trainer::backward_step
   const std::vector<blitz::Array<double,2> >& machine_weight = machine.getWeights();
 
   //last layer
-  boost::shared_ptr<bob::machine::Activation> output_actfun = machine.getOutputActivation();
+  boost::shared_ptr<bob::learn::activation::Activation> output_actfun = machine.getOutputActivation();
   for (int i=0; i<(int)m_batch_size; ++i) { //for every example
     for (int j=0; j<m_error[m_H].extent(1); ++j) { //for all variables
       m_error[m_H](i,j) = m_cost->error(m_output[m_H](i,j), target(i,j));
@@ -162,7 +162,7 @@ void bob::learn::mlp::Trainer::backward_step
   }
 
   //all other layers
-  boost::shared_ptr<bob::machine::Activation> hidden_actfun = machine.getHiddenActivation();
+  boost::shared_ptr<bob::learn::activation::Activation> hidden_actfun = machine.getHiddenActivation();
   for (size_t k=m_H; k>0; --k) {
     bob::math::prod_(m_error[k], machine_weight[k].transpose(1,0), m_error[k-1]);
     for (int i=0; i<(int)m_batch_size; ++i) { //for every example

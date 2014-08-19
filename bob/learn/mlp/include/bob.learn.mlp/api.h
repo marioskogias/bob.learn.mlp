@@ -10,14 +10,14 @@
 #include <boost/shared_ptr.hpp>
 #include <bob.learn.mlp/config.h>
 
-#include "machine.h"
-#include "cost.h"
-#include "square_error.h"
-#include "cross_entropy.h"
-#include "shuffler.h"
-#include "trainer.h"
-#include "backprop.h"
-#include "rprop.h"
+#include <bob.learn.mlp/machine.h>
+#include <bob.learn.mlp/cost.h>
+#include <bob.learn.mlp/square_error.h>
+#include <bob.learn.mlp/cross_entropy.h>
+#include <bob.learn.mlp/shuffler.h>
+#include <bob.learn.mlp/trainer.h>
+#include <bob.learn.mlp/backprop.h>
+#include <bob.learn.mlp/rprop.h>
 
 #define BOB_LEARN_MLP_MODULE_PREFIX bob.learn.mlp
 #define BOB_LEARN_MLP_MODULE_NAME _library

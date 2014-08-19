@@ -12,8 +12,8 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-#include "machine.h"
-#include "cost.h"
+#include <bob.learn.mlp/machine.h>
+#include <bob.learn.mlp/cost.h>
 
 namespace bob { namespace learn { namespace mlp {
 
