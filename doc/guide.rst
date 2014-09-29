@@ -116,7 +116,7 @@ available MLP trainers in two different 2D `NumPy`_ arrays, one for the input
 .. doctest::
    :options: +NORMALIZE_WHITESPACE
 
-   >>> d0 = numpy.array([[.3, .7]]) # input
+   >>> d0 = numpy.array([[.3, .7, .5]]) # input
    >>> t0 = numpy.array([[.0]]) # target
 
 The class used to train a MLP [1]_ with backpropagation [2]_ is

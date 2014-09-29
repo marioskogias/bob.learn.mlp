@@ -216,6 +216,8 @@ void bob::learn::mlp::RProp::train(bob::learn::mlp::Machine& machine,
   }
   bob::core::array::assertSameDimensionLength(getBatchSize(), input.extent(0));
   bob::core::array::assertSameDimensionLength(getBatchSize(), target.extent(0));
+  bob::core::array::assertSameDimensionLength(machine.inputSize(), input.extent(1));
+  bob::core::array::assertSameDimensionLength(machine.outputSize(), target.extent(1));
   train_(machine, input, target);
 }
 
