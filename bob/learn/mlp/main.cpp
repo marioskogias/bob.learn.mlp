@@ -15,7 +15,7 @@
 #include <bob.blitz/cleanup.h>
 #include <bob.io.base/api.h>
 #include <bob.learn.activation/api.h>
-#include <bob.core/random.h>
+#include <bob.core/random_api.h>
 
 PyDoc_STRVAR(s_unroll_str, "unroll");
 PyDoc_STRVAR(s_unroll_doc,

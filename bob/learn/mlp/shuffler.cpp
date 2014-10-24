@@ -11,7 +11,7 @@
 #include <bob.blitz/cppapi.h>
 #include <bob.blitz/cleanup.h>
 #include <bob.learn.mlp/api.h>
-#include <bob.core/random.h>
+#include <bob.core/random_api.h>
 #include <structmember.h>
 
 /*********************************************
