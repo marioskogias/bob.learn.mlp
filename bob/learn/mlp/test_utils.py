@@ -33,12 +33,12 @@ class Machine:
     hidden_activation
       The activation function to use for the hidden neurons of the network.
       Should be one of the classes derived from
-      :py:class:`bob.machine.Activation`.
+      :py:class:`bob.learn.activation.Activation`.
 
     output_activation
       The activation function to use for the output neurons of the network.
       Should be one of the classes derived from
-      :py:class:`bob.machine.Activation`.
+      :py:class:`bob.learn.activation.Activation`.
     """
 
     if bias is None:
@@ -112,7 +112,7 @@ class TrainableMachine(Machine):
 
     b
       This is the error back-propagated through the last neuron by any of the
-      available :py:class:`bob.trainer.Cost` functors. Every row in b matches
+      available :py:class:`bob.learn.mlp.Cost` functors. Every row in b matches
       one example.
 
     self.d

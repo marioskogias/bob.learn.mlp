@@ -100,7 +100,7 @@ this example:
 
 Once the network weights and biases are set, we can feed forward an example
 through this machine. This is done using the ``()`` operator, like for a
-:py:class:`bob.learn.Linear.Machine`:
+:py:class:`bob.learn.linear.Machine`:
 
 .. doctest::
 
@@ -120,7 +120,7 @@ available MLP trainers in two different 2D `NumPy`_ arrays, one for the input
    >>> t0 = numpy.array([[.0]]) # target
 
 The class used to train a MLP [1]_ with backpropagation [2]_ is
-:py:class:`bob.learn.MLP.BackProp`. An example is shown below.
+:py:class:`bob.learn.mlp.BackProp`. An example is shown below.
 
 
 .. doctest::

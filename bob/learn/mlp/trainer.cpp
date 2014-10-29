@@ -220,7 +220,7 @@ PyDoc_STRVAR(s_cost_object_str, "cost_object");
 PyDoc_STRVAR(s_cost_object_doc,
 "An object, derived from :py:class:`bob.learn.mlp.Cost` (e.g.\n\
 :py:class:`bob.learn.mlp.SquareError` or \n\
-:py:class:`bob.trainer.CrossEntropyLoss`), that is used to evaluate\n\
+:py:class:`bob.learn.mlp.CrossEntropyLoss`), that is used to evaluate\n\
 the cost (a.k.a. *loss*) and the derivatives given the input, the\n\
 target and the MLP structure.");
 

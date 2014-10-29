@@ -21,7 +21,7 @@ setup(
 
     name='bob.learn.mlp',
     version=version,
-    description='Bindings for bob.machine\'s Multi-layer Perceptron and Trainers',
+    description='Bob\'s Multi-layer Perceptron and Trainers',
     url='http://github.com/bioidiap/bob.learn.mlp',
     license='BSD',
     author='Andre Anjos',
@@ -39,7 +39,7 @@ setup(
     namespace_packages=[
       "bob",
       "bob.learn",
-      ],
+    ],
 
     ext_modules = [
       Extension("bob.learn.mlp.version",
@@ -97,13 +97,14 @@ setup(
     },
 
     classifiers = [
-      'Development Status :: 3 - Alpha',
+      'Framework :: Bob',
+      'Development Status :: 4 - Beta',
       'Intended Audience :: Developers',
       'License :: OSI Approved :: BSD License',
       'Natural Language :: English',
       'Programming Language :: Python',
       'Programming Language :: Python :: 3',
       'Topic :: Software Development :: Libraries :: Python Modules',
-      ],
+    ],
 
-    )
+)
