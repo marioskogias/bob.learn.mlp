@@ -4,9 +4,11 @@
 ..
 .. Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
 
-==============
- Bob Machines
-==============
+.. bob.learn.mlp:
+
+=======================================
+ Bob's Multi-Layer Perceptron Machines
+=======================================
 
 .. todolist::
 
