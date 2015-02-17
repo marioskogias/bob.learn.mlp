@@ -253,8 +253,7 @@ static PyObject* apply_array(PyBobLearnCostObject* self, const char* fname,
 
   }
 
-  Py_INCREF(result);
-  return PyBlitzArray_NUMPY_WRAP(reinterpret_cast<PyObject*>(result));
+  return PyBlitzArray_NUMPY_WRAP(Py_BuildValue("O", result));
 
 }
 

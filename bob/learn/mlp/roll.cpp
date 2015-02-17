@@ -67,8 +67,7 @@ static PyObject* unroll_from_machine(PyObject* args, PyObject* kwds) {
     return 0;
   }
 
-  Py_INCREF(parameters);
-  return PyBlitzArray_NUMPY_WRAP((PyObject*)parameters);
+  return PyBlitzArray_NUMPY_WRAP(Py_BuildValue("O", parameters));
 
 }
 
@@ -163,8 +162,7 @@ static PyObject* unroll_from_values(PyObject* args, PyObject* kwds) {
     return 0;
   }
 
-  Py_INCREF(parameters);
-  return PyBlitzArray_NUMPY_WRAP((PyObject*)parameters);
+  return PyBlitzArray_NUMPY_WRAP(Py_BuildValue("O", parameters));
 
 }
 

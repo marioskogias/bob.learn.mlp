@@ -625,6 +625,9 @@ static PyObject* PyBobLearnMLPRProp_train
         &PyBlitzArray_Converter, &input,
         &PyBlitzArray_Converter, &target)) return 0;
 
+  auto input_ = make_safe(input);
+  auto target_ = make_safe(target);
+
   if (input->type_num != NPY_FLOAT64 || input->ndim != 2) {
     PyErr_Format(PyExc_TypeError, "`%s' only supports 2D 64-bit float arrays for input array `input'", Py_TYPE(self)->tp_name);
     return 0;

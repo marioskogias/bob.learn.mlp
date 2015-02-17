@@ -156,6 +156,13 @@ int PyBobLearnDataShuffler_Check(PyObject* o) {
   return PyObject_IsInstance(o, reinterpret_cast<PyObject*>(&PyBobLearnDataShuffler_Type));
 }
 
+
+static void PyBobLearnDataShuffler_delete(PyBobLearnDataShufflerObject* self) {
+  delete self->cxx;
+  Py_TYPE(self)->tp_free((PyObject*)self);
+
+}
+
 PyDoc_STRVAR(s_draw_str, "draw");
 PyDoc_STRVAR(s_draw_doc,
 "o.draw([n, [data, [target, [rng]]]]) -> (data, target)\n\
@@ -303,11 +310,9 @@ static PyObject* PyBobLearnDataShuffler_Call
   }
 
   //and finally we return...
-  Py_INCREF(data);
-  Py_INCREF(target);
-  return Py_BuildValue("OO",
-      PyBlitzArray_NUMPY_WRAP(reinterpret_cast<PyObject*>(data)),
-      PyBlitzArray_NUMPY_WRAP(reinterpret_cast<PyObject*>(target))
+  return Py_BuildValue("NN",
+      PyBlitzArray_NUMPY_WRAP(Py_BuildValue("O", data)),
+      PyBlitzArray_NUMPY_WRAP(Py_BuildValue("O", target))
       );
 
 }
@@ -333,10 +338,10 @@ static PyObject* PyBobLearnDataShuffler_GetStdNorm
   self->cxx->getStdNorm(*PyBlitzArrayCxx_AsBlitz<double,1>(mean),
       *PyBlitzArrayCxx_AsBlitz<double,1>(std));
 
-  return Py_BuildValue("OO",
+  return Py_BuildValue("NN",
       PyBlitzArray_NUMPY_WRAP((PyObject*)mean),
       PyBlitzArray_NUMPY_WRAP((PyObject*)std)
-      );
+  );
 
 }
 
@@ -420,7 +425,7 @@ PyTypeObject PyBobLearnDataShuffler_Type = {
     s_shuffler_str,                           /* tp_name */
     sizeof(PyBobLearnDataShufflerObject),     /* tp_basicsize */
     0,                                        /* tp_itemsize */
-    0,                                        /* tp_dealloc */
+    (destructor)PyBobLearnDataShuffler_delete,/* tp_dealloc */
     0,                                        /* tp_print */
     0,                                        /* tp_getattr */
     0,                                        /* tp_setattr */

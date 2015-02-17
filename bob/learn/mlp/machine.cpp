@@ -268,8 +268,7 @@ static PyObject* PyBobLearnMLPMachine_getWeights
     PyTuple_SET_ITEM(retval, k, tmp);
   }
 
-  Py_INCREF(retval);
-  return retval;
+  return Py_BuildValue("O", retval);
 
 }
 
@@ -355,8 +354,7 @@ static PyObject* PyBobLearnMLPMachine_getBiases
     PyTuple_SET_ITEM(retval, k, tmp);
   }
 
-  Py_INCREF(retval);
-  return retval;
+  return Py_BuildValue("O", retval);
 
 }
 
@@ -540,8 +538,7 @@ static PyObject* PyBobLearnMLPMachine_getShape
     PyTuple_SET_ITEM(retval, k, Py_BuildValue("n", i->extent(0)));
   }
 
-  Py_INCREF(retval);
-  return retval;
+  return Py_BuildValue("O", retval);
 }
 
 static int PyBobLearnMLPMachine_setShape
@@ -863,8 +860,7 @@ static PyObject* PyBobLearnMLPMachine_forward
     return 0;
   }
 
-  Py_INCREF(output);
-  return PyBlitzArray_NUMPY_WRAP(reinterpret_cast<PyObject*>(output));
+  return PyBlitzArray_NUMPY_WRAP(Py_BuildValue("O", output));
 
 }
 

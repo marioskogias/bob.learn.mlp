@@ -32,8 +32,7 @@ PyObject* convert_vector(const std::vector<blitz::Array<double,N>>& v) {
     if (!arr) return 0;
     PyTuple_SET_ITEM(retval, k, PyBlitzArray_NUMPY_WRAP(arr));
   }
-  Py_INCREF(retval);
-  return retval;
+  return Py_BuildValue("O", retval);
 }
 
 /**
