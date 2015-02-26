@@ -10,6 +10,7 @@
 #define BOB_LEARN_MLP_MODULE
 #include <bob.blitz/cppapi.h>
 #include <bob.blitz/cleanup.h>
+#include <bob.extension/defines.h>
 #include <bob.io.base/api.h>
 #include <bob.learn.activation/api.h>
 #include <bob.learn.mlp/api.h>
@@ -275,7 +276,7 @@ static PyObject* PyBobLearnMLPMachine_getWeights
 static int PyBobLearnMLPMachine_setWeights (PyBobLearnMLPMachineObject* self,
     PyObject* weights, void* /*closure*/) {
 
-  if (PyArray_IsAnyScalar(weights)){
+  if (PyBob_NumberCheck(weights)){
     double v = PyFloat_AsDouble(weights);
     if (PyErr_Occurred()) return -1;
     self->cxx->setWeights(v);
@@ -361,7 +362,7 @@ static PyObject* PyBobLearnMLPMachine_getBiases
 static int PyBobLearnMLPMachine_setBiases (PyBobLearnMLPMachineObject* self,
     PyObject* biases, void* /*closure*/) {
 
-  if (PyArray_IsAnyScalar(biases)){
+  if (PyBob_NumberCheck(biases)){
     double v = PyFloat_AsDouble(biases);
     if (PyErr_Occurred()) return -1;
     self->cxx->setBiases(v);
@@ -435,7 +436,7 @@ static PyObject* PyBobLearnMLPMachine_getInputSubtraction
 static int PyBobLearnMLPMachine_setInputSubtraction
 (PyBobLearnMLPMachineObject* self, PyObject* o, void* /*closure*/) {
 
-  if (PyArray_IsAnyScalar(o)){
+  if (PyBob_NumberCheck(o)){
     double v = PyFloat_AsDouble(o);
     if (PyErr_Occurred()) return -1;
     self->cxx->setInputSubtraction(v);
@@ -482,7 +483,7 @@ static PyObject* PyBobLearnMLPMachine_getInputDivision
 static int PyBobLearnMLPMachine_setInputDivision (PyBobLearnMLPMachineObject* self,
     PyObject* o, void* /*closure*/) {
 
-  if (PyArray_IsAnyScalar(o)) {
+  if (PyBob_NumberCheck(o)) {
     double v = PyFloat_AsDouble(o);
     if (PyErr_Occurred()) return -1;
     self->cxx->setInputDivision(v);

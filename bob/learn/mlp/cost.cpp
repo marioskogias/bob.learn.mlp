@@ -10,6 +10,7 @@
 #define BOB_LEARN_MLP_MODULE
 #include <bob.blitz/cppapi.h>
 #include <bob.blitz/cleanup.h>
+#include <bob.extension/defines.h>
 #include <bob.learn.mlp/api.h>
 #include <bob.learn.activation/api.h>
 #include <structmember.h>
@@ -297,7 +298,7 @@ static PyObject* PyBobLearnCost_f
     arg = PyList_GET_ITEM(tmp, 0);
   }
 
-  if (PyArray_IsAnyScalar(arg))
+  if (PyBob_NumberCheck(arg))
     return apply_scalar(self, s_f_str,
         boost::bind(&bob::learn::mlp::Cost::f, self->cxx, _1, _2), args, kwds);
 
@@ -346,7 +347,7 @@ static PyObject* PyBobLearnCost_f_prime
     arg = PyList_GET_ITEM(tmp, 0);
   }
 
-  if (PyArray_IsAnyScalar(arg))
+  if (PyBob_NumberCheck(arg))
     return apply_scalar(self, s_f_prime_str,
         boost::bind(&bob::learn::mlp::Cost::f_prime,
           self->cxx, _1, _2), args, kwds);
@@ -409,7 +410,7 @@ static PyObject* PyBobLearnCost_error
     arg = PyList_GET_ITEM(tmp, 0);
   }
 
-  if (PyArray_IsAnyScalar(arg))
+  if (PyBob_NumberCheck(arg))
     return apply_scalar(self, s_error_str,
         boost::bind(&bob::learn::mlp::Cost::error, self->cxx, _1, _2), args, kwds);
 
