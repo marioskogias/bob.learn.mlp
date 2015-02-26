@@ -297,7 +297,7 @@ static PyObject* PyBobLearnCost_f
     arg = PyList_GET_ITEM(tmp, 0);
   }
 
-  if (PyNumber_Check(arg) && !(PyArray_Check(arg) || PyBlitzArray_Check(arg)))
+  if (PyArray_IsAnyScalar(arg))
     return apply_scalar(self, s_f_str,
         boost::bind(&bob::learn::mlp::Cost::f, self->cxx, _1, _2), args, kwds);
 
@@ -346,7 +346,7 @@ static PyObject* PyBobLearnCost_f_prime
     arg = PyList_GET_ITEM(tmp, 0);
   }
 
-  if (PyNumber_Check(arg) && !(PyArray_Check(arg) || PyBlitzArray_Check(arg)))
+  if (PyArray_IsAnyScalar(arg))
     return apply_scalar(self, s_f_prime_str,
         boost::bind(&bob::learn::mlp::Cost::f_prime,
           self->cxx, _1, _2), args, kwds);
@@ -409,7 +409,7 @@ static PyObject* PyBobLearnCost_error
     arg = PyList_GET_ITEM(tmp, 0);
   }
 
-  if (PyNumber_Check(arg) && !(PyArray_Check(arg) || PyBlitzArray_Check(arg)))
+  if (PyArray_IsAnyScalar(arg))
     return apply_scalar(self, s_error_str,
         boost::bind(&bob::learn::mlp::Cost::error, self->cxx, _1, _2), args, kwds);
 

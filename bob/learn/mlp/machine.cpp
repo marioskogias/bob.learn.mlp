@@ -275,7 +275,7 @@ static PyObject* PyBobLearnMLPMachine_getWeights
 static int PyBobLearnMLPMachine_setWeights (PyBobLearnMLPMachineObject* self,
     PyObject* weights, void* /*closure*/) {
 
-  if (PyNumber_Check(weights)) {
+  if (PyArray_IsAnyScalar(weights)){
     double v = PyFloat_AsDouble(weights);
     if (PyErr_Occurred()) return -1;
     self->cxx->setWeights(v);
@@ -361,7 +361,7 @@ static PyObject* PyBobLearnMLPMachine_getBiases
 static int PyBobLearnMLPMachine_setBiases (PyBobLearnMLPMachineObject* self,
     PyObject* biases, void* /*closure*/) {
 
-  if (PyNumber_Check(biases)) {
+  if (PyArray_IsAnyScalar(biases)){
     double v = PyFloat_AsDouble(biases);
     if (PyErr_Occurred()) return -1;
     self->cxx->setBiases(v);
@@ -435,7 +435,7 @@ static PyObject* PyBobLearnMLPMachine_getInputSubtraction
 static int PyBobLearnMLPMachine_setInputSubtraction
 (PyBobLearnMLPMachineObject* self, PyObject* o, void* /*closure*/) {
 
-  if (PyNumber_Check(o)) {
+  if (PyArray_IsAnyScalar(o)){
     double v = PyFloat_AsDouble(o);
     if (PyErr_Occurred()) return -1;
     self->cxx->setInputSubtraction(v);
@@ -482,7 +482,7 @@ static PyObject* PyBobLearnMLPMachine_getInputDivision
 static int PyBobLearnMLPMachine_setInputDivision (PyBobLearnMLPMachineObject* self,
     PyObject* o, void* /*closure*/) {
 
-  if (PyNumber_Check(o)) {
+  if (PyArray_IsAnyScalar(o)) {
     double v = PyFloat_AsDouble(o);
     if (PyErr_Occurred()) return -1;
     self->cxx->setInputDivision(v);

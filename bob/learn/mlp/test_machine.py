@@ -144,6 +144,7 @@ def test_100in_100_10_4out():
 
   X = numpy.random.rand(20,100)
   assert numpy.allclose(m(X), pymac.forward(X), rtol=1e-10, atol=1e-15)
+
 def test_resize():
 
   m = Machine((2,3,5,1))
@@ -174,6 +175,18 @@ def test_resize():
 
   X = numpy.random.rand(10,2)
   assert numpy.allclose(m(X), pymac.forward(X), rtol=1e-10, atol=1e-15)
+
+  # check that the input subtract and input_divide can be set
+  m.input_subtract = 4
+  assert (m.input_subtract == 4).all()
+  m.input_divide = 2
+  assert (m.input_divide == 2).all()
+  m.input_subtract = numpy.arange(2.)
+  assert m.input_subtract[0] == 0
+  assert m.input_subtract[1] == 1
+  m.input_divide = numpy.arange(2.)+1
+  assert m.input_divide[0] == 1
+  assert m.input_divide[1] == 2
 
 def test_checks():
 
