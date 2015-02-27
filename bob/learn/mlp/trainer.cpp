@@ -257,7 +257,7 @@ static PyObject* PyBobLearnMLPTrainer_getTrainBiases
 static int PyBobLearnMLPTrainer_setTrainBiases
 (PyBobLearnMLPTrainerObject* self, PyObject* o, void* /*closure*/) {
   self->cxx->setTrainBiases(PyObject_IsTrue(o));
-  return -1;
+  return 0;
 }
 
 PyDoc_STRVAR(s_error_str, "error");
