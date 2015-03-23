@@ -313,3 +313,7 @@ def test_randomness_same():
 
     for b1, b2 in zip(m1.biases, m2.biases):
       assert (b1 == b2).all()
+
+def test_write():
+  m = Machine((1,1,1))
+  text = str(m)

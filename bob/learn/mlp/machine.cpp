@@ -699,6 +699,8 @@ PyObject* PyBobLearnMLPMachine_Repr(PyBobLearnMLPMachineObject* self) {
    * <bob.learn.linear.MLP float64@(3, 5, 2) [hidden: f(z) = tanh(z), out: f(z) = * tanh(z)]>
    */
 
+BOB_TRY
+
   auto weights = make_safe(PyBobLearnMLPMachine_getWeights(self, 0));
   if (!weights) return 0;
   auto dtype = make_safe(PyObject_GetAttrString(weights.get(), "dtype"));
@@ -730,6 +732,8 @@ PyObject* PyBobLearnMLPMachine_Repr(PyBobLearnMLPMachineObject* self) {
 #endif
 
   return retval;
+
+BOB_CATCH_MEMBER("__repr__", 0)
 
 }
 
