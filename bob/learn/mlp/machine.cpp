@@ -696,7 +696,7 @@ PyObject* PyBobLearnMLPMachine_Repr(PyBobLearnMLPMachineObject* self) {
   /**
    * Expected output:
    *
-   * <bob.learn.linear.MLP float64@(3, 5, 2) [hidden: f(z) = tanh(z), out: f(z) = * tanh(z)]>
+   * <bob.learn.mlp.MLP float64@(3, 5, 2) [hidden: f(z) = tanh(z), out: f(z) = * tanh(z)]>
    */
 
 BOB_TRY
@@ -719,7 +719,7 @@ BOB_TRY
         hidden.c_str());
   }
   else {
-    retval = PyUnicode_FromFormat("<%s %s@%s [act: %s]>",
+    retval = PyUnicode_FromFormat("<%s %s@%s [hidden: %s, out: %s]>",
         Py_TYPE(self)->tp_name, dtype_str.get(), shape_str.get(),
         hidden.c_str(), output.c_str());
   }
@@ -1076,13 +1076,13 @@ PyTypeObject PyBobLearnMLPMachine_Type = {
     0,                                             /* tp_getattr */
     0,                                             /* tp_setattr */
     0,                                             /* tp_compare */
-    (reprfunc)PyBobLearnMLPMachine_Repr,           /* tp_repr */
+    0,//(reprfunc)PyBobLearnMLPMachine_Repr,           /* tp_repr */
     0,                                             /* tp_as_number */
     0,                                             /* tp_as_sequence */
     0,                                             /* tp_as_mapping */
     0,                                             /* tp_hash */
     (ternaryfunc)PyBobLearnMLPMachine_forward,     /* tp_call */
-    (reprfunc)PyBobLearnMLPMachine_Repr,           /* tp_str */
+    0,//(reprfunc)PyBobLearnMLPMachine_Repr,           /* tp_str */
     0,                                             /* tp_getattro */
     0,                                             /* tp_setattro */
     0,                                             /* tp_as_buffer */
