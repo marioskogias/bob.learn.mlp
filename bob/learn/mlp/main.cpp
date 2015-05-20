@@ -253,10 +253,6 @@ static PyObject* create_module (void) {
   if (!m) return 0;
   auto m_ = make_safe(m);
 
-  /* register some constants */
-  if (PyModule_AddIntConstant(m, "__api_version__", BOB_LEARN_MLP_API_VERSION) < 0) return 0;
-  if (PyModule_AddStringConstant(m, "__version__", BOB_EXT_MODULE_VERSION) < 0) return 0;
-
   /* register the types to python */
   Py_INCREF(&PyBobLearnMLPMachine_Type);
   if (PyModule_AddObject(m, "Machine", (PyObject *)&PyBobLearnMLPMachine_Type) < 0) return 0;
