@@ -316,4 +316,9 @@ def test_randomness_same():
 
 def test_write():
   m = Machine((1,1,1))
-  text = str(m)
+  assert str(m) ==  "<bob.learn.mlp.Machine @(1, 1, 1) [act: f(z) = tanh(z)]>"
+ 
+  
+  
+  
+  
