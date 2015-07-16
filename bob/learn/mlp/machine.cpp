@@ -701,26 +701,21 @@ PyObject* PyBobLearnMLPMachine_Repr(PyBobLearnMLPMachineObject* self) {
 
 BOB_TRY
 
-  auto weights = make_safe(PyBobLearnMLPMachine_getWeights(self, 0));
-  if (!weights) return 0;
-  auto dtype = make_safe(PyObject_GetAttrString(weights.get(), "dtype"));
-  auto dtype_str = make_safe(PYOBJECT_STR(dtype.get()));
-  auto shape = make_safe(PyObject_GetAttrString(weights.get(), "shape"));
-  auto shape_str = make_safe(PyObject_Str(shape.get()));
+  auto shape = make_safe(PyBobLearnMLPMachine_getShape(self, NULL));
+  auto shape_str = make_safe(PYOBJECT_STR(shape.get()));  
 
   PyObject* retval = 0;
-
   auto hidden = self->cxx->getHiddenActivation()->str();
   auto output = self->cxx->getOutputActivation()->str();
 
   if (hidden == output) {
-    retval = PyUnicode_FromFormat("<%s %s@%s [act: %s]>",
-        Py_TYPE(self)->tp_name, dtype_str.get(), shape_str.get(),
+    retval = PyUnicode_FromFormat("<%s @%U [act: %s]>",
+        Py_TYPE(self)->tp_name, shape_str.get(),
         hidden.c_str());
   }
   else {
-    retval = PyUnicode_FromFormat("<%s %s@%s [hidden: %s, out: %s]>",
-        Py_TYPE(self)->tp_name, dtype_str.get(), shape_str.get(),
+    retval = PyUnicode_FromFormat("<%s @%U [hidden: %s, out: %s]>",
+        Py_TYPE(self)->tp_name, shape_str.get(),
         hidden.c_str(), output.c_str());
   }
 
@@ -1076,13 +1071,13 @@ PyTypeObject PyBobLearnMLPMachine_Type = {
     0,                                             /* tp_getattr */
     0,                                             /* tp_setattr */
     0,                                             /* tp_compare */
-    0,//(reprfunc)PyBobLearnMLPMachine_Repr,           /* tp_repr */
+    (reprfunc)PyBobLearnMLPMachine_Repr,           /* tp_repr */
     0,                                             /* tp_as_number */
     0,                                             /* tp_as_sequence */
     0,                                             /* tp_as_mapping */
     0,                                             /* tp_hash */
     (ternaryfunc)PyBobLearnMLPMachine_forward,     /* tp_call */
-    0,//(reprfunc)PyBobLearnMLPMachine_Repr,           /* tp_str */
+    (reprfunc)PyBobLearnMLPMachine_Repr,           /* tp_str */
     0,                                             /* tp_getattro */
     0,                                             /* tp_setattro */
     0,                                             /* tp_as_buffer */
