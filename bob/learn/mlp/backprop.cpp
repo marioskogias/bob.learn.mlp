@@ -22,7 +22,7 @@
 PyDoc_STRVAR(s_trainer_str, BOB_EXT_MODULE_PREFIX ".BackProp");
 
 PyDoc_STRVAR(s_trainer_doc,
-"BackProp(batch_size, cost, [trainer, [train_biases]]) -> new BackProp\n\
+"BackProp(batch_size, cost, [machine, [train_biases]]) -> new BackProp\n\
 \n\
 BackProp(other) -> new BackProp\n\
 \n\
