@@ -11,7 +11,6 @@ from ._library import *
 from . import version
 from .version import module as __version__
 from .version import api as __api_version__
-from .train_helper import MLPTrainer
 
 def get_config():
   """Returns a string containing the configuration information.
