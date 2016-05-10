@@ -52,7 +52,7 @@ class PythonRProp(Trainer):
     weight_updates = [i * j for (i,j) in zip(self.previous_derivatives, self.derivatives)]
 
     # Iterate over each weight and bias and see what to do:
-    new_weights = machine.weights
+    new_weights = [numpy.array(w) for w in machine.weights]
     for k, up in enumerate(weight_updates):
       for i in range(up.shape[0]):
         for j in range(up.shape[1]):
@@ -71,7 +71,7 @@ class PythonRProp(Trainer):
 
     if self.train_biases:
       bias_updates = [i * j for (i,j) in zip(self.previous_bias_derivatives, self.bias_derivatives)]
-      new_biases = machine.biases
+      new_biases = [numpy.array(b) for b in machine.biases]
       for k, up in enumerate(bias_updates):
         for i in range(up.shape[0]):
           if up[i] > 0:

@@ -702,7 +702,7 @@ PyObject* PyBobLearnMLPMachine_Repr(PyBobLearnMLPMachineObject* self) {
 BOB_TRY
 
   auto shape = make_safe(PyBobLearnMLPMachine_getShape(self, NULL));
-  auto shape_str = make_safe(PYOBJECT_STR(shape.get()));  
+  auto shape_str = make_safe(PYOBJECT_STR(shape.get()));
 
   PyObject* retval = 0;
   auto hidden = self->cxx->getHiddenActivation()->str();
