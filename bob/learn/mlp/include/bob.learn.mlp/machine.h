@@ -223,9 +223,15 @@ namespace bob { namespace learn { namespace mlp {
       size_t outputSize () const { return m_weight.back().extent(1); }
 
       /**
-       * Returns the input subtraction factor
+       * Returns the input subtraction factor (read-only)
        */
       const blitz::Array<double, 1>& getInputSubtraction() const
+      { return m_input_sub; }
+
+      /**
+       * Returns the input subtraction factor (read-write)
+       */
+      blitz::Array<double, 1>& getInputSubtraction()
       { return m_input_sub; }
 
       /**
@@ -242,9 +248,15 @@ namespace bob { namespace learn { namespace mlp {
       void setInputSubtraction(double v) { m_input_sub = v; }
 
       /**
-       * Returns the input division factor
+       * Returns the input division factor (read-only)
        */
       const blitz::Array<double, 1>& getInputDivision() const
+      { return m_input_div; }
+
+      /**
+       * Returns the input division factor (read-write)
+       */
+      blitz::Array<double, 1>& getInputDivision()
       { return m_input_div; }
 
       /**
@@ -260,16 +272,15 @@ namespace bob { namespace learn { namespace mlp {
       void setInputDivision(double v) { m_input_div = v; }
 
       /**
-       * Returns the weights of all layers.
+       * Returns the weights of all layers (read-only)
        */
       const std::vector<blitz::Array<double, 2> >& getWeights() const
       { return m_weight; }
 
       /**
-       * @brief Returns the weights of all layers in order to be updated.
-       * This method should only be used by trainers.
+       * @brief Returns the weights of all (read-write)
        */
-      std::vector<blitz::Array<double, 2> >& updateWeights()
+      std::vector<blitz::Array<double, 2> >& getWeights()
       { return m_weight; }
 
       /**
@@ -287,17 +298,16 @@ namespace bob { namespace learn { namespace mlp {
 
       /**
        * Returns the biases of this classifier, for every hidden layer and
-       * output layer we have.
+       * output layer we have (read-only)
        */
       const std::vector<blitz::Array<double, 1> >& getBiases() const
       { return m_bias; }
 
       /**
        * @brief Returns the biases of this classifier, for every hidden layer
-       * and output layer we have, in order to be updated.
-       * This method should only be used by trainers.
+       * and output layer we have (read-write)
        */
-      std::vector<blitz::Array<double, 1> >& updateBiases()
+      std::vector<blitz::Array<double, 1> >& getBiases()
       { return m_bias; }
 
       /**

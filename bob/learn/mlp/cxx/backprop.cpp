@@ -85,9 +85,9 @@ void bob::learn::mlp::BackProp::backprop_weight_update(bob::learn::mlp::Machine&
   const blitz::Array<double,2>& input)
 {
   std::vector<blitz::Array<double,2> >& machine_weight =
-    machine.updateWeights();
+    machine.getWeights();
   std::vector<blitz::Array<double,1> >& machine_bias =
-    machine.updateBiases();
+    machine.getBiases();
   const std::vector<blitz::Array<double,2> >& deriv = getDerivatives();
   for (size_t k=0; k<machine_weight.size(); ++k) { //for all layers
     machine_weight[k] -= (((1-m_momentum)*m_learning_rate*deriv[k]) +

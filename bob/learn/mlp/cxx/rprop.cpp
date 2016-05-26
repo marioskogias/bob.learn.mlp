@@ -128,8 +128,8 @@ static int8_t sign (double x) {
 void bob::learn::mlp::RProp::rprop_weight_update(bob::learn::mlp::Machine& machine,
   const blitz::Array<double,2>& input)
 {
-  std::vector<blitz::Array<double,2> >& machine_weight = machine.updateWeights();
-  std::vector<blitz::Array<double,1> >& machine_bias = machine.updateBiases();
+  std::vector<blitz::Array<double,2> >& machine_weight = machine.getWeights();
+  std::vector<blitz::Array<double,1> >& machine_bias = machine.getBiases();
   const std::vector<blitz::Array<double,2> >& deriv = getDerivatives();
 
   for (size_t k=0; k<machine_weight.size(); ++k) { //for all layers

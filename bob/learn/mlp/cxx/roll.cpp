@@ -59,8 +59,8 @@ void bob::learn::mlp::unroll(const std::vector<blitz::Array<double,2> >& w,
 void bob::learn::mlp::roll(bob::learn::mlp::Machine& machine,
   const blitz::Array<double,1>& vec)
 {
-  std::vector<blitz::Array<double,1> >& b = machine.updateBiases();
-  std::vector<blitz::Array<double,2> >& w = machine.updateWeights();
+  std::vector<blitz::Array<double,1> >& b = machine.getBiases();
+  std::vector<blitz::Array<double,2> >& w = machine.getWeights();
   roll(w, b, vec);
 }
 

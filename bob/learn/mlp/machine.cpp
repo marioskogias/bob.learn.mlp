@@ -257,14 +257,14 @@ being output.\n\
 static PyObject* PyBobLearnMLPMachine_getWeights
 (PyBobLearnMLPMachineObject* self, void* /*closure*/) {
 
-  const std::vector<blitz::Array<double, 2>>& weights = self->cxx->getWeights();
+  std::vector<blitz::Array<double, 2>>& weights = self->cxx->getWeights();
   PyObject* retval = PyTuple_New(weights.size());
   if (!retval) return 0;
   auto retval_ = make_safe(retval);
 
   int k=0;
   for (auto i=weights.begin(); i!=weights.end(); ++i, ++k) {
-    PyObject* tmp = PyBlitzArray_NUMPY_WRAP(PyBlitzArrayCxx_NewFromConstArray(*i));
+    PyObject* tmp = PyBlitzArray_NUMPY_WRAP(PyBlitzArrayCxx_NewFromArray(*i));
     if (!tmp) return 0;
     PyTuple_SET_ITEM(retval, k, tmp);
   }
@@ -343,14 +343,14 @@ to the output before activation.\n\
 static PyObject* PyBobLearnMLPMachine_getBiases
 (PyBobLearnMLPMachineObject* self, void* /*closure*/) {
 
-  const std::vector<blitz::Array<double, 1>>& biases = self->cxx->getBiases();
+  std::vector<blitz::Array<double, 1>>& biases = self->cxx->getBiases();
   PyObject* retval = PyTuple_New(biases.size());
   if (!retval) return 0;
   auto retval_ = make_safe(retval);
 
   int k=0;
   for (auto i=biases.begin(); i!=biases.end(); ++i, ++k) {
-    PyObject* tmp = PyBlitzArray_NUMPY_WRAP(PyBlitzArrayCxx_NewFromConstArray(*i));
+    PyObject* tmp = PyBlitzArray_NUMPY_WRAP(PyBlitzArrayCxx_NewFromArray(*i));
     if (!tmp) return 0;
     PyTuple_SET_ITEM(retval, k, tmp);
   }
@@ -430,7 +430,7 @@ operation in the processing chain - by default, it is set to\n\
 
 static PyObject* PyBobLearnMLPMachine_getInputSubtraction
 (PyBobLearnMLPMachineObject* self, void* /*closure*/) {
-  return PyBlitzArray_NUMPY_WRAP(PyBlitzArrayCxx_NewFromConstArray(self->cxx->getInputSubtraction()));
+  return PyBlitzArray_NUMPY_WRAP(PyBlitzArrayCxx_NewFromArray(self->cxx->getInputSubtraction()));
 }
 
 static int PyBobLearnMLPMachine_setInputSubtraction
@@ -477,7 +477,7 @@ subtraction - by default, it is set to 1.0.\n\
 
 static PyObject* PyBobLearnMLPMachine_getInputDivision
 (PyBobLearnMLPMachineObject* self, void* /*closure*/) {
-  return PyBlitzArray_NUMPY_WRAP(PyBlitzArrayCxx_NewFromConstArray(self->cxx->getInputDivision()));
+  return PyBlitzArray_NUMPY_WRAP(PyBlitzArrayCxx_NewFromArray(self->cxx->getInputDivision()));
 }
 
 static int PyBobLearnMLPMachine_setInputDivision (PyBobLearnMLPMachineObject* self,
