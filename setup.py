@@ -22,8 +22,8 @@ setup(
 
     name='bob.learn.mlp',
     version=version,
-    description='Bob\'s Multi-layer Perceptron and Trainers',
-    url='http://github.com/bioidiap/bob.learn.mlp',
+    description='Multi-layer Perceptron and Trainers for Bob',
+    url='http://gitlab.idiap.ch/bob/bob.learn.mlp',
     license='BSD',
     author='Andre Anjos',
     author_email='andre.anjos@idiap.ch',
@@ -36,8 +36,6 @@ setup(
 
     setup_requires = build_requires,
     install_requires = build_requires,
-
-
 
     ext_modules = [
       Extension("bob.learn.mlp.version",
