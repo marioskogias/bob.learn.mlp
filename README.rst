@@ -5,8 +5,8 @@
    :target: http://pythonhosted.org/bob.learn.mlp/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.png
    :target: https://www.idiap.ch/software/bob/docs/latest/bob/bob.learn.mlp/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.learn.mlp/badges/v2.1.2/build.svg
-   :target: https://gitlab.idiap.ch/bob/bob.learn.mlp/commits/v2.1.2
+.. image:: https://gitlab.idiap.ch/bob/bob.learn.mlp/badges/master/build.svg
+   :target: https://gitlab.idiap.ch/bob/bob.learn.mlp/commits/master
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.learn.mlp
 .. image:: http://img.shields.io/pypi/v/bob.learn.mlp.png
