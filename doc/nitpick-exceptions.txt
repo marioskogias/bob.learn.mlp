@@ -13,3 +13,7 @@ cpp:type boost::shared_ptr
 
 # This is a C type that Sphinx confuses as a C++ type
 cpp:type PyObject
+
+# This is a function in Python 2.7 and a class in Python 3.x
+# Ignore Python 2.7 error - 3.x is the future
+py:class tuple
