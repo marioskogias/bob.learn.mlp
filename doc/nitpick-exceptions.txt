@@ -1,0 +1,15 @@
+# These are not documented anywhere
+cpp:type bob
+cpp:type bob::learn
+cpp:type bob::learn::mlp
+cpp:type bob::learn::mlp::Machine
+cpp:type bob::learn::mlp::Cost
+cpp:type bob::learn::mlp::DataShuffler
+cpp:type bob::learn::mlp::Trainer
+cpp:type bob::learn::mlp::BackProp
+cpp:type bob::learn::mlp::RProp
+cpp:type boost
+cpp:type boost::shared_ptr
+
+# This is a C type that Sphinx confuses as a C++ type
+cpp:type PyObject
