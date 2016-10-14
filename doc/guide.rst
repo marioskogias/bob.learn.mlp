@@ -1,8 +1,5 @@
 .. vim: set fileencoding=utf-8 :
-.. Andre Anjos <andre.anjos@idiap.ch>
 .. Tue 13 May 09:30:06 2014 CEST
-..
-.. Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
 
 .. testsetup:: *
 
@@ -27,7 +24,7 @@ described below. We start this tutorial by examplifying how to actually use an
 MLP.
 
 To instantiate a new (uninitialized) :py:class:`bob.learn.mlp.Machine` pass a
-shape descriptor as a :py:func:`tuple`. The shape parameter should contain the
+shape descriptor as a :py:class:`tuple`. The shape parameter should contain the
 input size as the first parameter and the output size as the last parameter.
 The parameters in between define the number of neurons in the hidden layers of
 the MLP. For example ``(3, 3, 1)`` defines an MLP with 3 inputs, 1 single
