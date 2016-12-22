@@ -60,7 +60,7 @@ Machine
 .. cpp:function:: int PyBobLearnMLPMachine_Check(PyObject* o)
 
    Checks if the input object ``o`` is a
-   :cpp:class:`PyBobLearnMLPMachineObject`.  Returns ``1`` if it is, and ``0``
+   :cpp:type:`PyBobLearnMLPMachineObject`.  Returns ``1`` if it is, and ``0``
    otherwise.
 
 
@@ -93,7 +93,7 @@ Cost
 
 .. cpp:function:: int PyBobLearnCost_Check(PyObject* o)
 
-   Checks if the input object ``o`` is a :cpp:class:`PyBobLearnCostObject`.
+   Checks if the input object ``o`` is a :cpp:type:`PyBobLearnCostObject`.
    Returns ``1`` if it is, and ``0`` otherwise.
 
 
@@ -137,7 +137,7 @@ Data Shuffler
 .. cpp:function:: int PyBobLearnDataShuffler_Check(PyObject* o)
 
    Checks if the input object ``o`` is a
-   :cpp:class:`PyBobLearnDataShufflerObject`.  Returns ``1`` if it is, and
+   :cpp:type:`PyBobLearnDataShufflerObject`.  Returns ``1`` if it is, and
    ``0`` otherwise.
 
 
@@ -166,7 +166,7 @@ Trainers
 .. cpp:function:: int PyBobLearnMLPTrainer_Check(PyObject* o)
 
    Checks if the input object ``o`` is a
-   :cpp:class:`PyBobLearnMLPTrainerObject`.  Returns ``1`` if it is, and ``0``
+   :cpp:type:`PyBobLearnMLPTrainerObject`.  Returns ``1`` if it is, and ``0``
    otherwise.
 
 
@@ -197,7 +197,7 @@ Trainers
 .. cpp:function:: int PyBobLearnBackProp_Check(PyObject* o)
 
    Checks if the input object ``o`` is a
-   :cpp:class:`PyBobLearnBackPropObject`.  Returns ``1`` if it is, and
+   :cpp:type:`PyBobLearnBackPropObject`.  Returns ``1`` if it is, and
    ``0`` otherwise.
 
 
@@ -227,7 +227,7 @@ Trainers
 
 .. cpp:function:: int PyBobLearnRProp_Check(PyObject* o)
 
-   Checks if the input object ``o`` is a :cpp:class:`PyBobLearnRPropObject`.
+   Checks if the input object ``o`` is a :cpp:type:`PyBobLearnRPropObject`.
    Returns ``1`` if it is, and ``0`` otherwise.
 
 

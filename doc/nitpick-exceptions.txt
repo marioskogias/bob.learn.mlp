@@ -10,9 +10,21 @@ cpp:type bob::learn::mlp::BackProp
 cpp:type bob::learn::mlp::RProp
 cpp:type boost
 cpp:type boost::shared_ptr
+cpp:typeOrConcept bob
+cpp:typeOrConcept bob::learn
+cpp:typeOrConcept bob::learn::mlp
+cpp:typeOrConcept bob::learn::mlp::Machine
+cpp:typeOrConcept bob::learn::mlp::Cost
+cpp:typeOrConcept bob::learn::mlp::DataShuffler
+cpp:typeOrConcept bob::learn::mlp::Trainer
+cpp:typeOrConcept bob::learn::mlp::BackProp
+cpp:typeOrConcept bob::learn::mlp::RProp
+cpp:typeOrConcept boost
+cpp:typeOrConcept boost::shared_ptr
 
 # This is a C type that Sphinx confuses as a C++ type
 cpp:type PyObject
+cpp:typeOrConcept PyObject
 
 # This is a function in Python 2.7 and a class in Python 3.x
 # Ignore Python 2.7 error - 3.x is the future
