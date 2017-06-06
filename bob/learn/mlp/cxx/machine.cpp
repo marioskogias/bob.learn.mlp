@@ -217,7 +217,7 @@ void bob::learn::mlp::Machine::forward_ (const blitz::Array<double,1>& input,
 
   //input -> hidden[0]; hidden[0] -> hidden[1], ..., hidden[N-2] -> hidden[N-1]
   for (size_t j=1; j<m_weight.size(); ++j) {
-    bob::math::prod_(m_buffer[j-1], m_weight[j-1], m_buffer[j]);
+    bob::math::prod(m_buffer[j-1], m_weight[j-1], m_buffer[j]);
     m_buffer[j] += m_bias[j-1];
     for (int i=0; i<m_buffer[j].extent(0); ++i) {
       m_buffer[j](i) = m_hidden_activation->f(m_buffer[j](i));
@@ -225,7 +225,7 @@ void bob::learn::mlp::Machine::forward_ (const blitz::Array<double,1>& input,
   }
 
   //hidden[N-1] -> output
-  bob::math::prod_(m_buffer.back(), m_weight.back(), output);
+  bob::math::prod(m_buffer.back(), m_weight.back(), output);
   output += m_bias.back();
   for (int i=0; i<output.extent(0); ++i) {
     output(i) = m_output_activation->f(output(i));

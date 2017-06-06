@@ -135,8 +135,8 @@ void bob::learn::mlp::Trainer::forward_step(const bob::learn::mlp::Machine& mach
   boost::shared_ptr<bob::learn::activation::Activation> output_actfun = machine.getOutputActivation();
 
   for (size_t k=0; k<machine_weight.size(); ++k) { //for all layers
-    if (k == 0) bob::math::prod_(input, machine_weight[k], m_output[k]);
-    else bob::math::prod_(m_output[k-1], machine_weight[k], m_output[k]);
+    if (k == 0) bob::math::prod(input, machine_weight[k], m_output[k]);
+    else bob::math::prod(m_output[k-1], machine_weight[k], m_output[k]);
     boost::shared_ptr<bob::learn::activation::Activation> cur_actfun =
       (k == (machine_weight.size()-1) ? output_actfun : hidden_actfun );
     for (int i=0; i<(int)m_batch_size; ++i) { //for every example
@@ -164,7 +164,7 @@ void bob::learn::mlp::Trainer::backward_step
   //all other layers
   boost::shared_ptr<bob::learn::activation::Activation> hidden_actfun = machine.getHiddenActivation();
   for (size_t k=m_H; k>0; --k) {
-    bob::math::prod_(m_error[k], machine_weight[k].transpose(1,0), m_error[k-1]);
+    bob::math::prod(m_error[k], machine_weight[k].transpose(1,0), m_error[k-1]);
     for (int i=0; i<(int)m_batch_size; ++i) { //for every example
       for (int j=0; j<m_error[k-1].extent(1); ++j) { //for all variables
         m_error[k-1](i,j) *= hidden_actfun->f_prime_from_f(m_output[k-1](i,j));
@@ -175,8 +175,8 @@ void bob::learn::mlp::Trainer::backward_step
   //calculate the derivatives of the cost w.r.t. the weights and biases
   for (size_t k=0; k<machine_weight.size(); ++k) { //for all layers
     // For the weights
-    if (k == 0) bob::math::prod_(input.transpose(1,0), m_error[k], m_deriv[k]);
-    else bob::math::prod_(m_output[k-1].transpose(1,0), m_error[k], m_deriv[k]);
+    if (k == 0) bob::math::prod(input.transpose(1,0), m_error[k], m_deriv[k]);
+    else bob::math::prod(m_output[k-1].transpose(1,0), m_error[k], m_deriv[k]);
     m_deriv[k] /= m_batch_size;
     // For the biases
     blitz::secondIndex bj;
