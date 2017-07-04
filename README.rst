@@ -13,8 +13,6 @@
    :target: https://gitlab.idiap.ch/bob/bob.learn.mlp
 .. image:: http://img.shields.io/pypi/v/bob.learn.mlp.svg
    :target: https://pypi.python.org/pypi/bob.learn.mlp
-.. image:: http://img.shields.io/pypi/dm/bob.learn.mlp.svg
-   :target: https://pypi.python.org/pypi/bob.learn.mlp
 
 
 ============================================
